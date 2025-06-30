@@ -28,7 +28,6 @@ dependencies:
   change_app_package_name: "^1.1.0"
   colorful_safe_area: "^1.0.0"
   shimmer: "^3.0.0"
-  firebase_dynamic_links: ^6.0.11
   logger: "^2.0.2"
   google_mobile_ads: ^5.2.0
 
