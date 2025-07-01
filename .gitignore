@@ -2,6 +2,7 @@
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 firebase.json
+.fvm/
 
 
 # Login related
@@ -17,9 +18,11 @@ KingoLogin_controller.dart
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
