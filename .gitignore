@@ -1,3 +1,9 @@
+# manual update
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+firebase.json
+
+
 # Login related
 /lib/app/pages/KingoLogin/
 /lib/app/pages/KingoInfo/
@@ -49,14 +55,11 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-
 # .env
 .env*
 
 #firebase
 /lib/firebase_options.dart
-
-
 
 # Created by https://www.toptal.com/developers/gitignore/api/flutter,visualstudiocode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=flutter,visualstudiocode,macos
@@ -67,7 +70,6 @@ app.*.map.json
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.fvm/flutter_sdk
 .packages
 .pub-cache/
 .pub/
@@ -88,6 +90,13 @@ lib/generated_plugin_registrant.dart
 **/android/key.properties
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
+keystores/
+upload-keystore.kts
+# Keystore file
+/android/keystores/
+
+# Keystore properties file
+/android/key.properties
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -133,7 +142,6 @@ lib/generated_plugin_registrant.dart
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*
@@ -185,3 +193,8 @@ Appfile
 Fastfile
 *.p8
 skkubus-95723-9dbf7ca1b380.json
+
+*.ipa
+
+# FVM Version Cache
+.fvm/
