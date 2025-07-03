@@ -4,6 +4,9 @@ ios/Runner/GoogleService-Info.plist
 firebase.json
 .fvm/
 
+# Shorebird cache and build files
+/.shorebird
+
 
 # Login related
 /lib/app/pages/KingoLogin/
