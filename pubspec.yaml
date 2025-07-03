@@ -4,7 +4,7 @@ description: A new Flutter project.
 publish_to: none
 version: 3.1.6+26
 environment:
-  sdk: "^3.0.0"
+  sdk: ">=3.7.0 <4.0.0"
 dependencies:
   flutter:
     sdk: flutter
@@ -81,7 +81,7 @@ dependency_overrides:
   flutter_lints: "^2.0.0"
 flutter:
   assets:
-    - ".env"
+    - .env
     - assets/
     - assets/applogo/
     - assets/fonts/
@@ -89,6 +89,7 @@ flutter:
     - assets/lottie/
     - assets/SKKU/
     - assets/tossface/
+    - shorebird.yaml
 
   uses-material-design: true
   fonts:

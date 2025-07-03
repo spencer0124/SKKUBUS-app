@@ -1,0 +1,2 @@
+/Users/zoyoong/project/skkumap/android/app/.cxx/RelWithDebInfo/3x1f3o3h/x86_64/CMakeFiles/edit_cache.dir
+/Users/zoyoong/project/skkumap/android/app/.cxx/RelWithDebInfo/3x1f3o3h/x86_64/CMakeFiles/rebuild_cache.dir
