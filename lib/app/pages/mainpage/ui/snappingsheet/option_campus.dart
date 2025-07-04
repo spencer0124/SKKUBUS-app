@@ -28,16 +28,18 @@ class OptionCampus extends StatelessWidget {
         physics: const ClampingScrollPhysics(),
         child: Column(
           children: [
-            const SizedBox(
-              height: 7,
-            ),
+            const SizedBox(height: 7),
 
             // 여기서부터 메인 컨텐츠 화면
             Column(
               children: [
                 Container(
                   padding: const EdgeInsets.only(
-                      left: 3, right: 3, top: 2, bottom: 2),
+                    left: 3,
+                    right: 3,
+                    top: 2,
+                    bottom: 2,
+                  ),
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     // borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -53,7 +55,11 @@ class OptionCampus extends StatelessWidget {
                       const SizedBox(width: 15),
                       Container(
                         padding: const EdgeInsets.only(
-                            left: 3, right: 8, top: 0, bottom: 3),
+                          left: 3,
+                          right: 8,
+                          top: 0,
+                          bottom: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(100),
@@ -62,13 +68,15 @@ class OptionCampus extends StatelessWidget {
                           //   width: 0.5,
                           // ),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Text("성균관대학교",
-                                style: TextStyle(
-                                  fontFamily: "WantedSansBold",
-                                  fontSize: 15,
-                                )),
+                            Text(
+                              "성균관대학교".tr,
+                              style: const TextStyle(
+                                fontFamily: "WantedSansBold",
+                                fontSize: 15,
+                              ),
+                            ),
                             // const SizedBox(width: 5),
                             // SvgPicture.asset(
                             //     "assets/tossface/toss_arrow_down.svg",
@@ -82,21 +90,23 @@ class OptionCampus extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(
-                  height: 5,
-                ),
+                const SizedBox(height: 5),
 
                 // 가능한 서비스 목록
                 Container(
                   padding: const EdgeInsets.only(
-                      left: 3, right: 3, top: 2, bottom: 2),
+                    left: 3,
+                    right: 3,
+                    top: 2,
+                    bottom: 2,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       const SizedBox(width: 15),
                       CustomServiceBtn(
-                        title: "건물지도",
+                        title: "건물지도".tr,
                         iconPath: "assets/tossface/toss_building.svg",
                         onTap: () {
                           Get.toNamed('/hsscbuildingmap');
@@ -104,7 +114,7 @@ class OptionCampus extends StatelessWidget {
                       ),
                       const Spacer(),
                       CustomServiceBtn(
-                        title: "건물코드",
+                        title: "건물코드".tr,
                         iconPath: "assets/tossface/toss_numbers.svg",
                         onTap: () {
                           Get.toNamed('/searchlist');
@@ -112,7 +122,7 @@ class OptionCampus extends StatelessWidget {
                       ),
                       const Spacer(),
                       CustomServiceBtn(
-                        title: "분실물",
+                        title: "분실물".tr,
                         iconPath: "assets/tossface/toss_luggage.svg",
                         onTap: () {
                           Get.toNamed('/lostandfound');
@@ -120,7 +130,7 @@ class OptionCampus extends StatelessWidget {
                       ),
                       const Spacer(),
                       CustomServiceBtn(
-                        title: "문의하기",
+                        title: "문의하기".tr,
                         iconPath: "assets/tossface/toss_chat_bubble.svg",
                         onTap: () async {
                           String kakaoChatLink =
@@ -137,25 +147,29 @@ class OptionCampus extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 // 하단 컨텐츠
                 // 1. 학교 셔틀 정보
                 Container(
                   padding: const EdgeInsets.only(
-                      left: 3, right: 3, top: 2, bottom: 2),
+                    left: 3,
+                    right: 3,
+                    top: 2,
+                    bottom: 2,
+                  ),
                   child: Column(
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          SizedBox(width: 15),
-                          Text("셔틀버스 / 대중교통",
-                              style: TextStyle(
-                                fontFamily: "WantedSansBold",
-                                fontSize: 15,
-                              )),
-                          Spacer(),
+                          const SizedBox(width: 15),
+                          Text(
+                            "셔틀버스 / 대중교통".tr,
+                            style: const TextStyle(
+                              fontFamily: "WantedSansBold",
+                              fontSize: 15,
+                            ),
+                          ),
+                          const Spacer(),
                         ],
                       ),
                       OptionBus(),
@@ -165,17 +179,13 @@ class OptionCampus extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(
-                  height: 15,
-                ),
+                const SizedBox(height: 15),
 
                 // 2. 학교 특화 정보
                 // ex: 성균관대: 인사캠 건물지도, 자과캠 건물지도, 공간명 코드 검색
               ],
             ),
-            const SizedBox(
-              height: 5,
-            ),
+            const SizedBox(height: 5),
           ],
         ),
       ),

@@ -28,19 +28,25 @@ const String suwonCampusDestnameEncode =
 
 // 인사캠 (600주년 기념관 앞) 대중교통 길찾기 바로가기 링크
 final Uri seoulCampusMapNaver = Uri.parse(
-    'nmap://route/public?dlat=$seoulCampusLat&dlng=$seoulCampusLon&dname=$seoulCampusDestnameEncode');
+  'nmap://route/public?dlat=$seoulCampusLat&dlng=$seoulCampusLon&dname=$seoulCampusDestnameEncode',
+);
 final Uri seoulCampusMapKakao = Uri.parse(
-    'kakaomap://route?ep=$seoulCampusLat,$seoulCampusLon&by=PUBLICTRANSIT&eName=$seoulCampusDestnameEncode');
-final Uri seoulCampusMapApple =
-    Uri.parse('maps://?t=r&daddr=$seoulCampusLat,$seoulCampusLon&dirflg=2');
+  'kakaomap://route?ep=$seoulCampusLat,$seoulCampusLon&by=PUBLICTRANSIT&eName=$seoulCampusDestnameEncode',
+);
+final Uri seoulCampusMapApple = Uri.parse(
+  'maps://?t=r&daddr=$seoulCampusLat,$seoulCampusLon&dirflg=2',
+);
 
 // 자과캠 (후문 앞)대중교통 길찾기 바로가기 링크
 final Uri suwonCampusMapNaver = Uri.parse(
-    'nmap://route/public?dlat=$suwonCampusLat&dlng=$suwonCampusLon&dname=$suwonCampusDestnameEncode');
+  'nmap://route/public?dlat=$suwonCampusLat&dlng=$suwonCampusLon&dname=$suwonCampusDestnameEncode',
+);
 final Uri suwonCampusMapKakao = Uri.parse(
-    'kakaomap://route?ep=$suwonCampusLat,$suwonCampusLon&by=PUBLICTRANSIT&eName=$suwonCampusDestnameEncode');
-final Uri suwonCampusMapApple =
-    Uri.parse('maps://?t=r&daddr=$suwonCampusLat,$suwonCampusLon&dirflg=2');
+  'kakaomap://route?ep=$suwonCampusLat,$suwonCampusLon&by=PUBLICTRANSIT&eName=$suwonCampusDestnameEncode',
+);
+final Uri suwonCampusMapApple = Uri.parse(
+  'maps://?t=r&daddr=$suwonCampusLat,$suwonCampusLon&dirflg=2',
+);
 
 final List<String> dateitems = [
   '월요일',
@@ -49,7 +55,7 @@ final List<String> dateitems = [
   '목요일',
   '금요일',
   '토요일',
-  '일요일'
+  '일요일',
 ];
 
 // 인사캠 셔틀 탑승 장소 위도, 경도, 목적지 이름
@@ -66,21 +72,27 @@ const String suwonDestnameEncode =
 
 // 인사캠 길찾기 바로가기 링크
 final Uri seoulMapNaver = Uri.parse(
-    'nmap://route/walk?dlat=$seoulLat&dlng=$seoulLon&dname=$seoulDestnameEncode');
+  'nmap://route/walk?dlat=$seoulLat&dlng=$seoulLon&dname=$seoulDestnameEncode',
+);
 final Uri seoulMapKakao = Uri.parse(
-    'kakaomap://route?ep=$seoulLat,$seoulLon&by=FOOT&eName=$seoulDestnameEncode');
+  'kakaomap://route?ep=$seoulLat,$seoulLon&by=FOOT&eName=$seoulDestnameEncode',
+);
 final Uri seoulMapApple = Uri.parse('maps://?t=m&daddr=$seoulLat,$seoulLon');
 
 // 자과캠 길찾기 바로가기 링크
 final Uri suwonMapNaver = Uri.parse(
-    'nmap://route/walk?dlat=$suwonLat&dlng=$suwonLon&dname=$suwonDestnameEncode');
+  'nmap://route/walk?dlat=$suwonLat&dlng=$suwonLon&dname=$suwonDestnameEncode',
+);
 final Uri suwonMapKakao = Uri.parse(
-    'kakaomap://route?ep=$suwonLat,$suwonLon&by=FOOT&eName=$suwonDestnameEncode');
+  'kakaomap://route?ep=$suwonLat,$suwonLon&by=FOOT&eName=$suwonDestnameEncode',
+);
 final Uri suwonMapApple = Uri.parse('maps://?t=m&daddr=$suwonLat,$suwonLon');
 
 // 인사캠 셔틀 탑승 위치 네이버 지도 관련 설정들
-final seoulMarker =
-    NMarker(id: 'seoul_marker', position: const NLatLng(seoulLat, seoulLon));
+final seoulMarker = NMarker(
+  id: 'seoul_marker',
+  position: const NLatLng(seoulLat, seoulLon),
+);
 const seoulCameraPosition = NCameraPosition(
   target: NLatLng(seoulLat, seoulLon),
   zoom: 15,
@@ -89,8 +101,10 @@ const seoulCameraPosition = NCameraPosition(
 );
 
 // 자과캠 셔틀 탑승 위치 네이버 지도 관련
-final suwonMarker =
-    NMarker(id: 'suwon_marker', position: const NLatLng(suwonLat, suwonLon));
+final suwonMarker = NMarker(
+  id: 'suwon_marker',
+  position: const NLatLng(suwonLat, suwonLon),
+);
 const suwonCameraPosition = NCameraPosition(
   target: NLatLng(suwonLat, suwonLon),
   zoom: 15,
@@ -131,18 +145,9 @@ class ESKARA extends StatelessWidget {
             },
             rightBtnType: CustomNavigationBtnType.info,
           ),
-          Container(
-            height: 0.5,
-            color: Colors.grey[300],
-          ),
-          Container(
-            height: 0.5,
-            color: Colors.grey[300],
-          ),
-          Container(
-            height: 0.5,
-            color: Colors.grey[300],
-          ),
+          Container(height: 0.5, color: Colors.grey[300]),
+          Container(height: 0.5, color: Colors.grey[300]),
+          Container(height: 0.5, color: Colors.grey[300]),
           Container(
             height: 30,
             color: Colors.grey[100],
@@ -165,53 +170,60 @@ class ESKARA extends StatelessWidget {
                 //     color: Colors.grey[800],
                 //   ),
                 // ),
-
                 const Spacer(),
 
                 // 날짜 선택
-                Obx(() => SizedBox(
-                      width: 125,
-                      height: 50,
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2<String>(
-                          isExpanded: true,
-                          value: controller.selectedDay.value,
-                          onChanged: (String? value) {
-                            controller.selectedDay.value = value;
+                Obx(
+                  () => Container(
+                    alignment: Alignment.centerRight,
+                    width: 150,
+                    height: 50,
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton2<String>(
+                        isExpanded: true,
+                        value: controller.selectedDay.value,
+                        onChanged: (String? value) {
+                          controller.selectedDay.value = value;
 
-                            controller.selectedEnglishDay = controller
-                                .translateDayToEnglish(
-                                    controller.selectedDay.value ?? '월요일')
-                                .obs;
-                            controller.fetchinjaBusSchedule(
-                                controller.selectedEnglishDay.value ??
-                                    'monday');
-                            controller.fetchjainBusSchedule(
-                                controller.selectedEnglishDay.value ??
-                                    'monday');
-                          },
-                          hint: Text(
-                            '요일 선택',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[800],
-                            ),
+                          controller.selectedEnglishDay =
+                              controller
+                                  .translateDayToEnglish(
+                                    controller.selectedDay.value ?? '월요일',
+                                  )
+                                  .obs;
+                          controller.fetchinjaBusSchedule(
+                            controller.selectedEnglishDay.value ?? 'monday',
+                          );
+                          controller.fetchjainBusSchedule(
+                            controller.selectedEnglishDay.value ?? 'monday',
+                          );
+                        },
+                        hint: Text(
+                          '요일 선택'.tr,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[800],
                           ),
-                          items: dateitems
-                              .map((String item) => DropdownMenuItem<String>(
+                        ),
+                        items:
+                            dateitems
+                                .map(
+                                  (String item) => DropdownMenuItem<String>(
                                     value: item,
                                     child: Text(
-                                      "$item 시간표",
+                                      "${item.tr} ${"시간표".tr}",
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey[800],
                                       ),
                                     ),
-                                  ))
-                              .toList(),
-                        ),
+                                  ),
+                                )
+                                .toList(),
                       ),
-                    )),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -225,14 +237,10 @@ class ESKARA extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          height: 20.h,
-                        ),
+                        SizedBox(height: 20.h),
                         Row(
                           children: [
-                            const SizedBox(
-                              width: 5,
-                            ),
+                            const SizedBox(width: 5),
                             Text(
                               '${'인자셔틀'.tr} ${'[인사캠 → 자과캠]'.tr}',
                               style: const TextStyle(
@@ -344,99 +352,109 @@ class ESKARA extends StatelessWidget {
                         Container(
                           alignment: Alignment.centerLeft,
                           padding: const EdgeInsets.fromLTRB(5, 15, 0, 0),
-                          child: Obx(
-                            () {
-                              return DataTable(
-                                columnSpacing: 35,
-                                columns: [
-                                  DataColumn(
-                                    label: Text('운영시간'.tr),
-                                  ),
-                                  const DataColumn(
-                                    label: Text('운영대수'),
-                                  ),
-                                  const DataColumn(
-                                    label: Text('특이사항'),
-                                  ),
-                                ],
-                                rows:
-                                    controller.injaBusSchedule.map((schedule) {
-                                  return DataRow(cells: [
-                                    DataCell(Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 5,
+                          child: Obx(() {
+                            return DataTable(
+                              columnSpacing: 35,
+                              columns: [
+                                DataColumn(label: Text('운영시간'.tr)),
+                                DataColumn(label: Text('운영대수'.tr)),
+                                DataColumn(label: Text('특이사항'.tr)),
+                              ],
+                              rows:
+                                  controller.injaBusSchedule.map((schedule) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                schedule.operatingHours,
+                                                style: TextStyle(
+                                                  fontWeight:
+                                                      (schedule.isFastestBus &&
+                                                              controller
+                                                                      .selectedDay ==
+                                                                  controller
+                                                                      .today)
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                  color:
+                                                      (schedule.isFastestBus &&
+                                                              controller
+                                                                      .selectedDay ==
+                                                                  controller
+                                                                      .today)
+                                                          ? AppColors.green_main
+                                                          : Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        Text(
-                                          schedule.operatingHours,
-                                          style: TextStyle(
-                                              fontWeight: (schedule
-                                                          .isFastestBus &&
-                                                      controller.selectedDay ==
-                                                          controller.today)
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                              color: (schedule.isFastestBus &&
-                                                      controller.selectedDay ==
-                                                          controller.today)
-                                                  ? AppColors.green_main
-                                                  : Colors.black),
+                                        DataCell(
+                                          Row(
+                                            children: [
+                                              const SizedBox(width: 15),
+                                              Text(
+                                                schedule.busCount.toString(),
+                                                style: TextStyle(
+                                                  fontWeight:
+                                                      (schedule.isFastestBus &&
+                                                              controller
+                                                                      .selectedDay ==
+                                                                  controller
+                                                                      .today)
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                  color:
+                                                      (schedule.isFastestBus &&
+                                                              controller
+                                                                      .selectedDay ==
+                                                                  controller
+                                                                      .today)
+                                                          ? AppColors.green_main
+                                                          : Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        DataCell(
+                                          Text(
+                                            schedule.specialNotes?.replaceAll(
+                                                  r'\n',
+                                                  '\n',
+                                                ) ??
+                                                ' ',
+                                            style: TextStyle(
+                                              fontWeight:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                              color:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? AppColors.green_main
+                                                      : Colors.black,
+                                            ),
+                                          ),
                                         ),
                                       ],
-                                    )),
-                                    DataCell(Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Text(
-                                          schedule.busCount.toString(),
-                                          style: TextStyle(
-                                              fontWeight: (schedule
-                                                          .isFastestBus &&
-                                                      controller.selectedDay ==
-                                                          controller.today)
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                              color: (schedule.isFastestBus &&
-                                                      controller.selectedDay ==
-                                                          controller.today)
-                                                  ? AppColors.green_main
-                                                  : Colors.black),
-                                        ),
-                                      ],
-                                    )),
-                                    DataCell(
-                                      Text(
-                                        schedule.specialNotes
-                                                ?.replaceAll(r'\n', '\n') ??
-                                            ' ',
-                                        style: TextStyle(
-                                            fontWeight: (schedule
-                                                        .isFastestBus &&
-                                                    controller.selectedDay ==
-                                                        controller.today)
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                            color: (schedule.isFastestBus &&
-                                                    controller.selectedDay ==
-                                                        controller.today)
-                                                ? AppColors.green_main
-                                                : Colors.black),
-                                      ),
-                                    ),
-                                  ]);
-                                }).toList(),
-                              );
-                            },
-                          ),
+                                    );
+                                  }).toList(),
+                            );
+                          }),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(
-                    height: 25,
-                  ),
+                  const SizedBox(height: 25),
                   Container(
                     padding: const EdgeInsets.fromLTRB(20, 3, 20, 0),
                     child: Column(
@@ -444,15 +462,11 @@ class ESKARA extends StatelessWidget {
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          child: Divider(
-                            color: Colors.grey[300],
-                          ),
+                          child: Divider(color: Colors.grey[300]),
                         ),
                         Row(
                           children: [
-                            const SizedBox(
-                              width: 5,
-                            ),
+                            const SizedBox(width: 5),
                             Text(
                               '${'자인셔틀'.tr} ${'[자과캠 → 인사캠]'.tr}',
                               style: const TextStyle(
@@ -572,88 +586,102 @@ class ESKARA extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.fromLTRB(5, 15, 0, 0),
-                      child: Obx(
-                        () {
-                          return DataTable(
-                            columnSpacing: 35,
-                            columns: [
-                              DataColumn(
-                                label: Text('운영시간'.tr),
-                              ),
-                              const DataColumn(
-                                label: Text('운영대수'),
-                              ),
-                              const DataColumn(
-                                label: Text('특이사항'),
-                              ),
-                            ],
-                            rows: controller.jainBusSchedule.map((schedule) {
-                              return DataRow(cells: [
-                                DataCell(Row(
-                                  children: [
-                                    const SizedBox(
-                                      width: 5,
+                      child: Obx(() {
+                        return DataTable(
+                          columnSpacing: 35,
+                          columns: [
+                            DataColumn(label: Text('운영시간'.tr)),
+                            DataColumn(label: Text('운영대수'.tr)),
+                            DataColumn(label: Text('특이사항'.tr)),
+                          ],
+                          rows:
+                              controller.jainBusSchedule.map((schedule) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            schedule.operatingHours,
+                                            style: TextStyle(
+                                              fontWeight:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                              color:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? AppColors.green_main
+                                                      : Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    Text(
-                                      schedule.operatingHours,
-                                      style: TextStyle(
-                                          fontWeight: (schedule.isFastestBus &&
-                                                  controller.selectedDay ==
-                                                      controller.today)
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                          color: (schedule.isFastestBus &&
-                                                  controller.selectedDay ==
-                                                      controller.today)
-                                              ? AppColors.green_main
-                                              : Colors.black),
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          const SizedBox(width: 15),
+                                          Text(
+                                            schedule.busCount.toString(),
+                                            style: TextStyle(
+                                              fontWeight:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                              color:
+                                                  (schedule.isFastestBus &&
+                                                          controller
+                                                                  .selectedDay ==
+                                                              controller.today)
+                                                      ? AppColors.green_main
+                                                      : Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    DataCell(
+                                      SizedBox(
+                                        child: Text(
+                                          schedule.specialNotes?.replaceAll(
+                                                r'\n',
+                                                '\n',
+                                              ) ??
+                                              ' ',
+                                          style: TextStyle(
+                                            fontWeight:
+                                                (schedule.isFastestBus &&
+                                                        controller
+                                                                .selectedDay ==
+                                                            controller.today)
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                            color:
+                                                (schedule.isFastestBus &&
+                                                        controller
+                                                                .selectedDay ==
+                                                            controller.today)
+                                                    ? AppColors.green_main
+                                                    : Colors.black,
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ],
-                                )),
-                                DataCell(Row(
-                                  children: [
-                                    const SizedBox(
-                                      width: 15,
-                                    ),
-                                    Text(
-                                      schedule.busCount.toString(),
-                                      style: TextStyle(
-                                          fontWeight: (schedule.isFastestBus &&
-                                                  controller.selectedDay ==
-                                                      controller.today)
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                          color: (schedule.isFastestBus &&
-                                                  controller.selectedDay ==
-                                                      controller.today)
-                                              ? AppColors.green_main
-                                              : Colors.black),
-                                    ),
-                                  ],
-                                )),
-                                DataCell(SizedBox(
-                                  child: Text(
-                                    schedule.specialNotes
-                                            ?.replaceAll(r'\n', '\n') ??
-                                        ' ',
-                                    style: TextStyle(
-                                        fontWeight: (schedule.isFastestBus &&
-                                                controller.selectedDay ==
-                                                    controller.today)
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: (schedule.isFastestBus &&
-                                                controller.selectedDay ==
-                                                    controller.today)
-                                            ? AppColors.green_main
-                                            : Colors.black),
-                                  ),
-                                )),
-                              ]);
-                            }).toList(),
-                          );
-                        },
-                      ),
+                                );
+                              }).toList(),
+                        );
+                      }),
                     ),
                   ),
                 ],
