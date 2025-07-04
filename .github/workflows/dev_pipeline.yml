@@ -20,12 +20,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 3. 플러터 버젼 3.29.0 설정
+     # 3. Flutter 설정 (오류 수정)
       - name: Setup Flutter
-        uses: actions/setup-flutter@v1
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.0'
+          flutter-version: '3.29.0' # 사용하려는 버전
+          channel: 'stable'
           cache: true
+      
 
       # 4. 비밀 파일 생성
       - name: Create Secret Files
