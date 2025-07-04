@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>41</string>
+	<string>46</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5619947536545679~7068085893</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -79,6 +79,7 @@
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
+		<string>location</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>

@@ -28,24 +28,23 @@ class CustomServiceBtn extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: Colors.grey[300]!,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey[300]!, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          // ✅ Column의 공간을 효율적으로 사용하기 위해 추가
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 30,
-              height: 30,
-            ),
+            SvgPicture.asset(iconPath, width: 30, height: 30),
             const SizedBox(height: 5),
-            Text(
-              title,
-              style: const TextStyle(
-                fontFamily: "WantedSansRegular",
+            // ✅ Flexible과 FittedBox 추가
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown, // 텍스트가 넘치지 않도록 크기를 줄임
+                child: Text(
+                  title,
+                  style: const TextStyle(fontFamily: "WantedSansRegular"),
+                ),
               ),
             ),
           ],

@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "1043119106953",
     "project_id": "skkubus-95723",
-    "storage_bucket": "skkubus-95723.appspot.com"
+    "storage_bucket": "skkubus-95723.firebasestorage.app"
   },
   "client": [
     {
@@ -12,12 +12,7 @@
           "package_name": "com.zoyoong.skkubus"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "1043119106953-sovec4i9osa07a4tbusgq2ugcnno9or8.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyB1RFhhMuQa13Vp23-GUorhzXfeWVvHXeI"
@@ -25,22 +20,10 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1043119106953-sovec4i9osa07a4tbusgq2ugcnno9or8.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "1043119106953-d4kgjec8e5osejfcavmokmp6kk64i1mp.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.skkumap",
-                "app_store_id": "6446813434"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-5619947536545679~7806829793"
     }
   ],
   "configuration_version": "1"

@@ -32,8 +32,8 @@ import 'languages.dart';
 import 'package:skkumap/app/pages/nsc_building_map/controller/nsc_building_map_controller.dart';
 import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tzData;
+// import 'package:timezone/timezone.dart' as tz;
+// import 'package:timezone/data/latest.dart' as tzData;
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';

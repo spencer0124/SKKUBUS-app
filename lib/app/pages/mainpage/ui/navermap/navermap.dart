@@ -34,6 +34,30 @@ Widget buildMap() {
       mapcontroller.addOverlayAll({
         // 초기 마커 세팅
         ...ultimateNampController.markers,
+        ...buildCampusMarkers(CampusType.hssc),
+        // 종로07버스 노선 오버레이
+        NMultipartPathOverlay(
+          id: "jongro07Route",
+          paths: [
+            const NMultipartPath(
+              color: Colors.green,
+              outlineColor: Colors.white,
+              coords: jongro07Route,
+            ),
+          ],
+        ),
+
+        // 종로02버스 노선 오버레이
+        NMultipartPathOverlay(
+          id: "jongro02Route",
+          paths: [
+            const NMultipartPath(
+              color: Colors.green,
+              outlineColor: Colors.white,
+              coords: jongro02Route,
+            ),
+          ],
+        ),
       });
 
       // 위치 오버레이 추적 모드 설정
@@ -52,12 +76,17 @@ Widget buildMap() {
 
       // 사용자 현재 위치 초기화 (앱 시작시 1번만 호출)
       // 추후 업데이트는 위치 버튼 클릭으로 처리
-      ultimateNampController.moveToCurrentLocation().then((_) {
-        mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
-        final locationOverlay = mapcontroller.getLocationOverlay();
-        locationOverlay.setCircleRadius(10.0);
-        locationOverlay.setIsVisible(true);
-      });
+      // ultimateNampController.moveToCurrentLocation().then((_) {
+      //   mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
+      //   final locationOverlay = mapcontroller.getLocationOverlay();
+      //   locationOverlay.setCircleRadius(10.0);
+      //   locationOverlay.setIsVisible(true);
+      // });
+
+      mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
+      final locationOverlay = mapcontroller.getLocationOverlay();
+      locationOverlay.setCircleRadius(10.0);
+      locationOverlay.setIsVisible(true);
 
       // 마커 갱신
       // ever를 이용한 자동 갱

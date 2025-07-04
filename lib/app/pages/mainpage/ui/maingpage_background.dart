@@ -26,9 +26,7 @@ class MainPageBackground extends StatelessWidget {
       children: [
         Container(
           width: screenWidth,
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
+          decoration: const BoxDecoration(color: Colors.white),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,12 +120,12 @@ class MainPageBackground extends StatelessWidget {
                         ],
                       ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ],
           ),
-        )
+        ),
       ],
     );
   }
