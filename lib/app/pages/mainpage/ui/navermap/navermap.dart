@@ -76,12 +76,17 @@ Widget buildMap() {
 
       // 사용자 현재 위치 초기화 (앱 시작시 1번만 호출)
       // 추후 업데이트는 위치 버튼 클릭으로 처리
-      ultimateNampController.moveToCurrentLocation().then((_) {
-        mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
-        final locationOverlay = mapcontroller.getLocationOverlay();
-        locationOverlay.setCircleRadius(10.0);
-        locationOverlay.setIsVisible(true);
-      });
+      // ultimateNampController.moveToCurrentLocation().then((_) {
+      //   mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
+      //   final locationOverlay = mapcontroller.getLocationOverlay();
+      //   locationOverlay.setCircleRadius(10.0);
+      //   locationOverlay.setIsVisible(true);
+      // });
+
+      mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
+      final locationOverlay = mapcontroller.getLocationOverlay();
+      locationOverlay.setCircleRadius(10.0);
+      locationOverlay.setIsVisible(true);
 
       // 마커 갱신
       // ever를 이용한 자동 갱

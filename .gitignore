@@ -4,6 +4,12 @@ ios/Runner/GoogleService-Info.plist
 firebase.json
 .fvm/
 
+# Flutter/iOS build artifacts
+build/
+*.app
+*.dSYM
+*.dSYM.zip
+
 # Shorebird cache and build files
 /.shorebird
 
