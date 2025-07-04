@@ -34,6 +34,30 @@ Widget buildMap() {
       mapcontroller.addOverlayAll({
         // 초기 마커 세팅
         ...ultimateNampController.markers,
+        ...buildCampusMarkers(CampusType.hssc),
+        // 종로07버스 노선 오버레이
+        NMultipartPathOverlay(
+          id: "jongro07Route",
+          paths: [
+            const NMultipartPath(
+              color: Colors.green,
+              outlineColor: Colors.white,
+              coords: jongro07Route,
+            ),
+          ],
+        ),
+
+        // 종로02버스 노선 오버레이
+        NMultipartPathOverlay(
+          id: "jongro02Route",
+          paths: [
+            const NMultipartPath(
+              color: Colors.green,
+              outlineColor: Colors.white,
+              coords: jongro02Route,
+            ),
+          ],
+        ),
       });
 
       // 위치 오버레이 추적 모드 설정
