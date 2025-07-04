@@ -20,11 +20,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 3. FVM 및 Flutter 설정
-      - name: Setup FVM
-        uses: leo-marino/fvm-app-action@v1
+      # 3. 플러터 버젼 3.29.0 설정
+      - name: Setup Flutter
+        uses: actions/setup-flutter@v1
         with:
-          flutter-version: '3.29.0' # 현재 프로젝트 플러터 버젼
+          flutter-version: '3.29.0'
+          cache: true
 
       # 4. 비밀 파일 생성
       - name: Create Secret Files
@@ -37,12 +38,12 @@ jobs:
 
       # 5. Flutter 코드 정적 분석 (요청대로 수정)
       - name: Run Flutter Analyze
-        run: fvm flutter analyze
+        run: flutter analyze
         # --fatal-infos 플래그를 제거하여 error 등급에서만 워크플로우가 중단됩니다.
 
       # 6. Flutter 단위/위젯 테스트 실행
       # - name: Run Flutter Tests
-      #   run: fvm flutter test
+      #   run: flutter test
 
       # 7. Firebase CLI 설치 (배포 시에만 실행)
       - name: Install Firebase CLI
@@ -52,7 +53,7 @@ jobs:
       # 8. 안드로이드 앱 빌드 (배포 시에만 실행)
       - name: Build Android APK
         if: github.event_name == 'workflow_dispatch' # 수동 실행 시에만 동작
-        run: fvm flutter build apk --release
+        run: flutter build apk --release
 
       # 9. Firebase App Distribution 배포 (배포 시에만 실행)
       - name: Deploy to Firebase App Distribution
