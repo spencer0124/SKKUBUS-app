@@ -118,9 +118,6 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - flutter_udid (0.0.1):
-    - Flutter
-    - SAMKeychain
   - geocoding_ios (1.0.5):
     - Flutter
   - geolocator_apple (1.2.0):
@@ -210,7 +207,6 @@ PODS:
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
   - RecaptchaInterop (101.0.0)
-  - SAMKeychain (1.5.3)
   - sf_symbols (0.0.1):
     - Flutter
   - share_plus (0.0.1):
@@ -237,7 +233,6 @@ DEPENDENCIES:
   - flutter_phone_direct_caller (from `.symlinks/plugins/flutter_phone_direct_caller/ios`)
   - flutter_platform_alert (from `.symlinks/plugins/flutter_platform_alert/ios`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
-  - flutter_udid (from `.symlinks/plugins/flutter_udid/ios`)
   - geocoding_ios (from `.symlinks/plugins/geocoding_ios/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - google_mobile_ads (from `.symlinks/plugins/google_mobile_ads/ios`)
@@ -278,7 +273,6 @@ SPEC REPOS:
     - PromisesObjC
     - PromisesSwift
     - RecaptchaInterop
-    - SAMKeychain
 
 EXTERNAL SOURCES:
   firebase_analytics:
@@ -305,8 +299,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_platform_alert/ios"
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
-  flutter_udid:
-    :path: ".symlinks/plugins/flutter_udid/ios"
   geocoding_ios:
     :path: ".symlinks/plugins/geocoding_ios/ios"
   geolocator_apple:
@@ -356,7 +348,6 @@ SPEC CHECKSUMS:
   flutter_phone_direct_caller: bd2ffd297f371a8a6c7bfbba0196964ffe3c4358
   flutter_platform_alert: f507baf17889a38794d3cf16b98b637fb69479bd
   flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
-  flutter_udid: b2417673f287ee62817a1de3d1643f47b9f508ab
   geocoding_ios: d7460f56e80e118d57678efe5c2cdc888739ff18
   geolocator_apple: 66b711889fd333205763b83c9dcf0a57a28c7afd
   Google-Mobile-Ads-SDK: 14f57f2dc33532a24db288897e26494640810407
@@ -376,7 +367,6 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  SAMKeychain: 483e1c9f32984d50ca961e26818a534283b4cd5c
   sf_symbols: 84365e389895263a28c58be12a5ddedb7182cc4e
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
@@ -385,4 +375,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: b112b77b632682b524b314572ece63af67889250
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
