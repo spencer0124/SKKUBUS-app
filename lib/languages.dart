@@ -42,7 +42,7 @@ class Languages extends Translations {
           '요금 400원\n후불교통결제 기능 일반카드, T머니/캐시비카드 사용 가능\n현금 및 회수권 사용 불가',
       '월~금 운행, 공휴일 운행 안함\n\n[학기중] 07:00 ~ 23:00\n[방학중] 07:00 ~ 19:00':
           '월~금 운행, 공휴일 운행 안함\n\n[학기중] 07:00 ~ 23:00\n[방학중] 07:00 ~ 19:00',
-      '연락처 (클릭시 전화연결)': '연락처 (클릭시 전화연결)',
+      '연락처 (클릭 시 전화연결)': '연락처 (클릭 시 전화연결)',
       '학생지원팀  ': '학생지원팀  ',
       '인사캠 관리팀  ': '인사캠 관리팀   ',
       'ProductBold': 'ProductBold',
@@ -139,7 +139,7 @@ class Languages extends Translations {
           'Fee 400 won\nGeneral cards with postpaid transportation payment function, T Money/Cashbee cards can be used\nCash and coupons cannot be used',
       '월~금 운행, 공휴일 운행 안함\n\n[학기중] 07:00 ~ 23:00\n[방학중] 07:00 ~ 19:00':
           'Operates from Monday to Friday, does not operate on public holidays\n\n[During semester] 07:00 ~ 23:00\n[During vacation] 07:00 ~ 19:00',
-      '연락처 (클릭시 전화연결)': 'Contact information (click to call)',
+      '연락처 (클릭 시 전화연결)': 'Contact information (click to call)',
       '학생지원팀  ': 'Student Support Team  ',
       '인사캠 관리팀  ': 'Management Team   ',
       'ProductBold': 'ProductBold',
@@ -239,7 +239,7 @@ class Languages extends Translations {
           '费用400韩元\n后付费交通支付功能，可以使用一般卡、T Money/Cashbee卡\n不能使用现金和计次票',
       '월~금 운행, 공휴일 운행 안함\n\n[학기중] 07:00 ~ 23:00\n[방학중] 07:00 ~ 19:00':
           '周一至周五运行，节假日不运行\n\n[学期期间] 07:00 ~ 23:00\n[假期期间] 07:00 ~ 19:00',
-      '연락처 (클릭시 전화연결)': '联系方式（点击后可拨打电话)',
+      '연락처 (클릭 시 전화연결)': '联系方式（点击后可拨打电话)',
       '학생지원팀  ': '学生支援团队  ',
       '인사캠 관리팀  ': '人文校区 管理团队   ',
       'ProductBold': 'WantedSansBold',
