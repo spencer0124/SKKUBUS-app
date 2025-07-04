@@ -33,6 +33,7 @@ jobs:
       - name: Create Secret Files
         run: |
           # 사용하는 파일의 주석만 해제해서 사용하세요.
+          echo "${{ secrets.PROJECT_ENV }}" > .env
           echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
           echo "${{ secrets.FIREBASE_SERVICES_JSON }}" > android/app/google-services.json
           echo "${{ secrets.FIREBASE_SERVICE_INFO_PLIST }}" > ios/Runner/GoogleService-Info.plist
