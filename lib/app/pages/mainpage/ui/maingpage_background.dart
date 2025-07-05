@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/components/mainpage/top_search/searchbar.dart';
-import 'package:skkumap/app/components/mainpage/top_search/filter.dart';
-import 'package:skkumap/app/components/mainpage/top_scrollrow/scrollrow.dart';
-import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap.dart';
-import 'package:skkumap/app/pages/mainpage/ui/filter/filter_sheet.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
+import 'package:skkumap/app/utils/screensize.dart';
 
 /*
 snappingsheet의 child로 들어갈 background

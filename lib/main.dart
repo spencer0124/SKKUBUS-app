@@ -86,22 +86,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       designSize: const Size(390, 844),
-      builder: (context, child) => GetMaterialApp(
-        navigatorObservers: [
-          FirebaseAnalyticsObserver(analytics: analytics),
-        ],
-        debugShowCheckedModeBanner: false,
-        getPages: AppRoutes.routes,
-        initialRoute: '/',
-        translations: Languages(),
-        locale: Get.deviceLocale,
-        fallbackLocale: const Locale('en', 'US'),
-        theme: ThemeData(
-          appBarTheme: const AppBarTheme(
-            systemOverlayStyle: SystemUiOverlayStyle.light,
+      builder:
+          (context, child) => GetMaterialApp(
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ],
+            debugShowCheckedModeBanner: false,
+            getPages: AppRoutes.routes,
+            initialRoute: '/',
+            translations: Languages(),
+            locale: Get.deviceLocale,
+            fallbackLocale: const Locale('en', 'US'),
+            theme: ThemeData(
+              appBarTheme: const AppBarTheme(
+                systemOverlayStyle: SystemUiOverlayStyle.light,
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 }
@@ -135,19 +136,20 @@ Future<void> initEnvironmentVariables() async {
 // deprecated된 initNaverMapSdk() 대체
 Future<void> initNaverMapSdk_v2() async {
   await FlutterNaverMap().init(
-      clientId: dotenv.env['navernewClientId']!,
-      onAuthFailed: (ex) {
-        switch (ex) {
-          case NQuotaExceededException(:final message):
-            print("사용량 초과 (message: $message)");
-            break;
-          case NUnauthorizedClientException() ||
-                NClientUnspecifiedException() ||
-                NAnotherAuthFailedException():
-            print("인증 실패: $ex");
-            break;
-        }
-      });
+    clientId: dotenv.env['navernewClientId']!,
+    onAuthFailed: (ex) {
+      switch (ex) {
+        case NQuotaExceededException(:final message):
+          print("사용량 초과 (message: $message)");
+          break;
+        case NUnauthorizedClientException() ||
+            NClientUnspecifiedException() ||
+            NAnotherAuthFailedException():
+          print("인증 실패: $ex");
+          break;
+      }
+    },
+  );
 }
 
 void registerDependencies() {
