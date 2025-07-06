@@ -29,7 +29,7 @@ class LostAndFound extends StatelessWidget {
       body: Column(
         children: [
           CustomNavigationBar(
-            title: '유실물 찾기'.tr,
+            title: '분실물'.tr,
             backgroundColor: AppColors.green_main,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: false,
@@ -57,7 +57,8 @@ class LostAndFound extends StatelessWidget {
               children: [
                 Text(
                   "유실물 접수 및 처리 절차".tr,
-                  style: const TextStyle(fontSize: 13, fontFamily: 'CJKBold'),
+                  style: const TextStyle(
+                      fontSize: 13, fontFamily: 'WantedSansBold'),
                 ),
                 const SizedBox(
                   height: 3,
@@ -65,8 +66,8 @@ class LostAndFound extends StatelessWidget {
                 Text(
                   "→  최초 발견자 습득 시, 1~2일 내 학생지원팀 이관\n→  학생지원팀: 유실물 게시판에 1개월 동안 공지\n→  1년 보관 후 폐기"
                       .tr,
-                  style:
-                      const TextStyle(fontSize: 13, fontFamily: 'CJKRegular'),
+                  style: const TextStyle(
+                      fontSize: 13, fontFamily: 'WantedSansRegular'),
                 ),
               ],
             ),
@@ -95,7 +96,7 @@ class LostAndFound extends StatelessWidget {
                       '학생지원팀'.tr,
                       style: const TextStyle(
                         color: AppColors.green_main,
-                        fontFamily: 'CJKBold',
+                        fontFamily: 'WantedSansBold',
                       ),
                       textAlign: TextAlign.start,
                     ),
@@ -114,7 +115,7 @@ class LostAndFound extends StatelessWidget {
                             .tr,
                         style: TextStyle(
                             color: Colors.grey[900],
-                            fontFamily: 'CJKRegular',
+                            fontFamily: 'WantedSansRegular',
                             fontSize: 13),
                         textAlign: TextAlign.start,
                       ),
@@ -124,7 +125,7 @@ class LostAndFound extends StatelessWidget {
                             '이메일: '.tr,
                             style: TextStyle(
                                 color: Colors.grey[900],
-                                fontFamily: 'CJKRegular',
+                                fontFamily: 'WantedSansRegular',
                                 fontSize: 13),
                             textAlign: TextAlign.start,
                           ),
@@ -144,7 +145,7 @@ class LostAndFound extends StatelessWidget {
                               'studentaid@skku.edu',
                               style: TextStyle(
                                   color: Colors.blue,
-                                  fontFamily: 'CJKRegular',
+                                  fontFamily: 'WantedSansRegular',
                                   fontSize: 13),
                               textAlign: TextAlign.start,
                             ),
@@ -168,7 +169,7 @@ class LostAndFound extends StatelessWidget {
                       '인사캠 학생지원팀  '.tr,
                       style: TextStyle(
                           color: Colors.grey[900],
-                          fontFamily: 'CJKRegular',
+                          fontFamily: 'WantedSansRegular',
                           fontSize: 13),
                       textAlign: TextAlign.start,
                     ),
@@ -187,7 +188,7 @@ class LostAndFound extends StatelessWidget {
                             '02-760-1077',
                             style: TextStyle(
                                 color: AppColors.green_main,
-                                fontFamily: 'CJKBold',
+                                fontFamily: 'WantedSansBold',
                                 fontSize: 13),
                             textAlign: TextAlign.start,
                           ),
@@ -210,7 +211,7 @@ class LostAndFound extends StatelessWidget {
                       '자과캠 학생지원팀  '.tr,
                       style: TextStyle(
                           color: Colors.grey[900],
-                          fontFamily: 'CJKRegular',
+                          fontFamily: 'WantedSansRegular',
                           fontSize: 13),
                       textAlign: TextAlign.start,
                     ),
@@ -229,7 +230,7 @@ class LostAndFound extends StatelessWidget {
                             '031-290-5034',
                             style: TextStyle(
                                 color: AppColors.green_main,
-                                fontFamily: 'CJKBold',
+                                fontFamily: 'WantedSansBold',
                                 fontSize: 13),
                             textAlign: TextAlign.start,
                           ),
@@ -265,7 +266,7 @@ class LostAndFound extends StatelessWidget {
                       '분실물 게시판'.tr,
                       style: const TextStyle(
                         color: AppColors.green_main,
-                        fontFamily: 'CJKBold',
+                        fontFamily: 'WantedSansBold',
                       ),
                       textAlign: TextAlign.start,
                     ),
@@ -300,7 +301,7 @@ class LostAndFound extends StatelessWidget {
                           '물건을 찾습니다'.tr,
                           style: const TextStyle(
                               color: Colors.blue,
-                              fontFamily: 'CJKRegular',
+                              fontFamily: 'WantedSansRegular',
                               fontSize: 13),
                           textAlign: TextAlign.start,
                         ),
@@ -337,7 +338,7 @@ class LostAndFound extends StatelessWidget {
                           '주인을 찾습니다'.tr,
                           style: const TextStyle(
                               color: Colors.blue,
-                              fontFamily: 'CJKRegular',
+                              fontFamily: 'WantedSansRegular',
                               fontSize: 13),
                           textAlign: TextAlign.start,
                         ),

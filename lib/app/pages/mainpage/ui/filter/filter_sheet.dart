@@ -58,7 +58,7 @@ class FilterSheet extends StatelessWidget {
                   "필터",
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'CJKMedium',
+                    fontFamily: 'WantedSansMedium',
                     fontSize: 16,
                   ),
                 ),
@@ -88,7 +88,7 @@ class FilterSheet extends StatelessWidget {
                   "캠퍼스",
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'CJKMedium',
+                    fontFamily: 'WantedSansMedium',
                     fontSize: 14,
                   ),
                 ),
@@ -119,7 +119,7 @@ class FilterSheet extends StatelessWidget {
               "지도에 표시할 캠퍼스를 선택하세요",
               style: TextStyle(
                 color: Colors.grey,
-                fontFamily: 'CJKMedium',
+                fontFamily: 'WantedSansMedium',
                 fontSize: 12,
                 height: 1.3,
               ),
@@ -173,7 +173,7 @@ class FilterSheet extends StatelessWidget {
                   "캠퍼스 정보",
                   style: TextStyle(
                     color: Colors.black,
-                    fontFamily: 'CJKMedium',
+                    fontFamily: 'WantedSansMedium',
                     fontSize: 14,
                   ),
                 ),
@@ -203,7 +203,7 @@ class FilterSheet extends StatelessWidget {
               "지도에 표시할 캠퍼스 정보를 선택하세요",
               style: TextStyle(
                 color: Colors.grey,
-                fontFamily: 'CJKMedium',
+                fontFamily: 'WantedSansMedium',
                 fontSize: 12,
                 height: 1.3,
               ),

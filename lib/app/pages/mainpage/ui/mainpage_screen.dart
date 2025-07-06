@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
-import 'package:skkumap/app/pages/KingoInfo/ui/kingoinfo_view.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
 import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_campus.dart';
-import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_station.dart';
+import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_around.dart';
 
 import 'package:snapping_sheet/snapping_sheet.dart';
 
@@ -24,6 +23,8 @@ class Mainpage extends GetView<MainpageController> {
   Widget build(BuildContext context) {
     final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
+    final ScrollController sheetChildScrollController = ScrollController();
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: PreferredSize(
@@ -39,7 +40,10 @@ class Mainpage extends GetView<MainpageController> {
         children: [
           SnappingSheet(
             controller: snappingSheetController,
-            onSheetMoved: (sheetPosition) {},
+            onSheetMoved: (sheetPosition) {
+              final isExpanded = sheetPosition.pixels > screenHeight * 0.7;
+              controller.snappingSheetIsExpanded.value = isExpanded;
+            },
             onSnapCompleted: (sheetPosition, snappingPosition) {
               // checkCurrentPosition(screenHeight, sheetPosition, snappingPosition);
             },
@@ -48,12 +52,15 @@ class Mainpage extends GetView<MainpageController> {
             grabbingHeight: grabbingHeight,
             grabbing: const GrabbingBox(),
             sheetBelow: SnappingSheetContent(
+                childScrollController: sheetChildScrollController,
                 draggable: true,
                 // snappingsheet에 어떤 child가 들어갈지 결정
                 child: Obx(
                   () {
                     return _getSnappingSheetContent(
-                        controller.bottomNavigationIndex.value);
+                        controller.bottomNavigationIndex.value,
+                        sheetChildScrollController,
+                        controller.snappingSheetIsExpanded.value);
                   },
                 )),
             child: const MainPageBackground(),
@@ -79,14 +86,33 @@ class Mainpage extends GetView<MainpageController> {
   }
 }
 
-Widget _getSnappingSheetContent(int index) {
+Widget _getSnappingSheetContent(
+    int index, ScrollController scrollController, bool scrollEnabled) {
+  final physics = scrollEnabled
+      ? const ClampingScrollPhysics()
+      : const NeverScrollableScrollPhysics();
+
   switch (index) {
     case 0:
-      return OptionBus();
+      return SingleChildScrollView(
+        controller: scrollController,
+        physics: physics,
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [OptionAround()],
+        ),
+      );
     case 1:
-      return OptionStation(); // Replace with your actual widget for index 1
+      return SingleChildScrollView(
+        controller: scrollController,
+        physics: physics,
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [OptionCampus()],
+        ),
+      );
     case 2:
-      return const OptionCampus(); // Replace with your actual widget for index 2
+      return OptionCampus();
     default:
       return OptionBus(); // Default case
   }

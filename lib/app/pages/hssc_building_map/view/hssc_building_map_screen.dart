@@ -245,7 +245,7 @@ class HSSCBuildingMap extends StatelessWidget {
                                 child: Text(
                                   controller.placeName.value,
                                   style: const TextStyle(
-                                    fontFamily: 'CJKRegular',
+                                    fontFamily: 'WantedSansRegular',
                                     color: Colors.black,
                                   ),
                                 ),

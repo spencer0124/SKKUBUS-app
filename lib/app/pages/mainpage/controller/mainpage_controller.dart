@@ -15,7 +15,6 @@ import 'package:skkumap/app/model/station_model.dart';
 import 'package:skkumap/app/utils/api_fetch/fetch_station.dart';
 import 'package:skkumap/app/utils/api_fetch/mainpage_buslist.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
-import 'package:flutter_udid/flutter_udid.dart';
 
 class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
   MainpageController mainpageController = Get.find<MainpageController>();
@@ -46,10 +45,12 @@ class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
 }
 
 class MainpageController extends GetxController {
+  var snappingSheetIsExpanded = false.obs;
+
   Timer? _timer;
 
   // BottomNavigation 현재 선택된 index 저장
-  var bottomNavigationIndex = 0.obs;
+  var bottomNavigationIndex = 1.obs;
 
   // 필터에서 선택된 캠퍼스, 필터에서 선택된 캠퍼스 정보
   // 0: 인사캠, 1: 자과캠
@@ -112,16 +113,21 @@ class MainpageController extends GetxController {
 
   void fetchMainpageAd() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://43.200.90.214:3000/ad/v1/addetail'));
-      // 'http://localhost:3000/ad/v1/addetail'));
-      // 'http://10.0.2.2:3000/ad/v1/addetail'));
+      final response = await http.get(
+        Uri.parse(
+          // 'http://localhost:3000/ad/v1/addetail'));
+          'http://43.200.90.214:3000/ad/v1/addetail',
+        ),
+      );
 
       if (response.statusCode == 200) {
         if (fetchMainpageAdbool == false) {
           try {
-            http.get(Uri.parse(
-                'http://43.200.90.214:3000/ad/v1/statistics/menu2/view'));
+            http.get(
+              Uri.parse(
+                'http://43.200.90.214:3000/ad/v1/statistics/menu2/view',
+              ),
+            );
           } catch (e) {
             print('Error: $e');
           }
@@ -144,22 +150,25 @@ class MainpageController extends GetxController {
       print('Error: $e');
     }
 
-    String udid = await FlutterUdid.consistentUdid;
-    print("===================================");
-    print(udid);
-    print("===================================");
+    String udid = "123";
+    // print("===================================");
+    // print(udid);
+    // print("===================================");
 
     // print('http://10.0.2.2:3000/poll/v1/register/$udid');
     try {
-      final response = await http.get(Uri.parse(
+      final response = await http.get(
+        Uri.parse(
           // 'http://ec2-13-209-48-107.ap-northeast-2.compute.amazonaws.com/ad/v1/addetail/$udid'
-          'http://43.200.90.214:3000/poll/v1/register/$udid'));
+          'http://43.200.90.214:3000/poll/v1/register/$udid',
+        ),
+      );
       // 'http://10.0.2.2:3000/poll/v1/register/$udid'));
       // 'http://localhost:3000/poll/v1/register/$udid'));
       // ));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("data:${jsonEncode(data)}");
+        // print("data:${jsonEncode(data)}");
 
         mainpageNoticeLink.value = data['link2'];
       } else {
@@ -178,13 +187,10 @@ class MainpageController extends GetxController {
     await mainPageBusListFetch();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       snaptoInitPosition();
-      _timer = Timer.periodic(
-        const Duration(seconds: 15),
-        (Timer t) {
-          stationDataFetch();
-          fetchMainpageAd();
-        },
-      );
+      _timer = Timer.periodic(const Duration(seconds: 15), (Timer t) {
+        stationDataFetch();
+        fetchMainpageAd();
+      });
     });
   }
 }

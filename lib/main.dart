@@ -1,3 +1,5 @@
+// relase 브랜치
+
 import 'dart:async';
 import 'dart:ui';
 
@@ -26,12 +28,16 @@ import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
 import 'package:skkumap/app/pages/webview/controller/webview_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/firebase_options.dart';
-
 import 'languages.dart';
-
 import 'package:skkumap/app/pages/nsc_building_map/controller/nsc_building_map_controller.dart';
 import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+// import 'package:timezone/timezone.dart' as tz;
+// import 'package:timezone/data/latest.dart' as tzData;
+import 'package:intl/date_symbol_data_local.dart';
+
+import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
+import 'package:skkumap/app/utils/geolocator.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -41,6 +47,7 @@ Future<void> main() async {
     SystemUiMode.manual,
     overlays: SystemUiOverlay.values,
   );
+  // await initializeDateFormatting('ko_KR');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -54,7 +61,7 @@ Future<void> main() async {
   registerDependencies();
   await initFirebase();
   await initMobileAds();
-  await initNaverMapSdk();
+  await initNaverMapSdk_v2();
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -122,8 +129,27 @@ Future<void> initEnvironmentVariables() async {
   await dotenv.load(fileName: ".env");
 }
 
-Future<void> initNaverMapSdk() async {
-  await NaverMapSdk.instance.initialize(clientId: dotenv.env['naverClientId']!);
+// Future<void> initNaverMapSdk() async {
+//   await NaverMapSdk.instance
+//       .initialize(clientId: dotenv.env['navernewClientId']!);
+// }
+
+// deprecated된 initNaverMapSdk() 대체
+Future<void> initNaverMapSdk_v2() async {
+  await FlutterNaverMap().init(
+      clientId: dotenv.env['navernewClientId']!,
+      onAuthFailed: (ex) {
+        switch (ex) {
+          case NQuotaExceededException(:final message):
+            print("사용량 초과 (message: $message)");
+            break;
+          case NUnauthorizedClientException() ||
+                NClientUnspecifiedException() ||
+                NAnotherAuthFailedException():
+            print("인증 실패: $ex");
+            break;
+        }
+      });
 }
 
 void registerDependencies() {
@@ -133,8 +159,12 @@ void registerDependencies() {
   Get.lazyPut(() => SeoulDetailController());
   Get.lazyPut(() => SeoulDetailLifeCycle());
 
-  Get.put(InjaMainController());
-  Get.put(InjaMainLifeCycle());
+  Get.lazyPut(() => InjaMainController());
+
+  // Get.put(InjaMainController());
+
+  Get.lazyPut(() => InjaMainLifeCycle());
+  // Get.put(InjaMainLifeCycle());
 
   Get.put(InjaDetailController());
   // Get.lazyPut(() => InjaDetailController());
@@ -156,4 +186,7 @@ void registerDependencies() {
   Get.put(NSCBuildingMapController());
 
   Get.put(SearchListController());
+
+  Get.lazyPut(() => UltimateNMapController());
+  Get.lazyPut(() => LocationController());
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:get/get.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomSearchBar extends StatelessWidget {
   const CustomSearchBar({Key? key}) : super(key: key);
@@ -19,11 +20,16 @@ class CustomSearchBar extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(5),
         boxShadow: [
+          // BoxShadow(
+          //   color: Colors.grey.withOpacity(0.5),
+          //   spreadRadius: 1,
+          //   blurRadius: 5,
+          //   offset: const Offset(0, 3), // changes position of shadow
+          // ),
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: const Offset(0, 3), // changes position of shadow
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -34,19 +40,18 @@ class CustomSearchBar extends StatelessWidget {
         },
         child: Row(
           children: [
-            Icon(
-              Icons.search,
-              size: 23,
-              color: Colors.grey[600],
+            SvgPicture.asset(
+              'assets/tossface/toss_search_left.svg',
+              width: 20,
             ),
             const SizedBox(
               width: 8,
             ),
             Text(
-              '성균관대 공간명/코드 검색'.tr,
+              '성균관대 건물코드 검색'.tr,
               style: TextStyle(
                 color: Colors.grey[400],
-                fontFamily: 'CJKMedium',
+                fontFamily: 'WantedSansMedium',
                 fontSize: 15,
               ),
             ),

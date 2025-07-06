@@ -59,12 +59,10 @@ class BusDataController extends GetxController {
     super.onInit();
     _initializeBannerAd();
 
-    _timer = Timer.periodic(
-        const Duration(seconds: 10),
-        (Timer t) => {
-              localfetchBusLocation(),
-              localfetchBusStations(),
-            });
+    _timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
+      localfetchBusLocation();
+      localfetchBusStations();
+    });
     update();
 
     fetchMainpageAd();
@@ -129,9 +127,8 @@ class BusDataController extends GetxController {
   void fetchMainpageAd() async {
     try {
       final response =
-          await http.get(Uri.parse('http://43.200.90.214:3000/ad/v1/addetail'
-              // 'http://localhost:3000/ad/v1/addetail'
-              ));
+          await http.get(Uri.parse('http://43.200.90.214:3000/ad/v1/addetail'));
+      // 'http://localhost:3000/ad/v1/addetail'));
 
       if (response.statusCode == 200) {
         try {

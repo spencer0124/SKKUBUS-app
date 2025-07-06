@@ -4,7 +4,6 @@ import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:get/get.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
 
 class HSSCBuildingCredit extends StatelessWidget {
   const HSSCBuildingCredit({super.key});
@@ -55,14 +54,15 @@ class HSSCBuildingCredit extends StatelessWidget {
               children: [
                 Text(
                   "인사캠 건물지도 '빠를지도' 제공",
-                  style: TextStyle(fontSize: 13, fontFamily: 'CJKBold'),
+                  style: TextStyle(fontSize: 13, fontFamily: 'WantedSansBold'),
                 ),
                 SizedBox(
                   height: 3,
                 ),
                 Text(
                   "@문화예술캡스톤디자인 2조\n김찬호 김서연 전윤아 왕희문 손주연 신해령",
-                  style: TextStyle(fontSize: 13, fontFamily: 'CJKRegular'),
+                  style:
+                      TextStyle(fontSize: 13, fontFamily: 'WantedSansRegular'),
                 ),
               ],
             ),

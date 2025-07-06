@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:skkumap/app/types/bus_type.dart';
 
@@ -105,14 +106,22 @@ class CustomRow1 extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(18, 0, 10, 0),
-                          child: Image.asset(
-                            'assets/images/flaticon_bus1.png',
-                            width: 20,
-                            color: Colors.grey,
+                        if (title == "인사캠 셔틀버스".tr || title == "인자셔틀".tr)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
+                            child: SvgPicture.asset(
+                              'assets/tossface/toss_bus_skkubus.svg',
+                              width: 23,
+                            ),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
+                            child: SvgPicture.asset(
+                              'assets/tossface/toss_bus_citybus.svg',
+                              width: 23,
+                            ),
                           ),
-                        ),
                         const SizedBox(
                           width: 12,
                         ),
@@ -126,7 +135,7 @@ class CustomRow1 extends StatelessWidget {
                                   title,
                                   style: const TextStyle(
                                     color: Colors.black,
-                                    fontFamily: 'CJKMedium',
+                                    fontFamily: 'WantedSansMedium',
                                     fontSize: 15,
                                   ),
                                   textAlign: TextAlign.start,
@@ -135,7 +144,7 @@ class CustomRow1 extends StatelessWidget {
                                   '  ',
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontFamily: 'CJKBold',
+                                    fontFamily: 'WantedSansBold',
                                     fontSize: 15,
                                   ),
                                   textAlign: TextAlign.start,
@@ -156,7 +165,7 @@ class CustomRow1 extends StatelessWidget {
                                     style: TextStyle(
                                       height: 1.4.h,
                                       color: Colors.white,
-                                      fontFamily: 'CJKMedium',
+                                      fontFamily: 'WantedSansMedium',
                                       fontSize: 10.sp,
                                     ),
                                     textAlign: TextAlign.start,
@@ -171,7 +180,7 @@ class CustomRow1 extends StatelessWidget {
                               subtitle,
                               style: TextStyle(
                                 color: Colors.grey[600],
-                                fontFamily: 'CJKMedium',
+                                fontFamily: 'WantedSansMedium',
                                 fontSize: 11.5,
                               ),
                               textAlign: TextAlign.start,
@@ -196,7 +205,7 @@ class CustomRow1 extends StatelessWidget {
                                         noticeText!,
                                         style: TextStyle(
                                           color: Colors.red[600],
-                                          fontFamily: 'CJKMedium',
+                                          fontFamily: 'WantedSansMedium',
                                           fontSize: 11.5,
                                         ),
                                         textAlign: TextAlign.start,
@@ -234,7 +243,7 @@ class CustomRow1 extends StatelessWidget {
                   '상세정보'.tr,
                   style: TextStyle(
                     color: Colors.grey[900],
-                    fontFamily: 'CJKMedium',
+                    fontFamily: 'WantedSansMedium',
                     fontSize: 12.5,
                   ),
                 ),

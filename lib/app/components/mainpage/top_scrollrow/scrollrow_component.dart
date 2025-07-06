@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ScrollRowContainer extends StatelessWidget {
   final String text;
-  final IconData icon;
+  final String svgPath;
+
   final Color color;
   final bool ischecked;
 
   const ScrollRowContainer({
     Key? key,
     required this.text,
-    required this.icon,
+    required this.svgPath,
     required this.ischecked,
     this.color = Colors.white,
   }) : super(key: key);
@@ -35,26 +37,37 @@ class ScrollRowContainer extends StatelessWidget {
               )
             : null,
         borderRadius: BorderRadius.circular(25.r),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.withOpacity(0.1),
+        //     spreadRadius: 1,
+        //     blurRadius: 3,
+        //     offset: const Offset(0, 1),
+        //   ),
+        // ],
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon,
-              color: ischecked ? Colors.white : Colors.black, size: 15.sp),
+          SvgPicture.asset(svgPath,
+              // color: ischecked ? Colors.white : Colors.black,
+              height: 15.sp,
+              width: 15.sp),
+          // Icon(icon,
+          //     color: ischecked ? Colors.white : Colors.black, size: 15.sp),
           SizedBox(width: 4.w),
           Text(
             text,
             style: TextStyle(
               color: ischecked ? Colors.white : Colors.black,
-              fontFamily: 'CJKMedium',
+              fontFamily: 'WantedSansMedium',
               fontSize: 14.sp,
             ),
           ),

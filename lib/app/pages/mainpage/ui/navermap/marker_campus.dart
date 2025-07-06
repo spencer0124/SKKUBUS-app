@@ -9,46 +9,57 @@ List<CampusMarker> hsscMarkers = [
   CampusMarker(
     idNumber: "1",
     position: const NLatLng(37.587361, 126.994479),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "2",
     position: const NLatLng(37.587441, 126.990506),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "4",
     position: const NLatLng(37.588636, 126.993209),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "7",
     position: const NLatLng(37.588353, 126.994262),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "8",
     position: const NLatLng(37.58752, 126.99322),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "9",
     position: const NLatLng(37.586819, 126.995246),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "31",
     position: const NLatLng(37.589184, 126.991539),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "32",
     position: const NLatLng(37.589053, 126.992435),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "33",
     position: const NLatLng(37.588572, 126.992666),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "61",
     position: const NLatLng(37.587882, 126.991079),
+    hasrank: false,
   ),
   CampusMarker(
     idNumber: "62",
     position: const NLatLng(37.588160, 126.990868),
+    hasrank: false,
   ),
 ];
 
@@ -56,6 +67,7 @@ List<CampusMarker> nscMarkers = [
   CampusMarker(
     idNumber: "1",
     position: const NLatLng(37.587361, 126.994479),
+    hasrank: false,
   ),
 ];
 

@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+// import 'package:timezone/timezone.dart' as tz;
+// import 'package:timezone/data/latest.dart' as tzData;
 
 /*
 LifeCycleGetx2, WidgetsBindingObserver
@@ -77,6 +79,8 @@ class InjaMainController extends GetxController {
     // determineNextBus();
   }
 
+  // 현재 날짜와 요일을 가져오는 함수
+
   var duration = ''.obs;
 
   final Dio _dio = Dio();
@@ -88,8 +92,8 @@ class InjaMainController extends GetxController {
         'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=126.993688,37.587308&goal=126.975532,37.292345',
         options: Options(
           headers: {
-            'X-NCP-APIGW-API-KEY-ID': dotenv.env['naverClientId'],
-            'X-NCP-APIGW-API-KEY': dotenv.env['naverClientSecret'],
+            'X-NCP-APIGW-API-KEY-ID': dotenv.env['navernewClientId'],
+            'X-NCP-APIGW-API-KEY': dotenv.env['navernewClientSecret'],
           },
         ),
       );
@@ -133,8 +137,18 @@ class InjaMainController extends GetxController {
         name: 'injashuttle_${type}_${mapNameEn}_success',
       );
     } else {
+      // 이, 가 조사 분기처리
+      // 카카오맵: ~이 설치되어 있지 않아요
+      // 네이버지도, 애플지도: ~가 설치되어 있지 않아요.
+
+      var windowTitlefinal = '$mapNameKr가 설치되어 있지 않아요';
+
+      if (mapNameKr == "카카오맵" || mapNameKr == "카카오 맵") {
+        windowTitlefinal = '$mapNameKr이 설치되어 있지 않아요';
+      }
+
       final result = await FlutterPlatformAlert.showCustomAlert(
-        windowTitle: '$mapNameKr가 설치되어 있지 않아요',
+        windowTitle: windowTitlefinal,
         text: '$mapNameKr 설치 페이지로 이동할까요?',
         negativeButtonTitle: "이동",
         positiveButtonTitle: "취소",

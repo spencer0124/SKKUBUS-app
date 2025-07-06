@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app_theme.dart';
+import 'package:get/get.dart';
 
 class Bottomnavigation extends StatelessWidget {
-  const Bottomnavigation(
-      {Key? key, required this.index, required this.onItemTapped})
-      : super(key: key);
+  const Bottomnavigation({
+    Key? key,
+    required this.index,
+    required this.onItemTapped,
+  }) : super(key: key);
   final int index;
   final Function(int) onItemTapped;
 
@@ -37,35 +40,33 @@ class Bottomnavigation extends StatelessWidget {
             //     Text('홈'),
             //   ],
             // ),
-            const Spacer(),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                onItemTapped(0);
-              },
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/images/flaticon_bus1.png',
-                    width: 22,
-                    color: index == 0 ? AppColors.green_main : Colors.grey,
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    '버스',
-                    style: TextStyle(
-                      color: index == 0 ? AppColors.green_main : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
             // const Spacer(),
-            SizedBox(
-              width: screenWidth * 0.3,
-            ),
+            // GestureDetector(
+            //   behavior: HitTestBehavior.translucent,
+            //   onTap: () {
+            //     onItemTapped(0);
+            //   },
+            //   child: Column(
+            //     children: [
+            //       Image.asset(
+            //         'assets/images/flaticon_two_point.png',
+            //         width: 22,
+            //         color: index == 0 ? AppColors.green_main : Colors.grey,
+            //       ),
+            //       const SizedBox(
+            //         height: 5,
+            //       ),
+            //       Text(
+            //         '주변',
+            //         style: TextStyle(
+            //           color: index == 0 ? AppColors.green_main : Colors.grey,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            const Spacer(),
             GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
@@ -74,15 +75,13 @@ class Bottomnavigation extends StatelessWidget {
               child: Column(
                 children: [
                   Image.asset(
-                    'assets/images/flaticon_stop1.png',
+                    'assets/images/flaticon_campus.png',
                     width: 22,
                     color: index == 1 ? AppColors.green_main : Colors.grey,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Text(
-                    '정류장',
+                    '캠퍼스'.tr,
                     style: TextStyle(
                       color: index == 1 ? AppColors.green_main : Colors.grey,
                     ),
@@ -91,6 +90,7 @@ class Bottomnavigation extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            // const Spacer(),
             // GestureDetector(
             //   behavior: HitTestBehavior.translucent,
             //   onTap: () {
@@ -98,12 +98,16 @@ class Bottomnavigation extends StatelessWidget {
             //   },
             //   child: Column(
             //     children: [
-            //       Icon(
-            //         Icons.school,
+            //       Image.asset(
+            //         'assets/images/flaticon_stop1.png',
+            //         width: 22,
             //         color: index == 2 ? AppColors.green_main : Colors.grey,
             //       ),
+            //       const SizedBox(
+            //         height: 5,
+            //       ),
             //       Text(
-            //         '캠퍼스',
+            //         '공지',
             //         style: TextStyle(
             //           color: index == 2 ? AppColors.green_main : Colors.grey,
             //         ),
