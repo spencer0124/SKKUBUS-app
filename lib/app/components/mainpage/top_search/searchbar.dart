@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:skkumap/app/utils/screensize.dart';
-import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
+import 'package:skkumap/app/utils/screensize.dart';
 
 class CustomSearchBar extends StatelessWidget {
   const CustomSearchBar({Key? key}) : super(key: key);
@@ -40,15 +40,10 @@ class CustomSearchBar extends StatelessWidget {
         },
         child: Row(
           children: [
-            SvgPicture.asset(
-              'assets/tossface/toss_search_left.svg',
-              width: 20,
-            ),
-            const SizedBox(
-              width: 8,
-            ),
+            SvgPicture.asset('assets/tossface/toss_search_left.svg', width: 20),
+            const SizedBox(width: 8),
             Text(
-              '성균관대 건물코드 검색'.tr,
+              '장소, 메뉴, 캠퍼스 검색'.tr,
               style: TextStyle(
                 color: Colors.grey[400],
                 fontFamily: 'WantedSansMedium',

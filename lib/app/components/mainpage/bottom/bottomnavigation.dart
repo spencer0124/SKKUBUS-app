@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app_theme.dart';
-import 'package:get/get.dart';
 
 class Bottomnavigation extends StatelessWidget {
   const Bottomnavigation({
@@ -50,7 +50,7 @@ class Bottomnavigation extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    '주변',
+                    '택시',
                     style: TextStyle(
                       color: index == 0 ? AppColors.green_main : Colors.grey,
                     ),
@@ -73,7 +73,7 @@ class Bottomnavigation extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    '캠퍼스'.tr,
+                    '버스'.tr,
                     style: TextStyle(
                       color: index == 1 ? AppColors.green_main : Colors.grey,
                     ),
@@ -83,30 +83,29 @@ class Bottomnavigation extends StatelessWidget {
             ),
             const Spacer(),
             // const Spacer(),
-            // GestureDetector(
-            //   behavior: HitTestBehavior.translucent,
-            //   onTap: () {
-            //     onItemTapped(2);
-            //   },
-            //   child: Column(
-            //     children: [
-            //       Image.asset(
-            //         'assets/images/flaticon_stop1.png',
-            //         width: 22,
-            //         color: index == 2 ? AppColors.green_main : Colors.grey,
-            //       ),
-            //       const SizedBox(
-            //         height: 5,
-            //       ),
-            //       Text(
-            //         '공지',
-            //         style: TextStyle(
-            //           color: index == 2 ? AppColors.green_main : Colors.grey,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                onItemTapped(2);
+              },
+              child: Column(
+                children: [
+                  Image.asset(
+                    'assets/images/flaticon_campus.png',
+                    width: 22,
+                    color: index == 2 ? AppColors.green_main : Colors.grey,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '캠퍼스',
+                    style: TextStyle(
+                      color: index == 2 ? AppColors.green_main : Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
           ],
         ),
       ),

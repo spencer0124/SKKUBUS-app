@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
-import 'package:skkumap/app/utils/screensize.dart';
-import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_bus.dart';
 import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_campus_service_button.dart';
+import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // '캠퍼스' 탭
@@ -68,22 +66,22 @@ class OptionCampus extends StatelessWidget {
                           //   width: 0.5,
                           // ),
                         ),
-                        child: Row(
-                          children: [
-                            Text(
-                              "성균관대학교".tr,
-                              style: const TextStyle(
-                                fontFamily: "WantedSansBold",
-                                fontSize: 15,
-                              ),
-                            ),
-                            // const SizedBox(width: 5),
-                            // SvgPicture.asset(
-                            //     "assets/tossface/toss_arrow_down.svg",
-                            //     width: 20,
-                            //     height: 20),
-                          ],
-                        ),
+                        // child: Row(
+                        //   children: [
+                        //     Text(
+                        //       "성균관대학교".tr,
+                        //       style: const TextStyle(
+                        //         fontFamily: "WantedSansBold",
+                        //         fontSize: 15,
+                        //       ),
+                        //     ),
+                        //     // const SizedBox(width: 5),
+                        //     // SvgPicture.asset(
+                        //     //     "assets/tossface/toss_arrow_down.svg",
+                        //     //     width: 20,
+                        //     //     height: 20),
+                        //   ],
+                        // ),
                       ),
                       const Spacer(),
                     ],
@@ -92,7 +90,7 @@ class OptionCampus extends StatelessWidget {
 
                 const SizedBox(height: 5),
 
-                // 가능한 서비스 목록
+                // 가능한 서비스 목록 1
                 Container(
                   padding: const EdgeInsets.only(
                     left: 3,
@@ -104,7 +102,7 @@ class OptionCampus extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const SizedBox(width: 15),
+                      const Spacer(),
                       CustomServiceBtn(
                         title: "건물지도".tr,
                         iconPath: "assets/tossface/toss_building.svg",
@@ -112,7 +110,7 @@ class OptionCampus extends StatelessWidget {
                           Get.toNamed('/hsscbuildingmap');
                         },
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 14),
                       CustomServiceBtn(
                         title: "건물코드".tr,
                         iconPath: "assets/tossface/toss_numbers.svg",
@@ -120,7 +118,7 @@ class OptionCampus extends StatelessWidget {
                           Get.toNamed('/searchlist');
                         },
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 14),
                       CustomServiceBtn(
                         title: "분실물".tr,
                         iconPath: "assets/tossface/toss_luggage.svg",
@@ -128,7 +126,7 @@ class OptionCampus extends StatelessWidget {
                           Get.toNamed('/lostandfound');
                         },
                       ),
-                      const Spacer(),
+                      const SizedBox(width: 14),
                       CustomServiceBtn(
                         title: "문의하기".tr,
                         iconPath: "assets/tossface/toss_chat_bubble.svg",
@@ -142,14 +140,14 @@ class OptionCampus extends StatelessWidget {
                           }
                         },
                       ),
-                      const SizedBox(width: 15),
+                      const Spacer(),
                     ],
                   ),
                 ),
 
-                const SizedBox(height: 30),
-                // 하단 컨텐츠
-                // 1. 학교 셔틀 정보
+                const SizedBox(height: 9),
+
+                // 가능한 서비스 목록 2
                 Container(
                   padding: const EdgeInsets.only(
                     left: 3,
@@ -157,32 +155,84 @@ class OptionCampus extends StatelessWidget {
                     top: 2,
                     bottom: 2,
                   ),
-                  child: Column(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          const SizedBox(width: 15),
-                          Text(
-                            "셔틀버스 / 대중교통".tr,
-                            style: const TextStyle(
-                              fontFamily: "WantedSansBold",
-                              fontSize: 15,
-                            ),
-                          ),
-                          const Spacer(),
-                        ],
+                      const Spacer(),
+                      CustomServiceBtn(
+                        title: "셔틀버스".tr,
+                        iconPath: "assets/tossface/toss_bus_skkubus.svg",
+                        onTap: () {
+                          Get.toNamed('/hsscbuildingmap');
+                        },
                       ),
-                      OptionBus(),
+                      const SizedBox(width: 14),
+                      CustomServiceBtn(
+                        title: "대중교통".tr,
+                        iconPath: "assets/tossface/toss_bus_citybus.svg",
+                        onTap: () {
+                          Get.toNamed('/searchlist');
+                        },
+                      ),
+                      const SizedBox(width: 14),
+                      CustomServiceBtn(
+                        title: "캠퍼스톡".tr,
+                        iconPath: "assets/tossface/toss_chat_bubble.svg",
+                        onTap: () {
+                          Get.toNamed('/lostandfound');
+                        },
+                      ),
+                      const SizedBox(width: 14),
+                      CustomServiceBtn(
+                        title: "추가 / 편집".tr,
+                        iconPath: "assets/tossface/toss_plus.svg",
+                        onTap: () async {
+                          String kakaoChatLink =
+                              "http://pf.kakao.com/_cjxexdG/chat"; // 카카오톡 채널 링크
+                          if (await canLaunchUrl(Uri.parse(kakaoChatLink))) {
+                            await launchUrl(Uri.parse(kakaoChatLink));
+                          } else {
+                            Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
+                          }
+                        },
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // 하단 컨텐츠
+                Container(
+                  padding: const EdgeInsets.only(
+                    left: 3,
+                    right: 3,
+                    top: 2,
+                    bottom: 2,
+                  ),
+                  child: const Column(
+                    children: [
+                      // Row(
+                      //   children: [
+                      //     const SizedBox(width: 15),
+                      //     Text(
+                      //       "셔틀버스 / 대중교통".tr,
+                      //       style: const TextStyle(
+                      //         fontFamily: "WantedSansBold",
+                      //         fontSize: 15,
+                      //       ),
+                      //     ),
+                      //     const Spacer(),
+                      //   ],
+                      // ),
+                      // OptionBus(),
                       // OptionBus(),
                       // OptionBus(),
                     ],
                   ),
                 ),
-
-                const SizedBox(height: 15),
-
-                // 2. 학교 특화 정보
-                // ex: 성균관대: 인사캠 건물지도, 자과캠 건물지도, 공간명 코드 검색
               ],
             ),
             const SizedBox(height: 5),

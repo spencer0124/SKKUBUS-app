@@ -12,8 +12,11 @@ class OptionBus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = ScreenSize.width(context);
+    final double screenHeight = ScreenSize.height(context);
 
     return Container(
+      // Ensure the container has enough height to be scrollable in the sheet
+      constraints: BoxConstraints(minHeight: screenHeight * 0.9),
       color: Colors.white,
       child: Obx(() {
         if (controller.mainpageBusList.value == null) {
