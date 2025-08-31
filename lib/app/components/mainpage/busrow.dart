@@ -8,6 +8,9 @@ import 'package:lottie/lottie.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:skkumap/app/types/bus_type.dart';
+import 'dart:io' show Platform; // Platform 클래스를 사용하기 위해 import
+import 'package:flutter/material.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 final double dwidth =
     MediaQueryData.fromView(WidgetsBinding.instance.window).size.width;
@@ -55,13 +58,34 @@ class CustomRow1 extends StatelessWidget {
         } else {
           // 웹뷰로 가는 경우
           if (pageLink == "/customwebview") {
-            Get.toNamed(pageLink, arguments: {
-              'title': title,
-              'color': busTypeBgColor,
-              'webviewLink': pageWebviewLink,
-            });
-          }
+            // 로그 기록
+            final parameters = <String, Object>{
+              // 1. Platform 클래스로 OS 정보 수집
+              'platform': Platform.operatingSystem, // 'android' 또는 'ios'
+              'os_version_string':
+                  Platform.operatingSystemVersion, // 'Android 13' 등 OS 버전 문자열
+              'locale': Platform.localeName, // 'ko_KR' 등 기기 언어/지역 설정
+            };
 
+            FirebaseAnalytics.instance.logEvent(
+              name:
+                  'webview_$title'
+                  ' click',
+              parameters: parameters,
+            );
+
+            print(
+              'Analytics Event Logged (No Packages): $parameters',
+            ); // 디버깅용 로그
+            Get.toNamed(
+              pageLink,
+              arguments: {
+                'title': title,
+                'color': busTypeBgColor,
+                'webviewLink': pageWebviewLink,
+              },
+            );
+          }
           // 인사캠 셔틀, 종로07, 종로02로 가는 경우
           // 모두 같은 페이지로 가는데, 각각의 버스타입으로 색과 api 요청을 구분한다.
           else if (pageLink == "/MainbusMain") {
@@ -76,11 +100,8 @@ class CustomRow1 extends StatelessWidget {
               bustype = BusType.hsscBus;
             }
 
-            Get.toNamed(pageLink, arguments: {
-              'bustype': bustype,
-            });
+            Get.toNamed(pageLink, arguments: {'bustype': bustype});
           }
-
           // 그 외의 경우
           else {
             Get.toNamed(pageLink);
@@ -94,18 +115,14 @@ class CustomRow1 extends StatelessWidget {
               Container(
                 width: dwidth,
                 padding: const EdgeInsets.fromLTRB(0, 11, 0, 0),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
+                decoration: const BoxDecoration(color: Colors.white),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        const SizedBox(width: 5),
                         if (title == "인사캠 셔틀버스".tr || title == "인자셔틀".tr)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
@@ -114,17 +131,29 @@ class CustomRow1 extends StatelessWidget {
                               width: 23,
                             ),
                           )
-                        else
+                        else if (title == "종로 02".tr || title == "종로 07".tr)
                           Padding(
                             padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
                             child: SvgPicture.asset(
                               'assets/tossface/toss_bus_citybus.svg',
                               width: 23,
                             ),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
+                            child: SizedBox(
+                              width: 23,
+                              child: Image.network(
+                                "https://i.imgur.com/IRnCU4R.jpeg", // Use the image URL from the Map
+                                fit: BoxFit.fitWidth,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Text('Failed to load image');
+                                },
+                              ),
+                            ),
                           ),
-                        const SizedBox(
-                          width: 12,
-                        ),
+                        const SizedBox(width: 12),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,33 +178,40 @@ class CustomRow1 extends StatelessWidget {
                                   ),
                                   textAlign: TextAlign.start,
                                 ),
-                                Container(
-                                  // width: 34,
-                                  height: 18,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(7, 2, 7, 2),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Color(int.parse("0xFF$busTypeBgColor")),
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: Text(
-                                    busTypeText,
-                                    style: TextStyle(
-                                      height: 1.4.h,
-                                      color: Colors.white,
-                                      fontFamily: 'WantedSansMedium',
-                                      fontSize: 10.sp,
+                                if (title == "인사캠 셔틀버스".tr ||
+                                    title == "인자셔틀".tr ||
+                                    title == "종로 02".tr ||
+                                    title == "종로 07".tr)
+                                  Container(
+                                    // width: 34,
+                                    height: 18,
+                                    padding: const EdgeInsets.fromLTRB(
+                                      7,
+                                      2,
+                                      7,
+                                      2,
                                     ),
-                                    textAlign: TextAlign.start,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: Color(
+                                        int.parse("0xFF$busTypeBgColor"),
+                                      ),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: Text(
+                                      busTypeText,
+                                      style: TextStyle(
+                                        height: 1.4.h,
+                                        color: Colors.white,
+                                        fontFamily: 'WantedSansMedium',
+                                        fontSize: 10.sp,
+                                      ),
+                                      textAlign: TextAlign.start,
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
-                            SizedBox(
-                              height: 3.h,
-                            ),
+                            SizedBox(height: 3.h),
                             Text(
                               subtitle,
                               style: TextStyle(
@@ -185,9 +221,7 @@ class CustomRow1 extends StatelessWidget {
                               ),
                               textAlign: TextAlign.start,
                             ),
-                            const SizedBox(
-                              height: 5,
-                            ),
+                            const SizedBox(height: 5),
                             if (showNoticeText)
                               Column(
                                 children: [
@@ -198,9 +232,7 @@ class CustomRow1 extends StatelessWidget {
                                         size: 13,
                                         color: Colors.red,
                                       ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
+                                      const SizedBox(width: 3),
                                       Text(
                                         noticeText!,
                                         style: TextStyle(
@@ -221,9 +253,7 @@ class CustomRow1 extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const SizedBox(height: 5),
               Divider(
                 color: Colors.grey[300],
                 thickness: 0.7,
@@ -247,9 +277,7 @@ class CustomRow1 extends StatelessWidget {
                     fontSize: 12.5,
                   ),
                 ),
-                const SizedBox(
-                  width: 2,
-                ),
+                const SizedBox(width: 2),
                 const Icon(
                   CupertinoIcons.right_chevron,
                   size: 12,
@@ -263,12 +291,12 @@ class CustomRow1 extends StatelessWidget {
               top: -10,
               left: 13,
               child:
-                  // Image.asset(
-                  //   'assets/images/flaticon_star.png',
-                  //   width: 20,
-                  //   // color: const Color(0xFFffb030),
-                  // ),
-                  Lottie.asset(
+              // Image.asset(
+              //   'assets/images/flaticon_star.png',
+              //   width: 20,
+              //   // color: const Color(0xFFffb030),
+              // ),
+              Lottie.asset(
                 'assets/lottie/shine2.json',
                 reverse: false,
                 repeat: true,
