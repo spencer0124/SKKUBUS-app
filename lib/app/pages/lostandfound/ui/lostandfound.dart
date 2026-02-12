@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class LostAndFound extends StatelessWidget {
   const LostAndFound({super.key});
@@ -179,7 +180,7 @@ class LostAndFound extends StatelessWidget {
                           await FlutterPhoneDirectCaller.callNumber(
                               '027601077');
                         } catch (e) {
-                          print("Failed to make a call due to ${e.toString()}");
+                          logger.e("Failed to make a call due to ${e.toString()}");
                         }
                       },
                       child: const Row(
@@ -221,7 +222,7 @@ class LostAndFound extends StatelessWidget {
                           await FlutterPhoneDirectCaller.callNumber(
                               '0312905034');
                         } catch (e) {
-                          print("Failed to make a call due to ${e.toString()}");
+                          logger.e("Failed to make a call due to ${e.toString()}");
                         }
                       },
                       child: const Row(

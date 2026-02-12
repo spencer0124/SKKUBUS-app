@@ -9,104 +9,74 @@ import 'package:skkumap/app_theme.dart';
 
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/utils/screensize.dart';
+import 'package:skkumap/app/utils/constants.dart';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:skkumap/app/components/liveactivitiy/liveactivity_bus_eta.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 
-// 인사캠 위도, 경도, 목적지 이름
-const double seoulCampusLat = 37.587347;
-const double seoulCampusLon = 126.994140;
-const String seoulCampusDestnameEncode =
-    '%EC%8A%A4%EA%BE%B8%EB%B2%84%EC%8A%A4%20%7C%20%EC%9D%B8%EC%82%AC%EC%BA%A0';
-
-// 자과캠 위도, 경도, 목적지 이름
-const double suwonCampusLat = 37.296362;
-const double suwonCampusLon = 126.970565;
-const String suwonCampusDestnameEncode =
-    '%EC%8A%A4%EA%BE%B8%EB%B2%84%EC%8A%A4%20%7C%20%EC%9E%90%EA%B3%BC%EC%BA%A0';
-
-// 인사캠 (600주년 기념관 앞) 대중교통 길찾기 바로가기 링크
+// Map deep links using centralized coordinates
 final Uri seoulCampusMapNaver = Uri.parse(
-  'nmap://route/public?dlat=$seoulCampusLat&dlng=$seoulCampusLon&dname=$seoulCampusDestnameEncode',
+  'nmap://route/public?dlat=${CampusCoordinates.seoulCampusLat}&dlng=${CampusCoordinates.seoulCampusLon}&dname=${CampusCoordinates.seoulCampusDestnameEncode}',
 );
 final Uri seoulCampusMapKakao = Uri.parse(
-  'kakaomap://route?ep=$seoulCampusLat,$seoulCampusLon&by=PUBLICTRANSIT&eName=$seoulCampusDestnameEncode',
+  'kakaomap://route?ep=${CampusCoordinates.seoulCampusLat},${CampusCoordinates.seoulCampusLon}&by=PUBLICTRANSIT&eName=${CampusCoordinates.seoulCampusDestnameEncode}',
 );
 final Uri seoulCampusMapApple = Uri.parse(
-  'maps://?t=r&daddr=$seoulCampusLat,$seoulCampusLon&dirflg=2',
+  'maps://?t=r&daddr=${CampusCoordinates.seoulCampusLat},${CampusCoordinates.seoulCampusLon}&dirflg=2',
 );
 
-// 자과캠 (후문 앞)대중교통 길찾기 바로가기 링크
 final Uri suwonCampusMapNaver = Uri.parse(
-  'nmap://route/public?dlat=$suwonCampusLat&dlng=$suwonCampusLon&dname=$suwonCampusDestnameEncode',
+  'nmap://route/public?dlat=${CampusCoordinates.suwonCampusLat}&dlng=${CampusCoordinates.suwonCampusLon}&dname=${CampusCoordinates.suwonCampusDestnameEncode}',
 );
 final Uri suwonCampusMapKakao = Uri.parse(
-  'kakaomap://route?ep=$suwonCampusLat,$suwonCampusLon&by=PUBLICTRANSIT&eName=$suwonCampusDestnameEncode',
+  'kakaomap://route?ep=${CampusCoordinates.suwonCampusLat},${CampusCoordinates.suwonCampusLon}&by=PUBLICTRANSIT&eName=${CampusCoordinates.suwonCampusDestnameEncode}',
 );
 final Uri suwonCampusMapApple = Uri.parse(
-  'maps://?t=r&daddr=$suwonCampusLat,$suwonCampusLon&dirflg=2',
+  'maps://?t=r&daddr=${CampusCoordinates.suwonCampusLat},${CampusCoordinates.suwonCampusLon}&dirflg=2',
 );
 
-final List<String> dateitems = [
-  '월요일',
-  '화요일',
-  '수요일',
-  '목요일',
-  '금요일',
-  '토요일',
-  '일요일',
-];
-
-// 인사캠 셔틀 탑승 장소 위도, 경도, 목적지 이름
-const double seoulLat = 37.587308;
-const double seoulLon = 126.993688;
-const String seoulDestnameEncode =
-    '%EC%8A%A4%EA%BE%B8%EB%B2%84%EC%8A%A4%20%7C%20%EC%9D%B8%EC%82%AC%EC%BA%A0%20%EC%85%94%ED%8B%80%20%EC%9C%84%EC%B9%98';
-
-// 자과캠 셔틀 탑승 장소 위도, 경도, 목적지 이름
-const double suwonLat = 37.292345;
-const double suwonLon = 126.975532;
-const String suwonDestnameEncode =
-    '%EC%8A%A4%EA%BE%B8%EB%B2%84%EC%8A%A4%20%7C%20%EC%9E%90%EA%B3%BC%EC%BA%A0%20%EC%85%94%ED%8B%80%20%EC%9C%84%EC%B9%98';
-
-// 인사캠 길찾기 바로가기 링크
 final Uri seoulMapNaver = Uri.parse(
-  'nmap://route/walk?dlat=$seoulLat&dlng=$seoulLon&dname=$seoulDestnameEncode',
+  'nmap://route/walk?dlat=${CampusCoordinates.seoulShuttleLat}&dlng=${CampusCoordinates.seoulShuttleLon}&dname=${CampusCoordinates.seoulShuttleDestnameEncode}',
 );
 final Uri seoulMapKakao = Uri.parse(
-  'kakaomap://route?ep=$seoulLat,$seoulLon&by=FOOT&eName=$seoulDestnameEncode',
+  'kakaomap://route?ep=${CampusCoordinates.seoulShuttleLat},${CampusCoordinates.seoulShuttleLon}&by=FOOT&eName=${CampusCoordinates.seoulShuttleDestnameEncode}',
 );
-final Uri seoulMapApple = Uri.parse('maps://?t=m&daddr=$seoulLat,$seoulLon');
+final Uri seoulMapApple = Uri.parse(
+  'maps://?t=m&daddr=${CampusCoordinates.seoulShuttleLat},${CampusCoordinates.seoulShuttleLon}',
+);
 
-// 자과캠 길찾기 바로가기 링크
 final Uri suwonMapNaver = Uri.parse(
-  'nmap://route/walk?dlat=$suwonLat&dlng=$suwonLon&dname=$suwonDestnameEncode',
+  'nmap://route/walk?dlat=${CampusCoordinates.suwonShuttleLat}&dlng=${CampusCoordinates.suwonShuttleLon}&dname=${CampusCoordinates.suwonShuttleDestnameEncode}',
 );
 final Uri suwonMapKakao = Uri.parse(
-  'kakaomap://route?ep=$suwonLat,$suwonLon&by=FOOT&eName=$suwonDestnameEncode',
+  'kakaomap://route?ep=${CampusCoordinates.suwonShuttleLat},${CampusCoordinates.suwonShuttleLon}&by=FOOT&eName=${CampusCoordinates.suwonShuttleDestnameEncode}',
 );
-final Uri suwonMapApple = Uri.parse('maps://?t=m&daddr=$suwonLat,$suwonLon');
+final Uri suwonMapApple = Uri.parse(
+  'maps://?t=m&daddr=${CampusCoordinates.suwonShuttleLat},${CampusCoordinates.suwonShuttleLon}',
+);
 
-// 인사캠 셔틀 탑승 위치 네이버 지도 관련 설정들
 final seoulMarker = NMarker(
   id: 'seoul_marker',
-  position: const NLatLng(seoulLat, seoulLon),
+  position: const NLatLng(
+      CampusCoordinates.seoulShuttleLat, CampusCoordinates.seoulShuttleLon),
 );
 const seoulCameraPosition = NCameraPosition(
-  target: NLatLng(seoulLat, seoulLon),
+  target: NLatLng(
+      CampusCoordinates.seoulShuttleLat, CampusCoordinates.seoulShuttleLon),
   zoom: 15,
   bearing: 45,
   tilt: 30,
 );
 
-// 자과캠 셔틀 탑승 위치 네이버 지도 관련
 final suwonMarker = NMarker(
   id: 'suwon_marker',
-  position: const NLatLng(suwonLat, suwonLon),
+  position: const NLatLng(
+      CampusCoordinates.suwonShuttleLat, CampusCoordinates.suwonShuttleLon),
 );
 const suwonCameraPosition = NCameraPosition(
-  target: NLatLng(suwonLat, suwonLon),
+  target: NLatLng(
+      CampusCoordinates.suwonShuttleLat, CampusCoordinates.suwonShuttleLon),
   zoom: 15,
   bearing: 45,
   tilt: 30,
@@ -206,7 +176,7 @@ class ESKARA extends StatelessWidget {
                           ),
                         ),
                         items:
-                            dateitems
+                            controller.dateitems
                                 .map(
                                   (String item) => DropdownMenuItem<String>(
                                     value: item,

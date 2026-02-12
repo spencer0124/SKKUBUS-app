@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart'; // Ensure you have the GetX package installed
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:skkumap/app/utils/constants.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class SplashAd extends StatefulWidget {
   const SplashAd({Key? key}) : super(key: key);
@@ -36,15 +38,15 @@ class _SplashAdState extends State<SplashAd> {
 
     try {
       final response =
-          await http.get(Uri.parse('http://43.200.90.214:3000/ad/v1/addetail'));
+          await http.get(Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'));
       FlutterNativeSplash.remove();
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         try {
           http.get(Uri.parse(
-              'http://43.200.90.214:3000/ad/v1/statistics/menu1/view'));
+              '${ApiConfig.baseUrl}/ad/v1/statistics/menu1/view'));
         } catch (e) {
-          print('Error: $e');
+          logger.e('Error: $e');
         }
 
         return {
@@ -52,10 +54,10 @@ class _SplashAdState extends State<SplashAd> {
           'link': data['link'],
         };
       } else {
-        print('Server error4');
+        logger.e('Server error4');
       }
     } catch (e) {
-      print('Error: $e');
+      logger.e('Error: $e');
     }
     return {
       'image': null,
@@ -124,9 +126,9 @@ class _SplashAdState extends State<SplashAd> {
                                         Uri.parse(snapshot.data!['link']!));
                                     try {
                                       http.get(Uri.parse(
-                                          'http://43.200.90.214:3000/ad/v1/statistics/menu1/click'));
+                                          '${ApiConfig.baseUrl}/ad/v1/statistics/menu1/click'));
                                     } catch (e) {
-                                      print('Error: $e');
+                                      logger.e('Error: $e');
                                     }
                                   } else {
                                     Get.snackbar('오류', '해당 링크를 열 수 없습니다.');

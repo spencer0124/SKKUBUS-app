@@ -4,6 +4,7 @@ import 'package:skkumap/app/pages/mainpage/controller/snappingsheet_controller.d
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'scrollrow_component.dart'; // Import the ScrollRowContainer widget
 import 'package:skkumap/app/pages/mainpage/controller/around_place_controller.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class ScrollableRow extends StatelessWidget {
   const ScrollableRow({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class ScrollableRow extends StatelessWidget {
               // Debug current visible map bounds
               final bounds = await ultimateNampController.mapController.value
                   ?.getContentBounds();
-              print('Current map bounds: $bounds');
+              logger.d('Current map bounds: $bounds');
               if (bounds != null) {
                 await aroundCtrl.fetchAroundPlaceData(bounds);
               }

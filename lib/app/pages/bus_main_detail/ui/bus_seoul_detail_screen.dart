@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:skkumap/app_theme.dart';
 
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 final double dheight =
     MediaQueryData.fromView(WidgetsBinding.instance.window).size.height;
@@ -252,7 +253,7 @@ class BusDataScreenDetail extends StatelessWidget {
                                             '027601073',
                                           );
                                         } catch (e) {
-                                          print(
+                                          logger.e(
                                             "Failed to make a call due to ${e.toString()}",
                                           );
                                         }
@@ -299,7 +300,7 @@ class BusDataScreenDetail extends StatelessWidget {
                                             '027600110',
                                           );
                                         } catch (e) {
-                                          print(
+                                          logger.e(
                                             "Failed to make a call due to ${e.toString()}",
                                           );
                                         }

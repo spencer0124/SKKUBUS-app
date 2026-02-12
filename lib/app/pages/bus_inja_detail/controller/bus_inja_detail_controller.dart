@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
@@ -52,7 +53,7 @@ class InjaDetailController extends GetxController {
       await FirebaseAnalytics.instance
           .setCurrentScreen(screenName: 'injashuttle_screen');
     } catch (e) {
-      print(e);
+      logger.e(e);
     }
     super.onInit();
     determineNextBus();

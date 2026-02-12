@@ -10,8 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-// import 'package:timezone/timezone.dart' as tz;
-// import 'package:timezone/data/latest.dart' as tzData;
+import 'package:skkumap/app/utils/constants.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 /*
 LifeCycleGetx2, WidgetsBindingObserver
@@ -73,7 +73,7 @@ class InjaMainController extends GetxController {
       await FirebaseAnalytics.instance
           .setCurrentScreen(screenName: 'injashuttle_screen');
     } catch (e) {
-      print(e);
+      logger.e(e);
     }
     super.onInit();
     // determineNextBus();
@@ -109,11 +109,11 @@ class InjaMainController extends GetxController {
         duration.value = '$durationInHours시간 $durationInMinutes분';
       } else {
         // Handle API error or any other condition as per your requirement
-        print('error1');
+        logger.w('error1');
       }
     } catch (e) {
       // Handle Dio exception or any other exception as per your requirement
-      print(e);
+      logger.e(e);
     }
   }
 
@@ -232,9 +232,8 @@ class InjaMainController extends GetxController {
   // Function to fetch bus schedules from the API
   void fetchinjaBusSchedule(String type) async {
     try {
-      // var url = Uri.parse('http://localhost:3000/campus/v1/campus/INJA_$type');
       var url =
-          Uri.parse('http://43.200.90.214:3000/campus/v1/campus/INJA_$type');
+          Uri.parse('${ApiConfig.baseUrl}/campus/v1/campus/INJA_$type');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -253,9 +252,8 @@ class InjaMainController extends GetxController {
 
   void fetchjainBusSchedule(String type) async {
     try {
-      // var url = Uri.parse('http://localhost:3000/campus/v1/campus/JAIN_$type');
       var url =
-          Uri.parse('http://43.200.90.214:3000/campus/v1/campus/JAIN_$type');
+          Uri.parse('${ApiConfig.baseUrl}/campus/v1/campus/JAIN_$type');
       var response = await http.get(url);
 
       if (response.statusCode == 200) {

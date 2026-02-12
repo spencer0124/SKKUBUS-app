@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:skkumap/app/model/search_option3_model.dart';
 import 'package:skkumap/app/utils/api_fetch/search_option3.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 import 'dart:async';
 
@@ -53,7 +54,7 @@ class SearchListController extends GetxController {
       });
       searchResult.value = result;
     } catch (e) {
-      print("Error performing search: $e");
+      logger.e("Error performing search: $e");
     }
   }
 

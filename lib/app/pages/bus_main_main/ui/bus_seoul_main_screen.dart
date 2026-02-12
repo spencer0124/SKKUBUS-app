@@ -23,6 +23,8 @@ import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
+import 'package:skkumap/app/utils/constants.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class BusDataScreen extends GetView<BusDataController> {
   const BusDataScreen({super.key});
@@ -64,9 +66,9 @@ class BusDataScreen extends GetView<BusDataController> {
                                       Uri.parse(controller.belowAdLink.value));
                                   try {
                                     http.get(Uri.parse(
-                                        'http://43.200.90.214:3000/ad/v1/statistics/menu3/click'));
+                                        '${ApiConfig.baseUrl}/ad/v1/statistics/menu3/click'));
                                   } catch (e) {
-                                    print('Error: $e');
+                                    logger.e('Error: $e');
                                   }
                                 } else {
                                   Get.snackbar('오류', '해당 링크를 열 수 없습니다.');

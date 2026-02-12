@@ -1,6 +1,7 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class LocationController extends GetxController {
   var latitude = ''.obs;
@@ -14,10 +15,10 @@ class LocationController extends GetxController {
       negativeButtonTitle: "설정 이동",
     );
     if (result == CustomButton.negativeButton) {
-      print("사용자가 확인 버튼을 클릭했습니다.");
+      logger.d("사용자가 확인 버튼을 클릭했습니다.");
       Geolocator.openLocationSettings();
     } else {
-      print("사용자가 취소 버튼을 클릭했습니다.");
+      logger.d("사용자가 취소 버튼을 클릭했습니다.");
     }
   }
 
@@ -25,7 +26,7 @@ class LocationController extends GetxController {
     // 위치 서비스 활성화 여부 확인
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print("위치 서비스가 활성화되어 있지 않습니다.");
+      logger.d("위치 서비스가 활성화되어 있지 않습니다.");
 
       await showPermissionAlert();
       return;

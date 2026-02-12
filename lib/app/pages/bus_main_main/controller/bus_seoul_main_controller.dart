@@ -16,6 +16,8 @@ import 'package:skkumap/app/types/bus_type.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:skkumap/app/utils/constants.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 // life cycle
 class SeoulMainLifeCycle extends GetxController with WidgetsBindingObserver {
@@ -86,7 +88,7 @@ class BusDataController extends GetxController {
           isBannerAdLoaded.value = true;
         },
         onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
+          logger.e('Failed to load a banner ad: ${err.message}');
           ad.dispose();
           isBannerAdLoaded.value = false;
         },
@@ -102,9 +104,9 @@ class BusDataController extends GetxController {
   Future<void> localfetchBusStations() async {
     try {
       mainBusStationList.value = await fetchMainBusStations(busType: busType);
-      print('BusStations.value: ${mainBusStationList.value}');
+      logger.d('BusStations.value: ${mainBusStationList.value}');
     } catch (e) {
-      print("Error fetchMainBusStations: $e");
+      logger.e("Error fetchMainBusStations: $e");
     } finally {
       loadingdone.value = true;
     }
@@ -116,7 +118,7 @@ class BusDataController extends GetxController {
       mainBusLocation.value = await fetchMainBusLocation(busType: busType);
       // print('BusLocations.value: ${BusLocations.value}');
     } catch (e) {
-      print("Error fetchMainBusLocation: $e");
+      logger.e("Error fetchMainBusLocation: $e");
     }
   }
 
@@ -127,15 +129,14 @@ class BusDataController extends GetxController {
   void fetchMainpageAd() async {
     try {
       final response =
-          await http.get(Uri.parse('http://43.200.90.214:3000/ad/v1/addetail'));
-      // 'http://localhost:3000/ad/v1/addetail'));
+          await http.get(Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'));
 
       if (response.statusCode == 200) {
         try {
           http.get(Uri.parse(
-              'http://43.200.90.214:3000/ad/v1/statistics/menu3/view'));
+              '${ApiConfig.baseUrl}/ad/v1/statistics/menu3/view'));
         } catch (e) {
-          print('Error: $e');
+          logger.e('Error: $e');
         }
 
         final data = jsonDecode(response.body);
@@ -143,10 +144,10 @@ class BusDataController extends GetxController {
         belowAdLink.value = data['link'];
         belowAdImage.value = data['image2'];
       } else {
-        print('Server error1');
+        logger.w('Server error1');
       }
     } catch (e) {
-      print('Error: $e');
+      logger.e('Error: $e');
     }
   }
 

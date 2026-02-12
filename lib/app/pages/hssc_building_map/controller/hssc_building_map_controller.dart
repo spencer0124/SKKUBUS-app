@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class HSSCBuildingMapController extends GetxController {
   RxBool showInfoTap = false.obs;
@@ -41,8 +42,8 @@ class HSSCBuildingMapController extends GetxController {
   }
 
   void onMessageReceived(JavaScriptMessage message) async {
-    print("webtofluttermessage");
-    print(message.message);
+    logger.d("webtofluttermessage");
+    logger.d(message.message);
 
     Map<String, dynamic> messageData = json.decode(message.message);
 

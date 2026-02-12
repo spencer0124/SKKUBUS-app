@@ -208,5 +208,8 @@ skkubus-95723-9dbf7ca1b380.json
 
 *.ipa
 
+# Android CMake build cache
+android/app/.cxx/
+
 # FVM Version Cache
 .fvm/

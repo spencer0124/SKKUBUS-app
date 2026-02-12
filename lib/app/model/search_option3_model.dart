@@ -143,6 +143,7 @@ class SpaceItem {
 
   factory SpaceItem.fromJson(Map<String, dynamic> json) {
     return SpaceItem(
+      // Note: API returns 'bulidingInfo' (typo), do not change without updating the API
       buildingInfo: json['bulidingInfo'] != null
           ? BuildingInfo.fromJson(json['bulidingInfo'])
           : null,

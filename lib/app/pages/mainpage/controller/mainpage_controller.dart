@@ -15,6 +15,8 @@ import 'package:skkumap/app/model/station_model.dart';
 import 'package:skkumap/app/utils/api_fetch/fetch_station.dart';
 import 'package:skkumap/app/utils/api_fetch/mainpage_buslist.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/utils/constants.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
   MainpageController mainpageController = Get.find<MainpageController>();
@@ -114,22 +116,17 @@ class MainpageController extends GetxController {
   void fetchMainpageAd() async {
     try {
       final response = await http.get(
-        Uri.parse(
-          // 'http://localhost:3000/ad/v1/addetail'));
-          'http://43.200.90.214:3000/ad/v1/addetail',
-        ),
+        Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'),
       );
 
       if (response.statusCode == 200) {
         if (fetchMainpageAdbool == false) {
           try {
             http.get(
-              Uri.parse(
-                'http://43.200.90.214:3000/ad/v1/statistics/menu2/view',
-              ),
+              Uri.parse('${ApiConfig.baseUrl}/ad/v1/statistics/menu2/view'),
             );
           } catch (e) {
-            print('Error: $e');
+            logger.e('Error: $e');
           }
 
           fetchMainpageAdbool = true;
@@ -144,10 +141,10 @@ class MainpageController extends GetxController {
         // mainpageNoticeLink.value = data['link2'];
         showmainpageNoticeText.value = data['showtext2'];
       } else {
-        print('Server error2');
+        logger.w('Server error2');
       }
     } catch (e) {
-      print('Error: $e');
+      logger.e('Error: $e');
     }
 
     String udid = "123";
@@ -158,24 +155,18 @@ class MainpageController extends GetxController {
     // print('http://10.0.2.2:3000/poll/v1/register/$udid');
     try {
       final response = await http.get(
-        Uri.parse(
-          // 'http://ec2-13-209-48-107.ap-northeast-2.compute.amazonaws.com/ad/v1/addetail/$udid'
-          'http://43.200.90.214:3000/poll/v1/register/$udid',
-        ),
+        Uri.parse('${ApiConfig.baseUrl}/poll/v1/register/$udid'),
       );
-      // 'http://10.0.2.2:3000/poll/v1/register/$udid'));
-      // 'http://localhost:3000/poll/v1/register/$udid'));
-      // ));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // print("data:${jsonEncode(data)}");
 
         mainpageNoticeLink.value = data['link2'];
       } else {
-        print('Server error3');
+        logger.w('Server error3');
       }
     } catch (e) {
-      print('Error: $e');
+      logger.e('Error: $e');
     }
   }
 

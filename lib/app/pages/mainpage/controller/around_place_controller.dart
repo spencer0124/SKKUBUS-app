@@ -6,6 +6,7 @@ import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/app/model/campusmarker_model.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class AroundPlaceController extends GetxController {
   // 현재 카메라 지도 영역에 대한 정보를 가져오는 메서드
@@ -29,7 +30,7 @@ class AroundPlaceController extends GetxController {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        print('decoded: $decoded');
+        logger.d('decoded: $decoded');
         final list = decoded['result'] as List?;
         if (list == null || list.isEmpty) {
           await FlutterPlatformAlert.showCustomAlert(
@@ -59,7 +60,7 @@ class AroundPlaceController extends GetxController {
         ultimateCtrl.updateMarkers(campusMarkers);
       }
     } catch (e) {
-      print('Error fetching place data: $e');
+      logger.e('Error fetching place data: $e');
     }
   }
 }

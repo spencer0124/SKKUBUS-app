@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:skkumap/app/types/bus_type.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class RefreshButton extends StatefulWidget {
   final BusType busType;
@@ -34,7 +35,7 @@ class _RefreshButtonState extends State<RefreshButton>
   }
 
   void refreshAction() async {
-    print('refresh action!');
+    logger.d('refresh action!');
     _controller
       ..reset()
       ..forward();

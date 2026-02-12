@@ -7,6 +7,7 @@ import 'package:skkumap/app/pages/webview/controller/webview_controller.dart';
 
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/utils/screensize.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class CustomWebViewScreen extends StatelessWidget {
   const CustomWebViewScreen({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class CustomWebViewScreen extends StatelessWidget {
       onPopInvoked: (bool didPop) {
         //didPop == true , 뒤로가기 제스쳐가 감지되면 호출 된다.
         if (didPop) {
-          print('didPop호출');
+          logger.d('didPop호출');
           return;
         }
       },

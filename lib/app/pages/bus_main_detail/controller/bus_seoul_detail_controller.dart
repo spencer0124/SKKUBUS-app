@@ -3,6 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:skkumap/admob/ad_helper.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 class SeoulDetailLifeCycle extends GetxController with WidgetsBindingObserver {
   SeoulDetailController seoulDetailController =
@@ -63,7 +64,7 @@ class SeoulDetailController extends GetxController {
           isAdLoaded.value = true;
         },
         onAdFailedToLoad: (ad, err) {
-          print('Failed to load a banner ad: ${err.message}');
+          logger.e('Failed to load a banner ad: ${err.message}');
           ad.dispose();
         },
       ),
@@ -85,7 +86,7 @@ class SeoulDetailController extends GetxController {
       // busDetail.value = info;
       isLoading.value = true;
     } catch (e) {
-      print('Error fetching data: $e');
+      logger.e('Error fetching data: $e');
       isLoading.value = false;
     }
   }

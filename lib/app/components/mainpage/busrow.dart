@@ -11,6 +11,7 @@ import 'package:skkumap/app/types/bus_type.dart';
 import 'dart:io' show Platform; // Platform 클래스를 사용하기 위해 import
 import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:skkumap/app/utils/app_logger.dart';
 
 final double dwidth =
     MediaQueryData.fromView(WidgetsBinding.instance.window).size.width;
@@ -74,7 +75,7 @@ class CustomRow1 extends StatelessWidget {
               parameters: parameters,
             );
 
-            print(
+            logger.d(
               'Analytics Event Logged (No Packages): $parameters',
             ); // 디버깅용 로그
             Get.toNamed(
