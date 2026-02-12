@@ -1,0 +1,45 @@
+# Build artifacts
+build/
+.dart_tool/
+
+# Platform build caches
+android/.gradle/
+android/app/.cxx/
+android/app/build/
+ios/Pods/
+ios/build/
+ios/*.ipa
+ios/*.dSYM.zip
+
+# Generated files
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.dill
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Assets - binary files (fonts, images)
+assets/fonts/
+assets/images/
+assets/lottie/
+assets/tossface/
+assets/applogo/
+AppIcons/
+custom_painter/
+
+# Lock file (1383 lines, rarely needed)
+pubspec.lock
+
+# OS metadata
+.DS_Store
+
+# Misc
+.fvm/
+fastlane/
+*.ipa
+*.apk
+*.aab
