@@ -22,9 +22,7 @@ import 'package:skkumap/app/types/bus_type.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
-import 'package:skkumap/app/utils/constants.dart';
-import 'package:skkumap/app/utils/app_logger.dart';
+import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 
 class BusDataScreen extends GetView<BusDataController> {
   const BusDataScreen({super.key});
@@ -64,12 +62,7 @@ class BusDataScreen extends GetView<BusDataController> {
                                     Uri.parse(controller.belowAdLink.value))) {
                                   await launchUrl(
                                       Uri.parse(controller.belowAdLink.value));
-                                  try {
-                                    http.get(Uri.parse(
-                                        '${ApiConfig.baseUrl}/ad/v1/statistics/menu3/click'));
-                                  } catch (e) {
-                                    logger.e('Error: $e');
-                                  }
+                                  trackAdEvent('bus_bottom', 'click');
                                 } else {
                                   Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                                 }

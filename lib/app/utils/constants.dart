@@ -3,10 +3,6 @@ class BusConstants {
   static const double infoComponentLeftpadding = busComponentLeftpadding - 42.5;
 }
 
-class ApiConfig {
-  static const String baseUrl = 'http://43.200.90.214:3000';
-}
-
 class CampusCoordinates {
   // Seoul campus (Insacamp) main location
   static const double seoulCampusLat = 37.587347;

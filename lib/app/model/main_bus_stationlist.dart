@@ -60,12 +60,12 @@ class MainBusStationList {
   });
 
   factory MainBusStationList.fromJson(Map<String, dynamic> json) {
-    var stationsList = (json['HSSCStations'] as List)
+    var stationsList = (json['stations'] as List)
         .map((i) => BusStation.fromJson(i))
         .toList();
 
     return MainBusStationList(
-      metadata: ResponseMetadata.fromJson(json['metadata']),
+      metadata: ResponseMetadata.fromJson(json['metaData']),
       stations: stationsList,
     );
   }

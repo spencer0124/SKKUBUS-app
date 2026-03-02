@@ -211,5 +211,8 @@ skkubus-95723-9dbf7ca1b380.json
 # Android CMake build cache
 android/app/.cxx/
 
+# Security reviews
+docs/
+
 # FVM Version Cache
 .fvm/

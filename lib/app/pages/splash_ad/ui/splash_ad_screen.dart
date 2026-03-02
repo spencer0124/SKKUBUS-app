@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart'; // Ensure you have the GetX package installed
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:skkumap/app/utils/constants.dart';
+import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/utils/screensize.dart';
@@ -11,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
+import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 
 class SplashAd extends StatefulWidget {
   const SplashAd({Key? key}) : super(key: key);
@@ -37,24 +35,17 @@ class _SplashAdState extends State<SplashAd> {
     });
 
     try {
-      final response =
-          await http.get(Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'));
+      final adData = await fetchAdPlacements();
       FlutterNativeSplash.remove();
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        try {
-          http.get(Uri.parse(
-              '${ApiConfig.baseUrl}/ad/v1/statistics/menu1/view'));
-        } catch (e) {
-          logger.e('Error: $e');
-        }
+      final splash = adData['splash'];
 
+      if (splash != null) {
+        trackAdEvent('splash', 'view', adId: splash.adId);
         return {
-          'image': data['image'],
-          'link': data['link'],
+          'image': splash.imageUrl,
+          'link': splash.linkUrl,
+          'adId': splash.adId,
         };
-      } else {
-        logger.e('Server error4');
       }
     } catch (e) {
       logger.e('Error: $e');
@@ -62,7 +53,7 @@ class _SplashAdState extends State<SplashAd> {
     return {
       'image': null,
       'link': null,
-    }; // If an error occurs, return null values
+    };
   }
 
   @override
@@ -124,12 +115,7 @@ class _SplashAdState extends State<SplashAd> {
                                       Uri.parse(snapshot.data!['link']!))) {
                                     await launchUrl(
                                         Uri.parse(snapshot.data!['link']!));
-                                    try {
-                                      http.get(Uri.parse(
-                                          '${ApiConfig.baseUrl}/ad/v1/statistics/menu1/click'));
-                                    } catch (e) {
-                                      logger.e('Error: $e');
-                                    }
+                                    trackAdEvent('splash', 'click', adId: snapshot.data!['adId']);
                                   } else {
                                     Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                                   }

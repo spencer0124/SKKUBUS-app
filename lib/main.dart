@@ -33,6 +33,15 @@ import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart'
 import 'package:skkumap/app/utils/geolocator.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
+import 'package:skkumap/app/data/api_client.dart' as data;
+import 'package:skkumap/app/data/dio_client.dart';
+import 'package:skkumap/app/data/repositories/bus_repository.dart';
+import 'package:skkumap/app/data/repositories/station_repository.dart';
+import 'package:skkumap/app/data/repositories/search_repository.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
+import 'package:skkumap/app/data/repositories/ui_repository.dart';
+import 'package:skkumap/app/data/connectivity_service.dart';
+
 const storage = FlutterSecureStorage();
 
 Future<void> main() async {
@@ -47,6 +56,8 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initEnvironmentVariables();
   registerDependencies();
+  await Get.find<data.ApiClient>().ensureAuth();
+  Get.put(ConnectivityService());
   await initFirebase();
   await initMobileAds();
   await initNaverMapSdk_v2();
@@ -131,6 +142,19 @@ Future<void> initNaverMapSdk_v2() async {
 }
 
 void registerDependencies() {
+  // ── API infrastructure ──
+  final dio = createDioClient();
+  final apiClient = data.ApiClient(dio);
+  Get.put<data.ApiClient>(apiClient);
+
+  // fenix: true keeps repositories alive across controller dispose cycles
+  Get.lazyPut(() => BusRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => StationRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => SearchRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => UiRepository(Get.find<data.ApiClient>()), fenix: true);
+
+  // ── Controllers ──
   Get.lazyPut(() => BusDataController());
   Get.lazyPut(() => SeoulMainLifeCycle());
 

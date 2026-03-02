@@ -7,10 +7,8 @@ import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
 import 'package:shimmer/shimmer.dart';
-import 'package:skkumap/app/utils/constants.dart';
-import 'package:skkumap/app/utils/app_logger.dart';
+import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 
 class OptionBus extends StatelessWidget {
   OptionBus({Key? key}) : super(key: key);
@@ -61,12 +59,7 @@ class OptionBus extends StatelessWidget {
                           Uri.parse(controller.mainpageAdLink.value))) {
                         await launchUrl(
                             Uri.parse(controller.mainpageAdLink.value));
-                        try {
-                          http.get(Uri.parse(
-                              '${ApiConfig.baseUrl}/ad/v1/statistics/menu2/click'));
-                        } catch (e) {
-                          logger.e('Error: $e');
-                        }
+                        trackAdEvent('main_banner', 'click');
                       } else {
                         Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                       }

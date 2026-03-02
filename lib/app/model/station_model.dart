@@ -8,7 +8,7 @@ class StationResponse {
     return StationResponse(
       metaData: MetaData.fromJson(json["metaData"]),
       stationData: List<StationData>.from(
-          json["StationData"].map((x) => StationData.fromJson(x))),
+          json["stationData"].map((x) => StationData.fromJson(x))),
     );
   }
 

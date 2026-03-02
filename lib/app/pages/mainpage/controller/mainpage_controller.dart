@@ -2,8 +2,6 @@ import 'snappingsheet_controller.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap.dart';
 
 import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
@@ -14,8 +12,8 @@ import 'package:get/get.dart';
 import 'package:skkumap/app/model/station_model.dart';
 import 'package:skkumap/app/utils/api_fetch/fetch_station.dart';
 import 'package:skkumap/app/utils/api_fetch/mainpage_buslist.dart';
+import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
-import 'package:skkumap/app/utils/constants.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
@@ -103,7 +101,7 @@ class MainpageController extends GetxController {
     }
   }
 
-  var fetchMainpageAdbool = false;
+  var _hasTrackedAdView = false;
 
   // 메인화면 광고 텍스트 불러오기
   var showmainpageAdText = false.obs;
@@ -115,58 +113,30 @@ class MainpageController extends GetxController {
 
   void fetchMainpageAd() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'),
-      );
+      final adData = await fetchAdPlacements();
 
-      if (response.statusCode == 200) {
-        if (fetchMainpageAdbool == false) {
-          try {
-            http.get(
-              Uri.parse('${ApiConfig.baseUrl}/ad/v1/statistics/menu2/view'),
-            );
-          } catch (e) {
-            logger.e('Error: $e');
-          }
+      // main_banner placement (server returns only enabled ads)
+      final banner = adData['main_banner'];
+      showmainpageAdText.value = banner != null;
+      if (banner != null) {
+        mainpageAdText.value = banner.text ?? '';
+        mainpageAdLink.value = banner.linkUrl;
+      }
 
-          fetchMainpageAdbool = true;
-        }
+      // main_notice placement
+      final notice = adData['main_notice'];
+      showmainpageNoticeText.value = notice != null;
+      if (notice != null) {
+        mainpageNoticeText.value = notice.text ?? '';
+        mainpageNoticeLink.value = notice.linkUrl;
+      }
 
-        final data = jsonDecode(response.body);
-        mainpageAdText.value = data['text'];
-        mainpageAdLink.value = data['link'];
-        showmainpageAdText.value = data['showtext'];
-
-        mainpageNoticeText.value = data['text2'];
-        // mainpageNoticeLink.value = data['link2'];
-        showmainpageNoticeText.value = data['showtext2'];
-      } else {
-        logger.w('Server error2');
+      if (!_hasTrackedAdView && banner != null) {
+        trackAdEvent('main_banner', 'view', adId: banner.adId);
+        _hasTrackedAdView = true;
       }
     } catch (e) {
-      logger.e('Error: $e');
-    }
-
-    String udid = "123";
-    // print("===================================");
-    // print(udid);
-    // print("===================================");
-
-    // print('http://10.0.2.2:3000/poll/v1/register/$udid');
-    try {
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/poll/v1/register/$udid'),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        // print("data:${jsonEncode(data)}");
-
-        mainpageNoticeLink.value = data['link2'];
-      } else {
-        logger.w('Server error3');
-      }
-    } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error fetching ad: $e');
     }
   }
 

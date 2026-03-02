@@ -1,16 +1,13 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:skkumap/app/data/repositories/ui_repository.dart';
+import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
-import 'package:skkumap/app/utils/constants.dart';
 
+/// Backward-compat wrapper — delegates to [UiRepository].
 Future<MainPageBusListResponse> fetchMainpageBusList() async {
-  final url = '${ApiConfig.baseUrl}/mobile/v1/mainpage/buslist';
-
-  final response = await http.get(Uri.parse(url));
-
-  if (response.statusCode == 200) {
-    return MainPageBusListResponse.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('Failed to load mainpage buslist data');
-  }
+  final result = await Get.find<UiRepository>().getMainpageBusList();
+  return switch (result) {
+    Ok(:final data) => data,
+    Err(:final failure) => throw Exception(failure.message),
+  };
 }

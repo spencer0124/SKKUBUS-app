@@ -13,10 +13,7 @@ import 'dart:async';
 import 'package:skkumap/app/utils/api_fetch/bus_stationlist.dart';
 import 'package:skkumap/app/types/bus_type.dart';
 
-import 'dart:async';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:skkumap/app/utils/constants.dart';
+import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 // life cycle
@@ -128,26 +125,16 @@ class BusDataController extends GetxController {
 
   void fetchMainpageAd() async {
     try {
-      final response =
-          await http.get(Uri.parse('${ApiConfig.baseUrl}/ad/v1/addetail'));
+      final adData = await fetchAdPlacements();
+      final busBottom = adData['bus_bottom'];
 
-      if (response.statusCode == 200) {
-        try {
-          http.get(Uri.parse(
-              '${ApiConfig.baseUrl}/ad/v1/statistics/menu3/view'));
-        } catch (e) {
-          logger.e('Error: $e');
-        }
-
-        final data = jsonDecode(response.body);
-
-        belowAdLink.value = data['link'];
-        belowAdImage.value = data['image2'];
-      } else {
-        logger.w('Server error1');
+      if (busBottom != null) {
+        belowAdLink.value = busBottom.linkUrl;
+        belowAdImage.value = busBottom.imageUrl ?? '';
+        trackAdEvent('bus_bottom', 'view', adId: busBottom.adId);
       }
     } catch (e) {
-      logger.e('Error: $e');
+      logger.e('Error fetching ad: $e');
     }
   }
 
