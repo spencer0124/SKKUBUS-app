@@ -85,7 +85,7 @@ class MainpageController extends GetxController {
       // 'stationDataFetch, stationData.value: ${stationData.value!.stationData}');
       // print("===================================");
     } catch (e) {
-      // print('Error fetching data: $e');
+      logger.e('Error fetching station: $e');
     }
   }
 
@@ -94,10 +94,8 @@ class MainpageController extends GetxController {
   Future<void> mainPageBusListFetch() async {
     try {
       mainpageBusList.value = await fetchMainpageBusList();
-      // print(
-      // 'MainPageBusListFetch, mainpageBusList.value: ${mainpageBusList.value!.busList}');
     } catch (e) {
-      // print('Error fetching data: $e');
+      logger.e('Error fetching bus list: $e');
     }
   }
 
