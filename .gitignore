@@ -70,6 +70,9 @@ app.*.map.json
 # .env
 .env*
 
+# Environment config files (may contain sensitive values)
+env/
+
 #firebase
 /lib/firebase_options.dart
 
