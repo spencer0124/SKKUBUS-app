@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dev (iOS)",
+      "request": "launch",
+      "type": "dart",
+      "args": [],
+      "toolArgs": ["--dart-define-from-file=env/dev-ios.env"]
+    },
+    {
+      "name": "Dev (Android)",
+      "request": "launch",
+      "type": "dart",
+      "args": [],
+      "toolArgs": ["--dart-define-from-file=env/dev-android.env"]
+    },
+    {
+      "name": "Staging",
+      "request": "launch",
+      "type": "dart",
+      "args": [],
+      "toolArgs": ["--dart-define-from-file=env/staging.env"]
+    },
+    {
+      "name": "Prod",
+      "request": "launch",
+      "type": "dart",
+      "args": [],
+      "toolArgs": ["--dart-define-from-file=env/prod.env"]
+    }
+  ]
+}
