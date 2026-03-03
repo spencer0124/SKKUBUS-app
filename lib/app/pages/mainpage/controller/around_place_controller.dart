@@ -6,6 +6,7 @@ import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/app/model/campusmarker_model.dart';
+import 'package:skkumap/app/data/api_config.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 class AroundPlaceController extends GetxController {
@@ -23,7 +24,7 @@ class AroundPlaceController extends GetxController {
 
     // [1] 해당 영역에 속하고
     // [2] 적용한 필터 값이 일치하는 장소 데이터 가져오기
-    final uri = Uri.parse('http://localhost:3000/map/v1/getaroundplacedata?'
+    final uri = Uri.parse('${ApiConfig.baseUrl}/map/v1/getaroundplacedata?'
         'southWestlat=$swLat&southWestlon=$swLon&'
         'northEastlat=$neLat&northEastlon=$neLon');
     try {

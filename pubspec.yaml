@@ -79,7 +79,7 @@ dev_dependencies:
 flutter_launcher_name:
   name: 스꾸버스
 dependency_overrides:
-  intl: any
+  intl: "0.20.2"
   flutter_lints: "^2.0.0"
 flutter:
   assets:

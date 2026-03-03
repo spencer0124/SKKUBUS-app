@@ -56,7 +56,7 @@ class BusDataController extends GetxController {
   BusType busType = BusType.hsscBus;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     _initializeBannerAd();
 

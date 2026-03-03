@@ -143,17 +143,31 @@ class MainpageController extends GetxController {
   }
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
-    fetchMainpageAd();
-    stationDataFetch();
-    await mainPageBusListFetch();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      snaptoInitPosition();
-      _timer = Timer.periodic(const Duration(seconds: 15), (Timer t) {
-        stationDataFetch();
-        fetchMainpageAd();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    try {
+      fetchMainpageAd();
+      stationDataFetch();
+      await mainPageBusListFetch();
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        snaptoInitPosition();
+        _timer = Timer.periodic(const Duration(seconds: 15), (Timer t) {
+          stationDataFetch();
+          fetchMainpageAd();
+        });
       });
-    });
+    } catch (e) {
+      logger.e('MainpageController init error: $e');
+    }
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
   }
 }

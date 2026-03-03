@@ -34,7 +34,6 @@ class SeoulDetailLifeCycle extends GetxController with WidgetsBindingObserver {
 class SeoulDetailController extends GetxController {
   var phoneNumber = '027601073'.obs;
   var adLoad = true.obs;
-  var isLoading = false.obs;
 
   BannerAd? _bannerAd;
   BannerAd? get bannerAd => _bannerAd;
@@ -47,12 +46,9 @@ class SeoulDetailController extends GetxController {
   // BusDetailController({required this.repository});
 
   @override
-  void onInit() async {
-    try {
-      await FirebaseAnalytics.instance
-          .setCurrentScreen(screenName: 'bus_data_detail_screen');
-    } catch (e) {}
+  void onInit() {
     super.onInit();
+    _initialize();
 
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
@@ -69,8 +65,15 @@ class SeoulDetailController extends GetxController {
         },
       ),
     )..load();
+  }
 
-    fetchBusDetail();
+  Future<void> _initialize() async {
+    try {
+      await FirebaseAnalytics.instance
+          .setCurrentScreen(screenName: 'bus_data_detail_screen');
+    } catch (e) {
+      logger.e('Analytics error: $e');
+    }
   }
 
   @override
@@ -78,16 +81,5 @@ class SeoulDetailController extends GetxController {
     _bannerAd?.dispose();
 
     super.onClose();
-  }
-
-  void fetchBusDetail() async {
-    try {
-      // var info = await repository.getBusDetail();
-      // busDetail.value = info;
-      isLoading.value = true;
-    } catch (e) {
-      logger.e('Error fetching data: $e');
-      isLoading.value = false;
-    }
   }
 }

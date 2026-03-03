@@ -64,22 +64,24 @@ class InjaMainController extends GetxController {
   var jainBusSchedule = <BusSchedule>[].obs;
 
   @override
-  void onInit() async {
-    // getDrivingDuration();
+  void onInit() {
+    super.onInit();
     today = getCurrentWeekday().obs;
     selectedDay = getCurrentWeekday().obs;
     selectedEnglishDay = translateDayToEnglish(selectedDay.value ?? '월요일').obs;
 
     fetchinjaBusSchedule(selectedEnglishDay.value ?? 'monday');
     fetchjainBusSchedule(selectedEnglishDay.value ?? 'monday');
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
     try {
       await FirebaseAnalytics.instance
           .setCurrentScreen(screenName: 'injashuttle_screen');
     } catch (e) {
-      logger.e(e);
+      logger.e('Analytics error: $e');
     }
-    super.onInit();
-    // determineNextBus();
   }
 
   // 현재 날짜와 요일을 가져오는 함수

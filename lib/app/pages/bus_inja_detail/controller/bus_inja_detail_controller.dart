@@ -48,15 +48,19 @@ class InjaDetailController extends GetxController {
   // currentTime
 
   @override
-  void onInit() async {
+  void onInit() {
+    super.onInit();
+    _initialize();
+    determineNextBus();
+  }
+
+  Future<void> _initialize() async {
     try {
       await FirebaseAnalytics.instance
           .setCurrentScreen(screenName: 'injashuttle_screen');
     } catch (e) {
-      logger.e(e);
+      logger.e('Analytics error: $e');
     }
-    super.onInit();
-    determineNextBus();
   }
 
   // 지도 앱 실행 가능한지 확인 후 분기처리해주는 함수
