@@ -5,13 +5,13 @@ class MainPageBusListResponse {
   MainPageBusListResponse({required this.metaData, required this.busList});
 
   factory MainPageBusListResponse.fromJson(Map<String, dynamic> json) {
-    var listBusList = json['busList'] as List;
+    var listBusList = json['data'] as List;
 
     List<BusList> busListList =
         listBusList.map((i) => BusList.fromJson(i)).toList();
 
     return MainPageBusListResponse(
-      metaData: MetaData.fromJson(json['metaData']),
+      metaData: MetaData.fromJson(json['meta']),
       busList: busListList,
     );
   }
@@ -24,7 +24,7 @@ class MetaData {
 
   factory MetaData.fromJson(Map<String, dynamic> json) {
     return MetaData(
-      busListCount: json['busList_count'],
+      busListCount: json['busListCount'],
     );
   }
 }

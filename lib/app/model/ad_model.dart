@@ -36,7 +36,7 @@ class AdPlacementsResponse {
   AdPlacementsResponse({required this.placements});
 
   factory AdPlacementsResponse.fromJson(Map<String, dynamic> json) {
-    final placementsJson = json['placements'] as Map<String, dynamic>;
+    final placementsJson = json['data'] as Map<String, dynamic>;
     final placements = placementsJson.map(
       (key, value) =>
           MapEntry(key, AdPlacement.fromJson(value as Map<String, dynamic>)),

@@ -8,9 +8,8 @@ import 'package:skkumap/app/utils/app_logger.dart';
 /// All network calls go through [safeGet] / [safePost] which return
 /// `Result<T>` — callers never deal with raw exceptions.
 ///
-/// Envelope unwrapping is automatic: v2 responses `{ meta, data }` are
-/// unwrapped before the parser runs, so parsers always receive the inner
-/// payload regardless of API version.
+/// v2 responses must be `{ meta, data }` envelopes. The full envelope is
+/// passed to parsers so models can access both `meta` and `data`.
 class ApiClient {
   final Dio _dio;
   const ApiClient(this._dio);
@@ -26,8 +25,7 @@ class ApiClient {
 
   /// GET request with typed result.
   ///
-  /// [parser] receives the unwrapped payload — either the raw v1 response
-  /// or the `data` field from a v2 `{ meta, data }` envelope.
+  /// [parser] receives the full v2 envelope `{ meta, data }`.
   Future<Result<T>> safeGet<T>(
     String path,
     T Function(dynamic json) parser, {
@@ -40,8 +38,14 @@ class ApiClient {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
-      final data = _unwrapIfEnvelope(response.data);
-      return Result.ok(parser(data));
+      final raw = response.data;
+      if (raw is Map<String, dynamic> &&
+          raw.containsKey('meta') &&
+          raw.containsKey('data')) {
+        return Result.ok(parser(raw));
+      } else {
+        return Result.error(const ParseFailure('Invalid v2 envelope'));
+      }
     } on DioException catch (e) {
       return Result.error(_mapDioError(e));
     } catch (e) {
@@ -62,8 +66,14 @@ class ApiClient {
         data: data,
         cancelToken: cancelToken,
       );
-      final body = _unwrapIfEnvelope(response.data);
-      return Result.ok(parser(body));
+      final raw = response.data;
+      if (raw is Map<String, dynamic> &&
+          raw.containsKey('meta') &&
+          raw.containsKey('data')) {
+        return Result.ok(parser(raw));
+      } else {
+        return Result.error(const ParseFailure('Invalid v2 envelope'));
+      }
     } on DioException catch (e) {
       return Result.error(_mapDioError(e));
     } catch (e) {
@@ -84,21 +94,6 @@ class ApiClient {
   }
 
   // ── Private helpers ────────────────────────────────
-
-  /// Unwrap v2 response envelope `{ meta, data }` if present.
-  ///
-  /// Detection heuristic: v2 responses always have `meta.lang` (injected by
-  /// the server's `res.success()` in responseHelper.js). v1 responses use
-  /// `"metaData"` (not `"meta"`) or are bare arrays — no false positives.
-  static dynamic _unwrapIfEnvelope(dynamic responseData) {
-    if (responseData is Map<String, dynamic> &&
-        responseData['meta'] is Map<String, dynamic> &&
-        (responseData['meta'] as Map).containsKey('lang') &&
-        responseData.containsKey('data')) {
-      return responseData['data'];
-    }
-    return responseData;
-  }
 
   /// Map [DioException] to a typed [AppFailure].
   static AppFailure _mapDioError(DioException e) {

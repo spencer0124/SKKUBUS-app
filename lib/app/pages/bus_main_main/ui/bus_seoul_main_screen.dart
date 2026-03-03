@@ -22,7 +22,7 @@ import 'package:skkumap/app/types/bus_type.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
 
 class BusDataScreen extends GetView<BusDataController> {
   const BusDataScreen({super.key});
@@ -62,7 +62,7 @@ class BusDataScreen extends GetView<BusDataController> {
                                     Uri.parse(controller.belowAdLink.value))) {
                                   await launchUrl(
                                       Uri.parse(controller.belowAdLink.value));
-                                  trackAdEvent('bus_bottom', 'click');
+                                  Get.find<AdRepository>().trackEvent('bus_bottom', 'click');
                                 } else {
                                   Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                                 }

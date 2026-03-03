@@ -11,34 +11,32 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // ── Bus ──────────────────────────────────────────
-  static String busHsscLocation() => '/bus/hssc/v1/buslocation/';
-  static String busJongroLocation(String line) =>
-      '/bus/jongro/v1/buslocation/$line';
-  static String busHsscStations() => '/bus/hssc/v1/busstation/';
-  static String busJongroStations(String line) =>
-      '/bus/jongro/v1/busstation/$line';
+  static String busHsscLocation() => '/bus/hssc/location';
+  static String busJongroLocation(String line) => '/bus/jongro/location/$line';
+  static String busHsscStations() => '/bus/hssc/stations';
+  static String busJongroStations(String line) => '/bus/jongro/stations/$line';
 
   // ── Campus shuttle (INJA/JAIN) ───────────────────
   static String campusSchedule(String prefix, String type) =>
-      '/campus/v1/campus/${prefix}_$type';
+      '/bus/schedule/${prefix}_$type';
 
   // ── Station ──────────────────────────────────────
-  static String station(String stationId) => '/station/v1/$stationId';
+  static String station(String stationId) => '/bus/station/$stationId';
 
   // ── UI (Server-Driven) ───────────────────────────
-  static String homeBusList() => '/mobile/v1/mainpage/buslist';
-  static String homeScroll() => '/mobile/v1/mainpage/scrollcomponent';
+  static String homeBusList() => '/ui/home/buslist';
+  static String homeScroll() => '/ui/home/scroll';
 
   // ── Search ───────────────────────────────────────
   // [query] is passed unencoded — Dio encodes path segments automatically.
-  static String searchBuildings(String query) => '/search/option3/$query';
+  static String searchBuildings(String query) => '/search/facilities/$query';
   static String searchDetail(String buildNo, String id) =>
       '/search/detail/$buildNo/$id';
 
   // ── Ads ──────────────────────────────────────────
-  static String adPlacements() => '/ad/v1/placements';
-  static String adEvents() => '/ad/v1/events';
+  static String adPlacements() => '/ad/placements';
+  static String adEvents() => '/ad/events';
 
-  // ── App config (v2) ──────────────────────────────
+  // ── App config ─────────────────────────────────
   static String appConfig() => '/app/config';
 }

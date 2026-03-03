@@ -21,8 +21,11 @@ void main() {
   group('getLocations', () {
     test('uses correct path for hsscBus', () async {
       dioAdapter.onGet(
-        '/bus/hssc/v1/buslocation/',
-        (server) => server.reply(200, []),
+        '/bus/hssc/location',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': [],
+        }),
       );
 
       final result = await repository.getLocations(BusType.hsscBus);
@@ -32,8 +35,11 @@ void main() {
 
     test('uses correct path for jongro07Bus', () async {
       dioAdapter.onGet(
-        '/bus/jongro/v1/buslocation/07',
-        (server) => server.reply(200, []),
+        '/bus/jongro/location/07',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': [],
+        }),
       );
 
       final result = await repository.getLocations(BusType.jongro07Bus);
@@ -42,8 +48,11 @@ void main() {
 
     test('uses correct path for jongro02Bus', () async {
       dioAdapter.onGet(
-        '/bus/jongro/v1/buslocation/02',
-        (server) => server.reply(200, []),
+        '/bus/jongro/location/02',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': [],
+        }),
       );
 
       final result = await repository.getLocations(BusType.jongro02Bus);
@@ -52,25 +61,28 @@ void main() {
 
     test('parses bus location list from JSON', () async {
       dioAdapter.onGet(
-        '/bus/hssc/v1/buslocation/',
-        (server) => server.reply(200, [
-          {
-            'sequence': '1',
-            'stationName': '혜화역',
-            'carNumber': '서울70사1234',
-            'eventDate': '20240301120000',
-            'estimatedTime': 5,
-            'isLastBus': false,
-          },
-          {
-            'sequence': '2',
-            'stationName': '대학로',
-            'carNumber': '서울70사5678',
-            'eventDate': '20240301120100',
-            'estimatedTime': 10,
-            'isLastBus': true,
-          },
-        ]),
+        '/bus/hssc/location',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': [
+            {
+              'sequence': '1',
+              'stationName': '혜화역',
+              'carNumber': '서울70사1234',
+              'eventDate': '20240301120000',
+              'estimatedTime': 5,
+              'isLastBus': false,
+            },
+            {
+              'sequence': '2',
+              'stationName': '대학로',
+              'carNumber': '서울70사5678',
+              'eventDate': '20240301120100',
+              'estimatedTime': 10,
+              'isLastBus': true,
+            },
+          ],
+        }),
       );
 
       final result = await repository.getLocations(BusType.hsscBus);
@@ -85,14 +97,15 @@ void main() {
   group('getStations', () {
     test('uses correct path for hsscBus', () async {
       dioAdapter.onGet(
-        '/bus/hssc/v1/busstation/',
+        '/bus/hssc/stations',
         (server) => server.reply(200, {
-          'metaData': {
+          'meta': {
+            'lang': 'ko',
             'currentTime': '12:00',
             'totalBuses': 0,
             'lastStationIndex': 0,
           },
-          'stations': [],
+          'data': [],
         }),
       );
 
@@ -102,14 +115,15 @@ void main() {
 
     test('uses correct path for jongro07Bus', () async {
       dioAdapter.onGet(
-        '/bus/jongro/v1/busstation/07',
+        '/bus/jongro/stations/07',
         (server) => server.reply(200, {
-          'metaData': {
+          'meta': {
+            'lang': 'ko',
             'currentTime': '12:00',
             'totalBuses': 0,
             'lastStationIndex': 0,
           },
-          'stations': [],
+          'data': [],
         }),
       );
 
@@ -121,7 +135,7 @@ void main() {
   group('error handling', () {
     test('returns ServerFailure on 500', () async {
       dioAdapter.onGet(
-        '/bus/hssc/v1/buslocation/',
+        '/bus/hssc/location',
         (server) => server.reply(500, 'Server Error'),
       );
 

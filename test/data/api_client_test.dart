@@ -16,18 +16,23 @@ void main() {
   });
 
   group('safeGet', () {
-    test('returns Ok on 200 with parsed data', () async {
+    test('returns Ok on 200 with valid v2 envelope', () async {
       dioAdapter.onGet(
         '/test',
-        (server) => server.reply(200, [
-          {'id': 1, 'name': 'Alice'},
-          {'id': 2, 'name': 'Bob'},
-        ]),
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': [
+            {'id': 1, 'name': 'Alice'},
+            {'id': 2, 'name': 'Bob'},
+          ],
+        }),
       );
 
       final result = await client.safeGet<List<String>>(
         '/test',
-        (json) => (json as List).map((e) => e['name'] as String).toList(),
+        (json) => ((json as Map<String, dynamic>)['data'] as List)
+            .map((e) => e['name'] as String)
+            .toList(),
       );
 
       expect(result, isA<Ok<List<String>>>());
@@ -103,7 +108,10 @@ void main() {
     test('returns Err(ParseFailure) on fromJson crash', () async {
       dioAdapter.onGet(
         '/test',
-        (server) => server.reply(200, {'unexpected': 'shape'}),
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': {'unexpected': 'shape'},
+        }),
       );
 
       final result = await client.safeGet<String>(
@@ -121,44 +129,8 @@ void main() {
     });
   });
 
-  group('envelope unwrapping', () {
-    test('passes through v1 bare array unchanged', () async {
-      dioAdapter.onGet(
-        '/test',
-        (server) => server.reply(200, [
-          {'stationName': 'A'},
-          {'stationName': 'B'},
-        ]),
-      );
-
-      final result = await client.safeGet<int>(
-        '/test',
-        (json) => (json as List).length,
-      );
-
-      expect(result, isA<Ok<int>>());
-      expect((result as Ok<int>).data, 2);
-    });
-
-    test('passes through v1 object with metaData unchanged', () async {
-      dioAdapter.onGet(
-        '/test',
-        (server) => server.reply(200, {
-          'metaData': {'count': 3},
-          'stations': [1, 2, 3],
-        }),
-      );
-
-      final result = await client.safeGet<int>(
-        '/test',
-        (json) => (json as Map<String, dynamic>)['stations'].length,
-      );
-
-      expect(result, isA<Ok<int>>());
-      expect((result as Ok<int>).data, 3);
-    });
-
-    test('unwraps v2 envelope { meta: { lang }, data: [...] }', () async {
+  group('envelope validation', () {
+    test('v2 envelope with meta + data passes full map to parser', () async {
       dioAdapter.onGet(
         '/test',
         (server) => server.reply(200, {
@@ -172,31 +144,71 @@ void main() {
 
       final result = await client.safeGet<int>(
         '/test',
-        (json) => (json as List).length,
+        (json) {
+          final map = json as Map<String, dynamic>;
+          // Parser receives the full envelope
+          expect(map.containsKey('meta'), true);
+          expect(map.containsKey('data'), true);
+          return (map['data'] as List).length;
+        },
       );
 
-      // Parser receives the unwrapped `data` array, not the full envelope
       expect(result, isA<Ok<int>>());
       expect((result as Ok<int>).data, 2);
     });
 
-    test('does not unwrap map with meta but without lang', () async {
+    test('response missing meta returns ParseFailure', () async {
       dioAdapter.onGet(
         '/test',
         (server) => server.reply(200, {
-          'meta': {'version': '1.0'},
           'data': [1, 2, 3],
         }),
       );
 
-      final result = await client.safeGet<bool>(
+      final result = await client.safeGet<int>(
         '/test',
-        (json) => json is Map<String, dynamic>,
+        (json) => 0,
       );
 
-      // Should receive the full map (not unwrapped) because meta has no lang
-      expect(result, isA<Ok<bool>>());
-      expect((result as Ok<bool>).data, true);
+      expect(result, isA<Err<int>>());
+      final failure = (result as Err<int>).failure;
+      expect(failure, isA<ParseFailure>());
+      expect(failure.message, 'Invalid v2 envelope');
+    });
+
+    test('response missing data returns ParseFailure', () async {
+      dioAdapter.onGet(
+        '/test',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+        }),
+      );
+
+      final result = await client.safeGet<int>(
+        '/test',
+        (json) => 0,
+      );
+
+      expect(result, isA<Err<int>>());
+      final failure = (result as Err<int>).failure;
+      expect(failure, isA<ParseFailure>());
+      expect(failure.message, 'Invalid v2 envelope');
+    });
+
+    test('bare array response returns ParseFailure', () async {
+      dioAdapter.onGet(
+        '/test',
+        (server) => server.reply(200, [1, 2, 3]),
+      );
+
+      final result = await client.safeGet<int>(
+        '/test',
+        (json) => 0,
+      );
+
+      expect(result, isA<Err<int>>());
+      final failure = (result as Err<int>).failure;
+      expect(failure, isA<ParseFailure>());
     });
   });
 

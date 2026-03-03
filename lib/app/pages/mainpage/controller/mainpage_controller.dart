@@ -10,10 +10,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 
 import 'package:skkumap/app/model/station_model.dart';
-import 'package:skkumap/app/utils/api_fetch/fetch_station.dart';
-import 'package:skkumap/app/utils/api_fetch/mainpage_buslist.dart';
-import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/data/repositories/station_repository.dart';
+import 'package:skkumap/app/data/repositories/ui_repository.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
+import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
@@ -45,6 +46,10 @@ class MainpageLifeCycle extends GetxController with WidgetsBindingObserver {
 }
 
 class MainpageController extends GetxController {
+  final _stationRepo = Get.find<StationRepository>();
+  final _uiRepo = Get.find<UiRepository>();
+  final _adRepo = Get.find<AdRepository>();
+
   var snappingSheetIsExpanded = false.obs;
 
   Timer? _timer;
@@ -77,25 +82,24 @@ class MainpageController extends GetxController {
   var stationData = Rx<StationResponse?>(null);
 
   Future<void> stationDataFetch() async {
-    try {
-      stationData.value = await fetchStationData('01592');
-
-      // print("===================================");
-      // print(
-      // 'stationDataFetch, stationData.value: ${stationData.value!.stationData}');
-      // print("===================================");
-    } catch (e) {
-      logger.e('Error fetching station: $e');
+    final result = await _stationRepo.getStationData('01592');
+    switch (result) {
+      case Ok(:final data):
+        stationData.value = data;
+      case Err(:final failure):
+        logger.e('Error fetching station: $failure');
     }
   }
 
   var mainpageBusList = Rx<MainPageBusListResponse?>(null);
 
   Future<void> mainPageBusListFetch() async {
-    try {
-      mainpageBusList.value = await fetchMainpageBusList();
-    } catch (e) {
-      logger.e('Error fetching bus list: $e');
+    final result = await _uiRepo.getMainpageBusList();
+    switch (result) {
+      case Ok(:final data):
+        mainpageBusList.value = data;
+      case Err(:final failure):
+        logger.e('Error fetching bus list: $failure');
     }
   }
 
@@ -110,31 +114,31 @@ class MainpageController extends GetxController {
   var mainpageNoticeLink = ''.obs;
 
   void fetchMainpageAd() async {
-    try {
-      final adData = await fetchAdPlacements();
+    final result = await _adRepo.getPlacements();
+    switch (result) {
+      case Ok(:final data):
+        // main_banner placement (server returns only enabled ads)
+        final banner = data['main_banner'];
+        showmainpageAdText.value = banner != null;
+        if (banner != null) {
+          mainpageAdText.value = banner.text ?? '';
+          mainpageAdLink.value = banner.linkUrl;
+        }
 
-      // main_banner placement (server returns only enabled ads)
-      final banner = adData['main_banner'];
-      showmainpageAdText.value = banner != null;
-      if (banner != null) {
-        mainpageAdText.value = banner.text ?? '';
-        mainpageAdLink.value = banner.linkUrl;
-      }
+        // main_notice placement
+        final notice = data['main_notice'];
+        showmainpageNoticeText.value = notice != null;
+        if (notice != null) {
+          mainpageNoticeText.value = notice.text ?? '';
+          mainpageNoticeLink.value = notice.linkUrl;
+        }
 
-      // main_notice placement
-      final notice = adData['main_notice'];
-      showmainpageNoticeText.value = notice != null;
-      if (notice != null) {
-        mainpageNoticeText.value = notice.text ?? '';
-        mainpageNoticeLink.value = notice.linkUrl;
-      }
-
-      if (!_hasTrackedAdView && banner != null) {
-        trackAdEvent('main_banner', 'view', adId: banner.adId);
-        _hasTrackedAdView = true;
-      }
-    } catch (e) {
-      logger.e('Error fetching ad: $e');
+        if (!_hasTrackedAdView && banner != null) {
+          _adRepo.trackEvent('main_banner', 'view', adId: banner.adId);
+          _hasTrackedAdView = true;
+        }
+      case Err(:final failure):
+        logger.e('Error fetching ad: $failure');
     }
   }
 

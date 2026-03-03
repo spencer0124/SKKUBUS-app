@@ -8,7 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
-import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
+import 'package:skkumap/app/data/result.dart';
 
 class SplashAd extends StatefulWidget {
   const SplashAd({Key? key}) : super(key: key);
@@ -29,26 +30,28 @@ class _SplashAdState extends State<SplashAd> {
   }
 
   Future<Map<String, String?>> fetchImageData() async {
+    final adRepo = Get.find<AdRepository>();
+
     Future.delayed(const Duration(milliseconds: 4000), () {
       Get.offNamed('/mainpage');
       FlutterNativeSplash.remove();
     });
 
-    try {
-      final adData = await fetchAdPlacements();
-      FlutterNativeSplash.remove();
-      final splash = adData['splash'];
-
-      if (splash != null) {
-        trackAdEvent('splash', 'view', adId: splash.adId);
-        return {
-          'image': splash.imageUrl,
-          'link': splash.linkUrl,
-          'adId': splash.adId,
-        };
-      }
-    } catch (e) {
-      logger.e('Error: $e');
+    final result = await adRepo.getPlacements();
+    switch (result) {
+      case Ok(:final data):
+        FlutterNativeSplash.remove();
+        final splash = data['splash'];
+        if (splash != null) {
+          adRepo.trackEvent('splash', 'view', adId: splash.adId);
+          return {
+            'image': splash.imageUrl,
+            'link': splash.linkUrl,
+            'adId': splash.adId,
+          };
+        }
+      case Err(:final failure):
+        logger.e('Error: $failure');
     }
     return {
       'image': null,
@@ -115,7 +118,7 @@ class _SplashAdState extends State<SplashAd> {
                                       Uri.parse(snapshot.data!['link']!))) {
                                     await launchUrl(
                                         Uri.parse(snapshot.data!['link']!));
-                                    trackAdEvent('splash', 'click', adId: snapshot.data!['adId']);
+                                    Get.find<AdRepository>().trackEvent('splash', 'click', adId: snapshot.data!['adId']);
                                   } else {
                                     Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                                   }

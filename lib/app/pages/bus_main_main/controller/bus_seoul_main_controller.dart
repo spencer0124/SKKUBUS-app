@@ -6,14 +6,13 @@ import 'package:skkumap/admob/ad_helper.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
 
 import 'package:skkumap/app/model/main_bus_location.dart';
-import 'package:skkumap/app/utils/api_fetch/bus_location.dart';
 
 import 'dart:async';
 
-import 'package:skkumap/app/utils/api_fetch/bus_stationlist.dart';
 import 'package:skkumap/app/types/bus_type.dart';
-
-import 'package:skkumap/app/utils/api_fetch/fetch_ad.dart';
+import 'package:skkumap/app/data/repositories/bus_repository.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
+import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 // life cycle
@@ -45,6 +44,9 @@ class SeoulMainLifeCycle extends GetxController with WidgetsBindingObserver {
 
 // main controller
 class BusDataController extends GetxController {
+  final _busRepo = Get.find<BusRepository>();
+  final _adRepo = Get.find<AdRepository>();
+
   Timer? _timer;
 
   BannerAd? _bannerAd;
@@ -99,23 +101,25 @@ class BusDataController extends GetxController {
   var loadingdone = false.obs;
 
   Future<void> localfetchBusStations() async {
-    try {
-      mainBusStationList.value = await fetchMainBusStations(busType: busType);
-      logger.d('BusStations.value: ${mainBusStationList.value}');
-    } catch (e) {
-      logger.e("Error fetchMainBusStations: $e");
-    } finally {
-      loadingdone.value = true;
+    final result = await _busRepo.getStations(busType);
+    switch (result) {
+      case Ok(:final data):
+        mainBusStationList.value = data;
+        logger.d('BusStations.value: ${mainBusStationList.value}');
+      case Err(:final failure):
+        logger.e("Error fetchMainBusStations: $failure");
     }
+    loadingdone.value = true;
   }
 
   var mainBusLocation = Rx<List<MainBusLocation>>([]);
   Future<void> localfetchBusLocation() async {
-    try {
-      mainBusLocation.value = await fetchMainBusLocation(busType: busType);
-      // print('BusLocations.value: ${BusLocations.value}');
-    } catch (e) {
-      logger.e("Error fetchMainBusLocation: $e");
+    final result = await _busRepo.getLocations(busType);
+    switch (result) {
+      case Ok(:final data):
+        mainBusLocation.value = data;
+      case Err(:final failure):
+        logger.e("Error fetchMainBusLocation: $failure");
     }
   }
 
@@ -124,17 +128,17 @@ class BusDataController extends GetxController {
   var belowAdImage = ''.obs;
 
   void fetchMainpageAd() async {
-    try {
-      final adData = await fetchAdPlacements();
-      final busBottom = adData['bus_bottom'];
-
-      if (busBottom != null) {
-        belowAdLink.value = busBottom.linkUrl;
-        belowAdImage.value = busBottom.imageUrl ?? '';
-        trackAdEvent('bus_bottom', 'view', adId: busBottom.adId);
-      }
-    } catch (e) {
-      logger.e('Error fetching ad: $e');
+    final result = await _adRepo.getPlacements();
+    switch (result) {
+      case Ok(:final data):
+        final busBottom = data['bus_bottom'];
+        if (busBottom != null) {
+          belowAdLink.value = busBottom.linkUrl;
+          belowAdImage.value = busBottom.imageUrl ?? '';
+          _adRepo.trackEvent('bus_bottom', 'view', adId: busBottom.adId);
+        }
+      case Err(:final failure):
+        logger.e('Error fetching ad: $failure');
     }
   }
 

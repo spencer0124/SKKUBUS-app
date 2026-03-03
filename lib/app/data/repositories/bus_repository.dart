@@ -21,7 +21,7 @@ class BusRepository {
     };
     return _client.safeGet(
       path,
-      (json) => (json as List)
+      (json) => ((json as Map<String, dynamic>)['data'] as List)
           .map((e) => MainBusLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
       cancelToken: cancelToken,

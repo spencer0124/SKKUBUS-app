@@ -6,9 +6,9 @@ class StationResponse {
 
   factory StationResponse.fromJson(Map<String, dynamic> json) {
     return StationResponse(
-      metaData: MetaData.fromJson(json["metaData"]),
+      metaData: MetaData.fromJson(json["meta"]),
       stationData: List<StationData>.from(
-          json["stationData"].map((x) => StationData.fromJson(x))),
+          json["data"].map((x) => StationData.fromJson(x))),
     );
   }
 
@@ -22,12 +22,12 @@ class MetaData {
   final bool success;
   final int totalCount;
 
-  MetaData({required this.success, required this.totalCount});
+  MetaData({this.success = true, required this.totalCount});
 
   factory MetaData.fromJson(Map<String, dynamic> json) {
     return MetaData(
-      success: json["success"],
-      totalCount: json["total_count"],
+      success: json["success"] ?? true,
+      totalCount: json["totalCount"],
     );
   }
 
@@ -66,14 +66,14 @@ class StationData {
     return StationData(
       busNm: json["busNm"],
       busSupportTime: json["busSupportTime"],
-      msg1Showmessage: json["msg1_showmessage"],
-      msg1Message: json["msg1_message"],
-      msg1RemainStation: json["msg1_remainStation"],
-      msg1RemainSeconds: json["msg1_remainSeconds"],
-      msg2Showmessage: json["msg2_showmessage"],
-      msg2Message: json["msg2_message"],
-      msg2RemainStation: json["msg2_remainStation"],
-      msg2RemainSeconds: json["msg2_remainSeconds"],
+      msg1Showmessage: json["msg1ShowMessage"],
+      msg1Message: json["msg1Message"],
+      msg1RemainStation: json["msg1RemainStation"],
+      msg1RemainSeconds: json["msg1RemainSeconds"],
+      msg2Showmessage: json["msg2ShowMessage"],
+      msg2Message: json["msg2Message"],
+      msg2RemainStation: json["msg2RemainStation"],
+      msg2RemainSeconds: json["msg2RemainSeconds"],
     );
   }
 

@@ -1,0 +1,1035 @@
+/// Comprehensive v2 API response parsing tests.
+///
+/// Every test uses a **real response snapshot** from the production API
+/// (api.skkuuniverse.com), captured 2026-03-02. This guarantees that
+/// the Flutter models can parse what the server actually sends.
+///
+/// Each test group verifies:
+///  1. The v2 envelope `{ meta, data }` structure is handled
+///  2. Every field on the parsed model matches the snapshot values
+///  3. Nullable/optional fields are parsed correctly (both present and null)
+library;
+
+import 'package:dio/dio.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
+import 'package:skkumap/app/data/api_client.dart';
+import 'package:skkumap/app/data/api_endpoints.dart';
+import 'package:skkumap/app/data/repositories/ad_repository.dart';
+import 'package:skkumap/app/data/repositories/bus_repository.dart';
+import 'package:skkumap/app/data/repositories/search_repository.dart';
+import 'package:skkumap/app/data/repositories/station_repository.dart';
+import 'package:skkumap/app/data/repositories/ui_repository.dart';
+import 'package:skkumap/app/data/result.dart';
+import 'package:skkumap/app/model/ad_model.dart';
+import 'package:skkumap/app/model/main_bus_location.dart';
+import 'package:skkumap/app/model/main_bus_stationlist.dart';
+import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/model/search_option3_model.dart';
+import 'package:skkumap/app/model/station_model.dart';
+import 'package:skkumap/app/types/bus_type.dart';
+
+// ────────────────────────────────────────────────────────────────────────────
+// Real API response snapshots (captured 2026-03-02)
+// ────────────────────────────────────────────────────────────────────────────
+
+/// GET /bus/hssc/location — no buses running
+const _hsscLocationEmpty = <String, dynamic>{
+  'meta': {'lang': 'ko'},
+  'data': <dynamic>[],
+};
+
+/// GET /bus/jongro/location/02 — one bus at 종각역YMCA
+const _jongroLocationOneBus = <String, dynamic>{
+  'meta': {'lang': 'ko'},
+  'data': [
+    {
+      'sequence': '14',
+      'stationName': '종각역YMCA',
+      'carNumber': '2009',
+      'eventDate': '2026-03-02T10:59:41.751Z',
+      'estimatedTime': 40,
+      'stationId': '100900116',
+      'latitude': '37.570576',
+      'longitude': '126.983166',
+      'recordTime': '2026-03-02T10:59:41.751Z',
+      'isLastBus': false,
+    },
+  ],
+};
+
+/// GET /bus/hssc/stations — full 11-station list
+const _hsscStations = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'currentTime': '08:00 PM',
+    'totalBuses': 0,
+    'lastStationIndex': 10,
+  },
+  'data': [
+    {
+      'sequence': 1,
+      'stationName': '농구장',
+      'stationNumber': null,
+      'eta': 'Basketball Court (Shuttle Bus Stop)',
+      'isFirstStation': true,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 2,
+      'stationName': '학생회관',
+      'stationNumber': null,
+      'eta': 'Student Center',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 3,
+      'stationName': '정문',
+      'stationNumber': null,
+      'eta': 'Main Gate of SKKU',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 4,
+      'stationName': '올림픽기념국민생활관 [하차전용]',
+      'stationNumber': null,
+      'eta': 'Olympic Hall [Drop-off Only]',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 5,
+      'stationName': '혜화동우체국 [하차전용]',
+      'stationNumber': null,
+      'eta': 'Hyehwa Postoffice [Drop-off Only]',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 6,
+      'stationName': '혜화동로터리 [미정차]',
+      'stationNumber': null,
+      'eta': 'Hyehwa Rotary [Non-stop]',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 7,
+      'stationName': '혜화역 1번출구',
+      'stationNumber': null,
+      'eta': 'Hyehwa Station (Shuttle Bus Stop)',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 8,
+      'stationName': '혜화동로터리 [미정차]',
+      'stationNumber': null,
+      'eta': 'Hyehwa Rotary [Non-stop]',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 9,
+      'stationName': '성균관대입구사거리',
+      'stationNumber': null,
+      'eta': 'SKKU Junction',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 10,
+      'stationName': '정문',
+      'stationNumber': null,
+      'eta': 'Main Gate of SKKU',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+    {
+      'sequence': 11,
+      'stationName': '600주년기념관',
+      'stationNumber': null,
+      'eta': '600th Anniversary Hall',
+      'isFirstStation': false,
+      'isLastStation': true,
+      'isRotationStation': false,
+      'busType': 'BusType.hsscBus',
+    },
+  ],
+};
+
+/// GET /bus/jongro/stations/02 — 26-station list (trimmed to first 3 + last)
+const _jongroStations = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'currentTime': '08:00 PM',
+    'totalBuses': 1,
+    'lastStationIndex': 25,
+  },
+  'data': [
+    {
+      'sequence': '1',
+      'stationName': '성균관대학교',
+      'stationNumber': '01881',
+      'eta': '출발대기',
+      'isFirstStation': true,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.jonro02Bus',
+    },
+    {
+      'sequence': '2',
+      'stationName': '서울성곽.성대후문',
+      'stationNumber': '01515',
+      'eta': '출발대기',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': false,
+      'busType': 'BusType.jonro02Bus',
+    },
+    {
+      'sequence': '13',
+      'stationName': '금강제화',
+      'stationNumber': '01596',
+      'eta': '도착 정보 없음',
+      'isFirstStation': false,
+      'isLastStation': false,
+      'isRotationStation': true,
+      'busType': 'BusType.jonro02Bus',
+    },
+    {
+      'sequence': '26',
+      'stationName': '성대후문.와룡공원',
+      'stationNumber': '01860',
+      'eta': '13분9초후[11번째 전]',
+      'isFirstStation': false,
+      'isLastStation': true,
+      'isRotationStation': false,
+      'busType': 'BusType.jonro02Bus',
+    },
+  ],
+};
+
+/// GET /bus/station/01592 — two bus lines at this stop
+const _stationArrival = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'totalCount': 2,
+  },
+  'data': [
+    {
+      'busNm': '종로07',
+      'busSupportTime': true,
+      'msg1ShowMessage': true,
+      'msg1Message': '정보 없음',
+      'msg1RemainStation': null,
+      'msg1RemainSeconds': null,
+      'msg2ShowMessage': false,
+      'msg2Message': null,
+      'msg2RemainStation': null,
+      'msg2RemainSeconds': null,
+    },
+    {
+      'busNm': '인사캠셔틀',
+      'busSupportTime': false,
+      'msg1ShowMessage': true,
+      'msg1Message': '도착 정보 없음',
+      'msg1RemainStation': null,
+      'msg1RemainSeconds': null,
+      'msg2ShowMessage': true,
+      'msg2Message': null,
+      'msg2RemainStation': null,
+      'msg2RemainSeconds': null,
+    },
+  ],
+};
+
+/// GET /bus/station/01592 — bus with arrival time data
+const _stationArrivalWithTimes = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'totalCount': 1,
+  },
+  'data': [
+    {
+      'busNm': '종로02',
+      'busSupportTime': true,
+      'msg1ShowMessage': true,
+      'msg1Message': '5분51초후[3번째 전]',
+      'msg1RemainStation': 3,
+      'msg1RemainSeconds': 351,
+      'msg2ShowMessage': true,
+      'msg2Message': '13분9초후[11번째 전]',
+      'msg2RemainStation': 11,
+      'msg2RemainSeconds': 789,
+    },
+  ],
+};
+
+/// GET /ui/home/buslist — 4 bus items in the home screen list
+const _homeBusList = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'busListCount': 4,
+  },
+  'data': [
+    {
+      'title': '인사캠 셔틀버스',
+      'subtitle': '정차소(인문.농구장) ↔ 600주년 기념관',
+      'busTypeText': '성대',
+      'busTypeBgColor': '003626',
+      'pageLink': '/MainbusMain',
+      'pageWebviewLink': null,
+      'altPageLink': 'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90',
+      'useAltPageLink': false,
+      'noticeText': null,
+      'showAnimation': false,
+      'showNoticeText': false,
+    },
+    {
+      'title': '인자셔틀',
+      'subtitle': '인사캠 ↔ 자과캠',
+      'busTypeText': '성대',
+      'busTypeBgColor': '003626',
+      'pageLink': '/eskara',
+      'pageWebviewLink': null,
+      'altPageLink': 'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90',
+      'useAltPageLink': false,
+      'noticeText': '25년도 2학기 인자셔틀 시간표 업데이트',
+      'showAnimation': false,
+      'showNoticeText': true,
+    },
+    {
+      'title': '종로 02',
+      'subtitle': '성균관대학교 ↔ 종각역YMCA',
+      'busTypeText': '마을',
+      'busTypeBgColor': '4CAF50',
+      'pageLink': '/MainbusMain',
+      'pageWebviewLink': null,
+      'altPageLink':
+          'http://m.bus.go.kr/mBus/bus.bms?search=%EC%A2%85%EB%A1%9C02&searchType=B',
+      'useAltPageLink': false,
+      'noticeText': null,
+      'showAnimation': false,
+      'showNoticeText': false,
+    },
+    {
+      'title': '종로 07',
+      'subtitle': '명륜새마을금고 ↔ 명륜새마을금고',
+      'busTypeText': '마을',
+      'busTypeBgColor': '4CAF50',
+      'pageLink': '/MainbusMain',
+      'pageWebviewLink': null,
+      'altPageLink':
+          'http://m.bus.go.kr/mBus/bus.bms?search=%EC%A2%85%EB%A1%9C07&searchType=B',
+      'useAltPageLink': false,
+      'noticeText': null,
+      'showAnimation': false,
+      'showNoticeText': false,
+    },
+  ],
+};
+
+/// GET /ad/placements — splash + main_banner
+const _adPlacements = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'count': 2,
+  },
+  'data': {
+    'splash': {
+      'type': 'image',
+      'imageUrl': 'https://i.imgur.com/VEJpasQ.png',
+      'text': null,
+      'linkUrl': 'http://pf.kakao.com/_cjxexdG',
+      'enabled': true,
+      'adId': '69a3ca4e715fff63ea474882',
+    },
+    'main_banner': {
+      'type': 'text',
+      'imageUrl': null,
+      'text': '스꾸버스 카카오톡 채널 - 문의하기',
+      'linkUrl': 'http://pf.kakao.com/_cjxexdG',
+      'enabled': true,
+      'adId': '69a3ca4e715fff63ea474883',
+    },
+  },
+};
+
+/// GET /search/facilities/경영 — 35 results across hssc + nsc (trimmed)
+const _searchFacilities = <String, dynamic>{
+  'meta': {
+    'lang': 'ko',
+    'keyword': '경영',
+    'facilitiesTotalCount': 35,
+    'facilitiesHsscCount': 24,
+    'facilitiesNscCount': 11,
+  },
+  'data': {
+    'hssc': [
+      {
+        'buildingInfo': {
+          'buildNm_kr': '법학관',
+          'buildNm_en': 'Law Building',
+          'buildNo': '102',
+          'latitude': 37.587441,
+          'longtitude': 126.990506,
+        },
+        'spaceInfo': {
+          'floorNm_kr': '5층',
+          'floorNm_en': '5F',
+          'spaceNm_kr': '정경영교수연구실',
+          'spaceNm_en': 'Prof. Jung, Gyung Young',
+          'spaceCd': '20523',
+        },
+      },
+      {
+        'buildingInfo': {
+          'buildNm_kr': '경영관',
+          'buildNm_en': 'Business Building',
+          'buildNo': '133',
+          'latitude': 37.588572,
+          'longtitude': 126.992666,
+        },
+        'spaceInfo': {
+          'floorNm_kr': '1층',
+          'floorNm_en': '1F',
+          'spaceNm_kr': '경영대학 스터디홀',
+          'spaceNm_en': 'Business School Study Hall',
+          'spaceCd': '33106A',
+        },
+      },
+    ],
+    'nsc': [
+      {
+        'buildingInfo': {
+          'buildNm_kr': '수성관',
+          'buildNm_en': 'Suseonggwan',
+          'buildNo': '205',
+          'latitude': 37.293219,
+          'longtitude': 126.972004,
+        },
+        'spaceInfo': {
+          'floorNm_kr': '1층',
+          'floorNm_en': '1F',
+          'spaceNm_kr': '스포츠경영데이터분석실',
+          'spaceNm_en': 'Sport Business Data Analysis Lab.',
+          'spaceCd': '05129',
+        },
+      },
+    ],
+  },
+};
+
+// ────────────────────────────────────────────────────────────────────────────
+// Tests
+// ────────────────────────────────────────────────────────────────────────────
+
+void main() {
+  late Dio dio;
+  late DioAdapter dioAdapter;
+  late ApiClient client;
+
+  setUp(() {
+    dio = Dio(BaseOptions(baseUrl: 'http://test'));
+    dioAdapter = DioAdapter(dio: dio);
+    client = ApiClient(dio);
+  });
+
+  // ── 1. Bus Location (HSSC) — empty array ─────────────────────────────
+  group('GET /bus/hssc/location (empty)', () {
+    test('parses empty bus list from real v2 response', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscLocation(),
+        (server) => server.reply(200, _hsscLocationEmpty),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getLocations(BusType.hsscBus);
+
+      expect(result, isA<Ok<List<MainBusLocation>>>());
+      final locations = (result as Ok<List<MainBusLocation>>).data;
+      expect(locations, isEmpty);
+    });
+  });
+
+  // ── 2. Bus Location (Jongro 02) — real bus data ──────────────────────
+  group('GET /bus/jongro/location/02', () {
+    test('parses one bus with all fields', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busJongroLocation('02'),
+        (server) => server.reply(200, _jongroLocationOneBus),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getLocations(BusType.jongro02Bus);
+
+      expect(result, isA<Ok<List<MainBusLocation>>>());
+      final locations = (result as Ok<List<MainBusLocation>>).data;
+      expect(locations, hasLength(1));
+
+      final bus = locations[0];
+      expect(bus.sequence, '14');
+      expect(bus.stationName, '종각역YMCA');
+      expect(bus.carNumber, '2009');
+      expect(bus.eventDate, '2026-03-02T10:59:41.751Z');
+      expect(bus.estimatedTime, 40);
+      expect(bus.isLastBus, false);
+    });
+  });
+
+  // ── 3. Bus Stations (HSSC) — full station list ───────────────────────
+  group('GET /bus/hssc/stations', () {
+    test('parses metadata from real v2 response', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscStations(),
+        (server) => server.reply(200, _hsscStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.hsscBus);
+
+      expect(result, isA<Ok<MainBusStationList>>());
+      final data = (result as Ok<MainBusStationList>).data;
+
+      // Metadata
+      expect(data.metadata.currentTime, '08:00 PM');
+      expect(data.metadata.totalBuses, 0);
+      expect(data.metadata.lastStationIndex, 10);
+    });
+
+    test('parses all 11 stations', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscStations(),
+        (server) => server.reply(200, _hsscStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.hsscBus);
+      final stations = (result as Ok<MainBusStationList>).data.stations;
+      expect(stations, hasLength(11));
+    });
+
+    test('first station has isFirstStation=true', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscStations(),
+        (server) => server.reply(200, _hsscStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.hsscBus);
+      final first = (result as Ok<MainBusStationList>).data.stations[0];
+
+      expect(first.stationName, '농구장');
+      expect(first.stationNumber, isNull);
+      expect(first.eta, 'Basketball Court (Shuttle Bus Stop)');
+      expect(first.isFirstStation, true);
+      expect(first.isLastStation, false);
+      expect(first.isRotationStation, false);
+      expect(first.busType, 'BusType.hsscBus');
+    });
+
+    test('last station has isLastStation=true', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscStations(),
+        (server) => server.reply(200, _hsscStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.hsscBus);
+      final last = (result as Ok<MainBusStationList>).data.stations[10];
+
+      expect(last.stationName, '600주년기념관');
+      expect(last.isFirstStation, false);
+      expect(last.isLastStation, true);
+    });
+  });
+
+  // ── 4. Bus Stations (Jongro 02) — with stationNumber ────────────────
+  group('GET /bus/jongro/stations/02', () {
+    test('parses metadata with active buses', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busJongroStations('02'),
+        (server) => server.reply(200, _jongroStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.jongro02Bus);
+
+      expect(result, isA<Ok<MainBusStationList>>());
+      final data = (result as Ok<MainBusStationList>).data;
+      expect(data.metadata.totalBuses, 1);
+      expect(data.metadata.lastStationIndex, 25);
+    });
+
+    test('first station has stationNumber and isFirstStation', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busJongroStations('02'),
+        (server) => server.reply(200, _jongroStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.jongro02Bus);
+      final first = (result as Ok<MainBusStationList>).data.stations[0];
+
+      expect(first.stationName, '성균관대학교');
+      expect(first.stationNumber, '01881');
+      expect(first.eta, '출발대기');
+      expect(first.isFirstStation, true);
+    });
+
+    test('rotation station has isRotationStation=true', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busJongroStations('02'),
+        (server) => server.reply(200, _jongroStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.jongro02Bus);
+      final rotation = (result as Ok<MainBusStationList>).data.stations[2];
+
+      expect(rotation.stationName, '금강제화');
+      expect(rotation.isRotationStation, true);
+    });
+
+    test('last station has isLastStation=true', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busJongroStations('02'),
+        (server) => server.reply(200, _jongroStations),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.jongro02Bus);
+      final last = (result as Ok<MainBusStationList>).data.stations[3];
+
+      expect(last.stationName, '성대후문.와룡공원');
+      expect(last.stationNumber, '01860');
+      expect(last.eta, '13분9초후[11번째 전]');
+      expect(last.isLastStation, true);
+    });
+  });
+
+  // ── 5. Station Arrival — camelCase field parsing ─────────────────────
+  group('GET /bus/station/01592', () {
+    test('parses meta with totalCount (no success field)', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.station('01592'),
+        (server) => server.reply(200, _stationArrival),
+      );
+
+      final repo = StationRepository(client);
+      final result = await repo.getStationData('01592');
+
+      expect(result, isA<Ok<StationResponse>>());
+      final data = (result as Ok<StationResponse>).data;
+      expect(data.metaData.totalCount, 2);
+      expect(data.metaData.success, true); // defaults to true when absent
+    });
+
+    test('parses bus with null arrival times (msg1ShowMessage camelCase)',
+        () async {
+      dioAdapter.onGet(
+        ApiEndpoints.station('01592'),
+        (server) => server.reply(200, _stationArrival),
+      );
+
+      final repo = StationRepository(client);
+      final result = await repo.getStationData('01592');
+      final buses = (result as Ok<StationResponse>).data.stationData;
+      expect(buses, hasLength(2));
+
+      // First bus: 종로07 with msg1 visible, msg2 hidden
+      final bus1 = buses[0];
+      expect(bus1.busNm, '종로07');
+      expect(bus1.busSupportTime, true);
+      expect(bus1.msg1Showmessage, true);
+      expect(bus1.msg1Message, '정보 없음');
+      expect(bus1.msg1RemainStation, isNull);
+      expect(bus1.msg1RemainSeconds, isNull);
+      expect(bus1.msg2Showmessage, false);
+      expect(bus1.msg2Message, isNull);
+      expect(bus1.msg2RemainStation, isNull);
+      expect(bus1.msg2RemainSeconds, isNull);
+
+      // Second bus: 인사캠셔틀
+      final bus2 = buses[1];
+      expect(bus2.busNm, '인사캠셔틀');
+      expect(bus2.busSupportTime, false);
+      expect(bus2.msg1Showmessage, true);
+      expect(bus2.msg1Message, '도착 정보 없음');
+      expect(bus2.msg2Showmessage, true);
+      expect(bus2.msg2Message, isNull);
+    });
+
+    test('parses bus with actual remain times', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.station('01592'),
+        (server) => server.reply(200, _stationArrivalWithTimes),
+      );
+
+      final repo = StationRepository(client);
+      final result = await repo.getStationData('01592');
+      final buses = (result as Ok<StationResponse>).data.stationData;
+      expect(buses, hasLength(1));
+
+      final bus = buses[0];
+      expect(bus.busNm, '종로02');
+      expect(bus.busSupportTime, true);
+      expect(bus.msg1Showmessage, true);
+      expect(bus.msg1Message, '5분51초후[3번째 전]');
+      expect(bus.msg1RemainStation, 3);
+      expect(bus.msg1RemainSeconds, 351);
+      expect(bus.msg2Showmessage, true);
+      expect(bus.msg2Message, '13분9초후[11번째 전]');
+      expect(bus.msg2RemainStation, 11);
+      expect(bus.msg2RemainSeconds, 789);
+    });
+  });
+
+  // ── 6. Home Bus List (SDUI) ──────────────────────────────────────────
+  group('GET /ui/home/buslist', () {
+    test('parses meta with busListCount', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.homeBusList(),
+        (server) => server.reply(200, _homeBusList),
+      );
+
+      final repo = UiRepository(client);
+      final result = await repo.getMainpageBusList();
+
+      expect(result, isA<Ok<MainPageBusListResponse>>());
+      final data = (result as Ok<MainPageBusListResponse>).data;
+      expect(data.metaData.busListCount, 4);
+    });
+
+    test('parses all 4 bus list items', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.homeBusList(),
+        (server) => server.reply(200, _homeBusList),
+      );
+
+      final repo = UiRepository(client);
+      final result = await repo.getMainpageBusList();
+      final items = (result as Ok<MainPageBusListResponse>).data.busList;
+      expect(items, hasLength(4));
+    });
+
+    test('first item: 인사캠 셔틀버스 with all fields', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.homeBusList(),
+        (server) => server.reply(200, _homeBusList),
+      );
+
+      final repo = UiRepository(client);
+      final result = await repo.getMainpageBusList();
+      final first = (result as Ok<MainPageBusListResponse>).data.busList[0];
+
+      expect(first.title, '인사캠 셔틀버스');
+      expect(first.subtitle, '정차소(인문.농구장) ↔ 600주년 기념관');
+      expect(first.busTypeText, '성대');
+      expect(first.busTypeBgColor, '003626');
+      expect(first.pageLink, '/MainbusMain');
+      expect(first.pageWebviewLink, isNull);
+      expect(first.altPageLink,
+          'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90');
+      expect(first.useAltPageLink, false);
+      expect(first.noticeText, isNull);
+      expect(first.showAnimation, false);
+      expect(first.showNoticeText, false);
+    });
+
+    test('second item: 인자셔틀 with noticeText and showNoticeText=true',
+        () async {
+      dioAdapter.onGet(
+        ApiEndpoints.homeBusList(),
+        (server) => server.reply(200, _homeBusList),
+      );
+
+      final repo = UiRepository(client);
+      final result = await repo.getMainpageBusList();
+      final second = (result as Ok<MainPageBusListResponse>).data.busList[1];
+
+      expect(second.title, '인자셔틀');
+      expect(second.subtitle, '인사캠 ↔ 자과캠');
+      expect(second.noticeText, '25년도 2학기 인자셔틀 시간표 업데이트');
+      expect(second.showNoticeText, true);
+    });
+
+    test('third item: 종로 02 (마을버스)', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.homeBusList(),
+        (server) => server.reply(200, _homeBusList),
+      );
+
+      final repo = UiRepository(client);
+      final result = await repo.getMainpageBusList();
+      final third = (result as Ok<MainPageBusListResponse>).data.busList[2];
+
+      expect(third.title, '종로 02');
+      expect(third.busTypeText, '마을');
+      expect(third.busTypeBgColor, '4CAF50');
+    });
+  });
+
+  // ── 7. Ad Placements ─────────────────────────────────────────────────
+  group('GET /ad/placements', () {
+    test('parses placement map from real v2 response', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.adPlacements(),
+        (server) => server.reply(200, _adPlacements),
+      );
+
+      final repo = AdRepository(client);
+      final result = await repo.getPlacements();
+
+      expect(result, isA<Ok<AdPlacementsResponse>>());
+      final data = (result as Ok<AdPlacementsResponse>).data;
+      expect(data.placements, hasLength(2));
+      expect(data.placements.containsKey('splash'), true);
+      expect(data.placements.containsKey('main_banner'), true);
+    });
+
+    test('splash ad: image type with all fields', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.adPlacements(),
+        (server) => server.reply(200, _adPlacements),
+      );
+
+      final repo = AdRepository(client);
+      final result = await repo.getPlacements();
+      final splash = (result as Ok<AdPlacementsResponse>).data['splash']!;
+
+      expect(splash.type, 'image');
+      expect(splash.imageUrl, 'https://i.imgur.com/VEJpasQ.png');
+      expect(splash.text, isNull);
+      expect(splash.linkUrl, 'http://pf.kakao.com/_cjxexdG');
+      expect(splash.enabled, true);
+      expect(splash.adId, '69a3ca4e715fff63ea474882');
+    });
+
+    test('main_banner ad: text type with imageUrl=null', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.adPlacements(),
+        (server) => server.reply(200, _adPlacements),
+      );
+
+      final repo = AdRepository(client);
+      final result = await repo.getPlacements();
+      final banner = (result as Ok<AdPlacementsResponse>).data['main_banner']!;
+
+      expect(banner.type, 'text');
+      expect(banner.imageUrl, isNull);
+      expect(banner.text, '스꾸버스 카카오톡 채널 - 문의하기');
+      expect(banner.linkUrl, 'http://pf.kakao.com/_cjxexdG');
+      expect(banner.enabled, true);
+      expect(banner.adId, '69a3ca4e715fff63ea474883');
+    });
+  });
+
+  // ── 8. Search Facilities ─────────────────────────────────────────────
+  group('GET /search/facilities/경영', () {
+    test('parses meta with facilities counts', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.searchBuildings('경영'),
+        (server) => server.reply(200, _searchFacilities),
+      );
+
+      final repo = SearchRepository(client);
+      final result = await repo.searchBuildings('경영');
+
+      expect(result, isA<Ok<SearchOption3Model>>());
+      final data = (result as Ok<SearchOption3Model>).data;
+
+      expect(data.metaData.keyword, '경영');
+      expect(data.metaData.option3TotalCount, 35);
+      expect(data.metaData.option3HsscCount, 24);
+      expect(data.metaData.option3NscCount, 11);
+    });
+
+    test('parses hssc items with buildingInfo + spaceInfo', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.searchBuildings('경영'),
+        (server) => server.reply(200, _searchFacilities),
+      );
+
+      final repo = SearchRepository(client);
+      final result = await repo.searchBuildings('경영');
+      final hssc = (result as Ok<SearchOption3Model>).data.option3Items.hssc!;
+      expect(hssc, hasLength(2));
+
+      // First item: 법학관 5층
+      final item1 = hssc[0];
+      expect(item1.buildingInfo, isNotNull);
+      expect(item1.buildingInfo!.buildNmKr, '법학관');
+      expect(item1.buildingInfo!.buildNmEn, 'Law Building');
+      expect(item1.buildingInfo!.buildNo, '102');
+      expect(item1.buildingInfo!.latitude, 37.587441);
+      expect(item1.buildingInfo!.longtitude, 126.990506);
+      expect(item1.spaceInfo, isNotNull);
+      expect(item1.spaceInfo!.floorNmKr, '5층');
+      expect(item1.spaceInfo!.floorNmEn, '5F');
+      expect(item1.spaceInfo!.spaceNmKr, '정경영교수연구실');
+      expect(item1.spaceInfo!.spaceNmEn, 'Prof. Jung, Gyung Young');
+      expect(item1.spaceInfo!.spaceCd, '20523');
+
+      // Second item: 경영관 1층
+      final item2 = hssc[1];
+      expect(item2.buildingInfo!.buildNmKr, '경영관');
+      expect(item2.buildingInfo!.buildNmEn, 'Business Building');
+      expect(item2.buildingInfo!.buildNo, '133');
+      expect(item2.spaceInfo!.spaceNmKr, '경영대학 스터디홀');
+      expect(item2.spaceInfo!.spaceCd, '33106A');
+    });
+
+    test('parses nsc items', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.searchBuildings('경영'),
+        (server) => server.reply(200, _searchFacilities),
+      );
+
+      final repo = SearchRepository(client);
+      final result = await repo.searchBuildings('경영');
+      final nsc = (result as Ok<SearchOption3Model>).data.option3Items.nsc!;
+      expect(nsc, hasLength(1));
+
+      final item = nsc[0];
+      expect(item.buildingInfo!.buildNmKr, '수성관');
+      expect(item.buildingInfo!.buildNmEn, 'Suseonggwan');
+      expect(item.buildingInfo!.buildNo, '205');
+      expect(item.buildingInfo!.latitude, 37.293219);
+      expect(item.buildingInfo!.longtitude, 126.972004);
+      expect(item.spaceInfo!.spaceNmKr, '스포츠경영데이터분석실');
+      expect(item.spaceInfo!.spaceNmEn, 'Sport Business Data Analysis Lab.');
+      expect(item.spaceInfo!.spaceCd, '05129');
+    });
+  });
+
+  // ── 9. Endpoint paths match production ───────────────────────────────
+  group('ApiEndpoints paths', () {
+    test('bus location paths', () {
+      expect(ApiEndpoints.busHsscLocation(), '/bus/hssc/location');
+      expect(ApiEndpoints.busJongroLocation('02'), '/bus/jongro/location/02');
+      expect(ApiEndpoints.busJongroLocation('07'), '/bus/jongro/location/07');
+    });
+
+    test('bus station paths', () {
+      expect(ApiEndpoints.busHsscStations(), '/bus/hssc/stations');
+      expect(ApiEndpoints.busJongroStations('02'), '/bus/jongro/stations/02');
+      expect(ApiEndpoints.busJongroStations('07'), '/bus/jongro/stations/07');
+    });
+
+    test('station arrival path', () {
+      expect(ApiEndpoints.station('01592'), '/bus/station/01592');
+    });
+
+    test('UI paths', () {
+      expect(ApiEndpoints.homeBusList(), '/ui/home/buslist');
+      expect(ApiEndpoints.homeScroll(), '/ui/home/scroll');
+    });
+
+    test('search path uses /facilities/ not /buildings/', () {
+      expect(
+        ApiEndpoints.searchBuildings('경영'),
+        '/search/facilities/경영',
+      );
+    });
+
+    test('ad paths', () {
+      expect(ApiEndpoints.adPlacements(), '/ad/placements');
+      expect(ApiEndpoints.adEvents(), '/ad/events');
+    });
+
+    test('app config path', () {
+      expect(ApiEndpoints.appConfig(), '/app/config');
+    });
+
+    test('campus shuttle path', () {
+      expect(
+        ApiEndpoints.campusSchedule('INJA', 'weekday'),
+        '/bus/schedule/INJA_weekday',
+      );
+    });
+  });
+
+  // ── 10. Invalid envelope handling ────────────────────────────────────
+  group('invalid v2 envelope', () {
+    test('bare list returns ParseFailure', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscLocation(),
+        (server) => server.reply(200, []),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getLocations(BusType.hsscBus);
+
+      expect(result, isA<Err<List<MainBusLocation>>>());
+      final failure =
+          (result as Err<List<MainBusLocation>>).failure;
+      expect(failure, isA<ParseFailure>());
+      expect(failure.message, 'Invalid v2 envelope');
+    });
+
+    test('v1 response with metaData (missing meta) returns ParseFailure',
+        () async {
+      dioAdapter.onGet(
+        ApiEndpoints.busHsscStations(),
+        (server) => server.reply(200, {
+          'metaData': {
+            'currentTime': '12:00',
+            'totalBuses': 0,
+            'lastStationIndex': 0,
+          },
+          'stations': [],
+        }),
+      );
+
+      final repo = BusRepository(client);
+      final result = await repo.getStations(BusType.hsscBus);
+
+      expect(result, isA<Err<MainBusStationList>>());
+      final failure =
+          (result as Err<MainBusStationList>).failure;
+      expect(failure, isA<ParseFailure>());
+      expect(failure.message, 'Invalid v2 envelope');
+    });
+
+    test('map without data key returns ParseFailure', () async {
+      dioAdapter.onGet(
+        ApiEndpoints.adPlacements(),
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+        }),
+      );
+
+      final repo = AdRepository(client);
+      final result = await repo.getPlacements();
+
+      expect(result, isA<Err<AdPlacementsResponse>>());
+      final failure =
+          (result as Err<AdPlacementsResponse>).failure;
+      expect(failure, isA<ParseFailure>());
+    });
+  });
+}

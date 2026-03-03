@@ -11,8 +11,8 @@ class SearchOption3Model {
 
   factory SearchOption3Model.fromJson(Map<String, dynamic> json) {
     return SearchOption3Model(
-      metaData: MetaData.fromJson(json['metaData']),
-      option3Items: Option3Items.fromJson(json['option3Items'] ??
+      metaData: MetaData.fromJson(json['meta']),
+      option3Items: Option3Items.fromJson(json['data'] ??
           {'hssc': [], 'nsc': []}), // Provide a default empty structure
     );
   }
@@ -39,9 +39,9 @@ class MetaData {
   factory MetaData.fromJson(Map<String, dynamic> json) {
     return MetaData(
       keyword: json['keyword'],
-      option3TotalCount: json['option3_totalCount'],
-      option3HsscCount: json['option3_hsscCount'],
-      option3NscCount: json['option3_nscCount'],
+      option3TotalCount: json['facilitiesTotalCount'],
+      option3HsscCount: json['facilitiesHsscCount'],
+      option3NscCount: json['facilitiesNscCount'],
     );
   }
 }
