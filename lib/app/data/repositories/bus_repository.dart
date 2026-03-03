@@ -3,6 +3,7 @@ import 'package:skkumap/app/data/api_client.dart';
 import 'package:skkumap/app/data/api_endpoints.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
+import 'package:skkumap/app/model/bus_schedule.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
 import 'package:skkumap/app/types/bus_type.dart';
 
@@ -40,6 +41,20 @@ class BusRepository {
     return _client.safeGet(
       path,
       (json) => MainBusStationList.fromJson(json as Map<String, dynamic>),
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Result<List<BusSchedule>>> getSchedule(
+    String prefix,
+    String dayType, {
+    CancelToken? cancelToken,
+  }) {
+    return _client.safeGet(
+      ApiEndpoints.campusSchedule(prefix, dayType),
+      (json) => ((json as Map<String, dynamic>)['data'] as List)
+          .map((e) => BusSchedule.fromJson(e as Map<String, dynamic>))
+          .toList(),
       cancelToken: cancelToken,
     );
   }

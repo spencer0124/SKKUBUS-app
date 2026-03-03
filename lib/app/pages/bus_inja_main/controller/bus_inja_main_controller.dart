@@ -8,9 +8,9 @@ import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:skkumap/app/data/api_config.dart';
+import 'package:skkumap/app/data/repositories/bus_repository.dart';
+import 'package:skkumap/app/data/result.dart';
+import 'package:skkumap/app/model/bus_schedule.dart';
 import 'package:skkumap/app/utils/constants.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
@@ -58,6 +58,8 @@ ESKARAController
 메인 컨트롤러
 */
 class InjaMainController extends GetxController {
+  final _busRepo = Get.find<BusRepository>();
+
   var injaBusSchedule = <BusSchedule>[].obs;
   var jainBusSchedule = <BusSchedule>[].obs;
 
@@ -230,67 +232,23 @@ class InjaMainController extends GetxController {
   Rx<String?> selectedEnglishDay = 'monday'.obs;
 // 인자셔틀 정보 가져와서 변수에 담아주기
 
-  // Function to fetch bus schedules from the API
-  void fetchinjaBusSchedule(String type) async {
-    try {
-      var url =
-          Uri.parse('${ApiConfig.baseUrl}/campus/v1/campus/INJA_$type');
-      var response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        injaBusSchedule.clear();
-        var jsonData = json.decode(response.body)['result'];
-        for (var item in jsonData) {
-          injaBusSchedule.add(BusSchedule.fromJson(item));
-        }
-      } else {
-        Get.snackbar('Error', 'Failed to load bus schedules');
-      }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
+  Future<void> fetchinjaBusSchedule(String type) async {
+    final result = await _busRepo.getSchedule('INJA', type);
+    switch (result) {
+      case Ok(:final data):
+        injaBusSchedule.value = data;
+      case Err(:final failure):
+        logger.e('INJA schedule fetch failed: $failure');
     }
   }
 
-  void fetchjainBusSchedule(String type) async {
-    try {
-      var url =
-          Uri.parse('${ApiConfig.baseUrl}/campus/v1/campus/JAIN_$type');
-      var response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        jainBusSchedule.clear();
-        var jsonData = json.decode(response.body)['result'];
-        for (var item in jsonData) {
-          jainBusSchedule.add(BusSchedule.fromJson(item));
-        }
-      } else {
-        Get.snackbar('Error', 'Failed to load bus schedules');
-      }
-    } catch (e) {
-      Get.snackbar('Error', e.toString());
+  Future<void> fetchjainBusSchedule(String type) async {
+    final result = await _busRepo.getSchedule('JAIN', type);
+    switch (result) {
+      case Ok(:final data):
+        jainBusSchedule.value = data;
+      case Err(:final failure):
+        logger.e('JAIN schedule fetch failed: $failure');
     }
-  }
-}
-
-class BusSchedule {
-  String operatingHours;
-  int busCount;
-  String? specialNotes;
-  bool isFastestBus;
-
-  BusSchedule({
-    required this.operatingHours,
-    required this.busCount,
-    this.specialNotes,
-    required this.isFastestBus,
-  });
-
-  factory BusSchedule.fromJson(Map<String, dynamic> json) {
-    return BusSchedule(
-      operatingHours: json['operatingHours'],
-      busCount: json['busCount'],
-      specialNotes: json['specialNotes'],
-      isFastestBus: json['isFastestBus'],
-    );
   }
 }
