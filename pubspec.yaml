@@ -67,7 +67,6 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
   chat_bubbles: ^1.6.0
-  dropdown_button2: ^2.3.9
   flutter_native_splash: ^2.4.1
   google_mobile_ads: ^5.2.0
 

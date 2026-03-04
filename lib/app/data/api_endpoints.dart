@@ -18,7 +18,8 @@ class ApiEndpoints {
 
   // ── Campus shuttle (INJA/JAIN) ───────────────────
   static String campusSchedule(String prefix, String type) =>
-      '/bus/schedule/${prefix}_$type';
+      '/bus/campus/${prefix}_$type';
+  static String campusEta() => '/bus/campus/eta';
 
   // ── Station ──────────────────────────────────────
   static String station(String stationId) => '/bus/station/$stationId';

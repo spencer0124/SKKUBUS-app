@@ -1,660 +1,769 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:skkumap/app/components/mainpage/middle_snappingsheet/stationrow.dart';
 import 'package:skkumap/app/pages/bus_inja_main/controller/bus_inja_main_controller.dart';
-import 'package:skkumap/app_theme.dart';
+import 'package:skkumap/app/model/bus_schedule.dart';
 
-import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
-import 'package:skkumap/app/utils/screensize.dart';
-import 'package:skkumap/app/utils/constants.dart';
+// ── Colors ───────────────────────────────────────────────────────
 
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:skkumap/app/components/liveactivitiy/liveactivity_bus_eta.dart';
-import 'package:flutter_platform_alert/flutter_platform_alert.dart';
+const _heroGreen = Color(0xFF1A7F4B);
+const _greenLight = Color(0xFFF0FAF4);
+const _greenBadge = Color(0xFFD9F2E6);
+const _greenMid = Color(0xFF1BC47D);
+const _orange = Color(0xFFE87A3B);
+const _textColor = Color(0xFF191F28);
+const _gray = Color(0xFF9EA4AA);
+const _grayLight = Color(0xFFC9CDD2);
+const _grayBg = Color(0xFFF5F6F8);
 
-// Map deep links using centralized coordinates
-final Uri seoulCampusMapNaver = Uri.parse(
-  'nmap://route/public?dlat=${CampusCoordinates.seoulCampusLat}&dlng=${CampusCoordinates.seoulCampusLon}&dname=${CampusCoordinates.seoulCampusDestnameEncode}',
-);
-final Uri seoulCampusMapKakao = Uri.parse(
-  'kakaomap://route?ep=${CampusCoordinates.seoulCampusLat},${CampusCoordinates.seoulCampusLon}&by=PUBLICTRANSIT&eName=${CampusCoordinates.seoulCampusDestnameEncode}',
-);
-final Uri seoulCampusMapApple = Uri.parse(
-  'maps://?t=r&daddr=${CampusCoordinates.seoulCampusLat},${CampusCoordinates.seoulCampusLon}&dirflg=2',
-);
-
-final Uri suwonCampusMapNaver = Uri.parse(
-  'nmap://route/public?dlat=${CampusCoordinates.suwonCampusLat}&dlng=${CampusCoordinates.suwonCampusLon}&dname=${CampusCoordinates.suwonCampusDestnameEncode}',
-);
-final Uri suwonCampusMapKakao = Uri.parse(
-  'kakaomap://route?ep=${CampusCoordinates.suwonCampusLat},${CampusCoordinates.suwonCampusLon}&by=PUBLICTRANSIT&eName=${CampusCoordinates.suwonCampusDestnameEncode}',
-);
-final Uri suwonCampusMapApple = Uri.parse(
-  'maps://?t=r&daddr=${CampusCoordinates.suwonCampusLat},${CampusCoordinates.suwonCampusLon}&dirflg=2',
-);
-
-final Uri seoulMapNaver = Uri.parse(
-  'nmap://route/walk?dlat=${CampusCoordinates.seoulShuttleLat}&dlng=${CampusCoordinates.seoulShuttleLon}&dname=${CampusCoordinates.seoulShuttleDestnameEncode}',
-);
-final Uri seoulMapKakao = Uri.parse(
-  'kakaomap://route?ep=${CampusCoordinates.seoulShuttleLat},${CampusCoordinates.seoulShuttleLon}&by=FOOT&eName=${CampusCoordinates.seoulShuttleDestnameEncode}',
-);
-final Uri seoulMapApple = Uri.parse(
-  'maps://?t=m&daddr=${CampusCoordinates.seoulShuttleLat},${CampusCoordinates.seoulShuttleLon}',
-);
-
-final Uri suwonMapNaver = Uri.parse(
-  'nmap://route/walk?dlat=${CampusCoordinates.suwonShuttleLat}&dlng=${CampusCoordinates.suwonShuttleLon}&dname=${CampusCoordinates.suwonShuttleDestnameEncode}',
-);
-final Uri suwonMapKakao = Uri.parse(
-  'kakaomap://route?ep=${CampusCoordinates.suwonShuttleLat},${CampusCoordinates.suwonShuttleLon}&by=FOOT&eName=${CampusCoordinates.suwonShuttleDestnameEncode}',
-);
-final Uri suwonMapApple = Uri.parse(
-  'maps://?t=m&daddr=${CampusCoordinates.suwonShuttleLat},${CampusCoordinates.suwonShuttleLon}',
-);
-
-final seoulMarker = NMarker(
-  id: 'seoul_marker',
-  position: const NLatLng(
-      CampusCoordinates.seoulShuttleLat, CampusCoordinates.seoulShuttleLon),
-);
-const seoulCameraPosition = NCameraPosition(
-  target: NLatLng(
-      CampusCoordinates.seoulShuttleLat, CampusCoordinates.seoulShuttleLon),
-  zoom: 15,
-  bearing: 45,
-  tilt: 30,
-);
-
-final suwonMarker = NMarker(
-  id: 'suwon_marker',
-  position: const NLatLng(
-      CampusCoordinates.suwonShuttleLat, CampusCoordinates.suwonShuttleLon),
-);
-const suwonCameraPosition = NCameraPosition(
-  target: NLatLng(
-      CampusCoordinates.suwonShuttleLat, CampusCoordinates.suwonShuttleLon),
-  zoom: 15,
-  bearing: 45,
-  tilt: 30,
-);
+// ── Main Screen ──────────────────────────────────────────────────
 
 class ESKARA extends StatelessWidget {
   const ESKARA({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
-    final double screenWidth = ScreenSize.width(context);
     final controller = Get.find<InjaMainController>();
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(0.0),
-        child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.green_main,
-          elevation: 0,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        backgroundColor: _grayBg,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(0.0),
+          child: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+            backgroundColor: Colors.white,
+            elevation: 0,
+          ),
+        ),
+        body: Column(
+          children: [
+            // ── White header section ──
+            Container(
+              color: Colors.white,
+              child: Column(
+                children: [
+                  _buildTitleBar(),
+                  _buildDirectionTabs(),
+                  _buildDaySelector(controller),
+                ],
+              ),
+            ),
+            // ── Content ──
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildScheduleContent(
+                    controller,
+                    controller.injaBusSchedule,
+                    '인사캠 → 자과캠'.tr,
+                    controller.injaEtaMs,
+                  ),
+                  _buildScheduleContent(
+                    controller,
+                    controller.jainBusSchedule,
+                    '자과캠 → 인사캠'.tr,
+                    controller.jainEtaMs,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-      body: Column(
+    );
+  }
+
+  // ── Title Bar ──────────────────────────────────────────────────
+
+  Widget _buildTitleBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
+      child: Row(
         children: [
-          CustomNavigationBar(
-            title: '인자셔틀'.tr,
-            backgroundColor: AppColors.green_main,
-            isDisplayLeftBtn: true,
-            isDisplayRightBtn: true,
-            leftBtnAction: () {
-              Get.back();
-            },
-            rightBtnAction: () {
-              Get.toNamed('/injadetail');
-            },
-            rightBtnType: CustomNavigationBtnType.info,
+          GestureDetector(
+            onTap: () => Get.back(),
+            child: const Text(
+              '‹',
+              style: TextStyle(fontSize: 22, color: _textColor),
+            ),
           ),
-          Container(height: 0.5, color: Colors.grey[300]),
-          Container(height: 0.5, color: Colors.grey[300]),
-          Container(height: 0.5, color: Colors.grey[300]),
-          Container(
-            height: 30,
-            color: Colors.grey[100],
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            child: Row(
-              children: [
-                // 현재 날짜
-                // Text(
-                //   "2025-04-27", // 자동으로 업데이트 되는 날짜
-                //   style: TextStyle(
-                //     fontSize: 12,
-                //     color: Colors.grey[800],
-                //   ),
-                // ),
-                // const SizedBox(width: 3),
-                // Text(
-                //   "일", // 자동으로 업데이트 되는 요일
-                //   style: TextStyle(
-                //     fontSize: 12,
-                //     color: Colors.grey[800],
-                //   ),
-                // ),
-                const Spacer(),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '인자셔틀'.tr,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'WantedSansBold',
+                color: _textColor,
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () => Get.toNamed('/injadetail'),
+            child: Text(
+              '정보'.tr,
+              style: const TextStyle(
+                fontSize: 14,
+                color: _heroGreen,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                // 날짜 선택
-                Obx(
-                  () => Container(
-                    alignment: Alignment.centerRight,
-                    width: 150,
-                    height: 50,
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton2<String>(
-                        isExpanded: true,
-                        value: controller.selectedDay.value,
-                        onChanged: (String? value) {
-                          controller.selectedDay.value = value;
+  // ── Direction Tabs ─────────────────────────────────────────────
 
-                          controller.selectedEnglishDay =
-                              controller
-                                  .translateDayToEnglish(
-                                    controller.selectedDay.value ?? '월요일',
-                                  )
-                                  .obs;
-                          controller.fetchinjaBusSchedule(
-                            controller.selectedEnglishDay.value ?? 'monday',
-                          );
-                          controller.fetchjainBusSchedule(
-                            controller.selectedEnglishDay.value ?? 'monday',
-                          );
-                        },
-                        hint: Text(
-                          '요일 선택'.tr,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[800],
+  Widget _buildDirectionTabs() {
+    return TabBar(
+      labelColor: _heroGreen,
+      unselectedLabelColor: _gray,
+      labelStyle: const TextStyle(
+        fontFamily: 'WantedSansBold',
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      ),
+      unselectedLabelStyle: const TextStyle(
+        fontFamily: 'WantedSansMedium',
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+      ),
+      indicatorColor: _heroGreen,
+      indicatorWeight: 2,
+      dividerColor: Colors.transparent,
+      splashFactory: NoSplash.splashFactory,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      tabs: [
+        Tab(text: '인사캠 → 자과캠'.tr),
+        Tab(text: '자과캠 → 인사캠'.tr),
+      ],
+    );
+  }
+
+  // ── Day Selector (Toss-style pills) ────────────────────────────
+
+  Widget _buildDaySelector(InjaMainController controller) {
+    final todayIndex = DateTime.now().weekday - 1;
+    final noServiceDays = {5, 6}; // 토, 일
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      child: Obx(() {
+        return Row(
+          children: List.generate(7, (index) {
+            final isSelected = controller.selectedDayIndex.value == index;
+            final isToday = index == todayIndex;
+            final isWeekend = noServiceDays.contains(index);
+
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => controller.onDaySelected(index),
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? (isWeekend ? _grayLight : _heroGreen)
+                        : _grayBg,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Text(
+                        controller.shortDayLabels[index].tr,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontFamily: isSelected || isToday
+                              ? 'WantedSansBold'
+                              : 'WantedSansRegular',
+                          fontWeight:
+                              isSelected || isToday ? FontWeight.w700 : FontWeight.w400,
+                          color: isSelected
+                              ? Colors.white
+                              : isWeekend
+                                  ? _grayLight
+                                  : isToday
+                                      ? _heroGreen
+                                      : _gray,
+                        ),
+                      ),
+                      // Today dot indicator
+                      if (isToday && !isSelected)
+                        Positioned(
+                          bottom: -2,
+                          child: Container(
+                            width: 4,
+                            height: 4,
+                            decoration: const BoxDecoration(
+                              color: _heroGreen,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                        items:
-                            controller.dateitems
-                                .map(
-                                  (String item) => DropdownMenuItem<String>(
-                                    value: item,
-                                    child: Text(
-                                      "${item.tr} ${"시간표".tr}",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey[800],
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      }),
+    );
+  }
+
+  // ── Schedule Content (per tab) ─────────────────────────────────
+
+  Widget _buildScheduleContent(
+    InjaMainController controller,
+    RxList<BusSchedule> scheduleList,
+    String directionLabel,
+    RxInt etaMs,
+  ) {
+    return Obx(() {
+      controller.tick.value; // observe 1-min ticker for ETA refresh
+
+      // Show nothing while initial data is loading (prevents "no service" flash)
+      if (controller.isLoading.value) {
+        return const SizedBox.shrink();
+      }
+
+      final schedules = scheduleList.toList();
+      final isNoService = controller.isNoServiceSchedule(schedules);
+      final isFriday = controller.hasMultipleRouteTypes(schedules);
+
+      if (isNoService) {
+        return _buildNoServiceCard(controller);
+      }
+
+      final heroBus = controller.getHeroBus(schedules);
+
+      return Column(
+        children: [
+          // Hero card — fixed at top
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            child: _buildHeroCard(
+                controller, heroBus, directionLabel, isFriday, etaMs.value),
+          ),
+          // Schedule list — scrollable
+          Expanded(
+            child: ListView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              children: [
+                _buildScheduleList(controller, schedules, isFriday),
+                const SizedBox(height: 12),
+                // Footer
+                Center(
+                  child: Text(
+                    '${controller.shortDayLabels[controller.selectedDayIndex.value].tr}${'요일'.tr} ${'시간표'.tr} · ${'총'.tr} ${schedules.length}${'편'.tr}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: _grayLight,
+                      fontFamily: 'WantedSansRegular',
                     ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+
+  // ── No Service Card ────────────────────────────────────────────
+
+  Widget _buildNoServiceCard(InjaMainController controller) {
+    final dayLabel =
+        controller.shortDayLabels[controller.selectedDayIndex.value].tr;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('🚌', style: TextStyle(fontSize: 40)),
+              const SizedBox(height: 10),
+              Text(
+                '$dayLabel${'요일은'.tr} ${'운행하지 않아요'.tr}',
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'WantedSansBold',
+                  color: _textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '인자셔틀은 월요일부터 금요일까지'.tr,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: _gray,
+                  fontFamily: 'WantedSansRegular',
+                  height: 1.6,
+                ),
+              ),
+              Text(
+                '운행합니다'.tr,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: _gray,
+                  fontFamily: 'WantedSansRegular',
+                  height: 1.6,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Hero Card ──────────────────────────────────────────────────
+
+  Widget _buildHeroCard(
+    InjaMainController controller,
+    BusSchedule? heroBus,
+    String directionLabel,
+    bool isFriday,
+    int etaMs,
+  ) {
+    final isToday = controller.isViewingToday;
+    final hasNextBus = heroBus != null;
+    final cardColor = !hasNextBus
+        ? _gray
+        : isToday
+            ? _heroGreen
+            : const Color(0xFF8A9AA0); // muted grey-green for non-today
+    final heroLabel =
+        isToday ? '다음 셔틀'.tr : '첫 운행'.tr;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: cardColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          // Decorative circles
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.07),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -20,
+            right: 20,
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+          // Content
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 120),
+              child: hasNextBus
+                  ? _buildHeroContent(controller, heroBus, directionLabel,
+                      heroLabel, isFriday, isToday, etaMs)
+                  : _buildHeroEnded(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroContent(
+    InjaMainController controller,
+    BusSchedule bus,
+    String directionLabel,
+    String heroLabel,
+    bool isFriday,
+    bool isToday,
+    int etaMs,
+  ) {
+    final etaMinutes = isToday ? controller.getMinutesUntil(bus) : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Subtitle
+        Text(
+          '$heroLabel · $directionLabel',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withValues(alpha: 0.75),
+            fontWeight: FontWeight.w500,
+            fontFamily: 'WantedSansMedium',
+          ),
+        ),
+        const SizedBox(height: 6),
+        // Time + Bus count
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              bus.operatingHours,
+              style: const TextStyle(
+                fontSize: 52,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'WantedSansBold',
+                color: Colors.white,
+                letterSpacing: -1.5,
+                height: 1,
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '운영대수'.tr,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.white.withValues(alpha: 0.75),
+                    fontFamily: 'WantedSansRegular',
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${bus.busCount}대',
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'WantedSansBold',
+                    color: Colors.white,
+                    height: 1,
                   ),
                 ),
               ],
             ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        // Badges row
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            if (etaMinutes != null)
+              _heroBadge(
+                '${controller.formatETA(etaMinutes)} ${'출발'.tr}',
+                Colors.white.withValues(alpha: 0.22),
+              ),
+            if (isToday && etaMs > 0)
+              _heroBadge(
+                '${controller.formatDuration(etaMs)} ${'소요 예상'.tr}',
+                Colors.white.withValues(alpha: 0.15),
+              ),
+            if (bus.specialNotes != null && bus.specialNotes!.isNotEmpty)
+              _heroBadge(
+                '📌 ${bus.specialNotes!.replaceAll(r'\n', ' ')}',
+                Colors.white.withValues(alpha: 0.15),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeroEnded() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '다음 셔틀'.tr,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.white.withValues(alpha: 0.75),
+            fontWeight: FontWeight.w500,
+            fontFamily: 'WantedSansMedium',
           ),
-          Flexible(
-            child: Scrollbar(
-              child: ListView(
-                physics: const ClampingScrollPhysics(),
-                children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 3, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 20.h),
-                        Row(
-                          children: [
-                            const SizedBox(width: 5),
-                            Text(
-                              '${'인자셔틀'.tr} ${'[인사캠 → 자과캠]'.tr}',
-                              style: const TextStyle(
-                                color: AppColors.green_main,
-                                fontFamily: 'WantedSansBold',
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                            const Spacer(),
-                            // InkWell(
-                            //   onTap: () {
-                            //     print("승하차 장소 클릭됨");
-                            //     print("네이버지도: $seoulCampusMapNaver");
-                            //     print("카카오맵: $seoulCampusMapKakao");
-                            //     print("애플지도: $seoulCampusMapApple");
-                            //   },
-                            //   child: Row(
-                            //     children: [
-                            //       Icon(Icons.place_rounded,
-                            //           color: Colors.grey[800], size: 15),
-                            //       const SizedBox(width: 1),
-                            //       Text(
-                            //         '승하차 장소',
-                            //         style: TextStyle(
-                            //           color: Colors.grey[800],
-                            //           fontFamily: 'WantedSansBold',
-                            //         ),
-                            //         textAlign: TextAlign.start,
-                            //       ),
-                            //     ],
-                            //   ),
-                            // )
-                          ],
-                        ),
-                        // const SizedBox(
-                        //   height: 18,
-                        // ),
-                        // Row(
-                        //   children: [
-                        //     // live activity bus eta
-                        //     LiveActivityBusETA(
-                        //       screenWidth: MediaQuery.of(context).size.width,
-                        //       title: '인사캠 → 자과캠 셔틀',
-                        //       duration: '1시간 30분',
-                        //       distance: '131.1km',
-                        //       timeRange: '17:00 ~ 18:30',
-                        //       isAvailable: false,
-                        //     ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '운행 종료'.tr,
+          style: const TextStyle(
+            fontSize: 52,
+            fontWeight: FontWeight.w800,
+            fontFamily: 'WantedSansBold',
+            color: Colors.white,
+            letterSpacing: -1.5,
+            height: 1,
+          ),
+        ),
+      ],
+    );
+  }
 
-                        //     const Spacer(),
+  Widget _heroBadge(String text, Color bgColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          fontFamily: 'WantedSansBold',
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
 
-                        //     InkWell(
-                        //       onTap: () async {
-                        //         var result =
-                        //             await FlutterPlatformAlert.showCustomAlert(
-                        //           windowTitle: "대중교통 길찾기",
-                        //           text: "원하는 지도 앱을 선택해주세요",
-                        //           positiveButtonTitle: "네이버지도",
-                        //           neutralButtonTitle: "카카오맵",
-                        //           negativeButtonTitle: "애플지도",
-                        //         );
+  // ── Schedule List ──────────────────────────────────────────────
 
-                        //         // 네이버지도 선택
-                        //         if (result == CustomButton.positiveButton) {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'naver_map',
-                        //               mapNameKr: '네이버 지도',
-                        //               mapUri: seoulCampusMapNaver,
-                        //               playStoreLink:
-                        //                   'https://play.google.com/store/apps/details?id=com.nhn.android.nmap&hl=ko&gl=US',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/naver-map-navigation/id311867728?l=en-GB');
-                        //         }
-                        //         // 카카오맵 선택
-                        //         else if (result == CustomButton.neutralButton) {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'kakao_map',
-                        //               mapNameKr: '카카오맵',
-                        //               mapUri: seoulCampusMapKakao,
-                        //               playStoreLink:
-                        //                   'https://play.google.com/store/apps/details?id=net.daum.android.map&hl=ko&gl=US',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/kakaomap-korea-no-1-map/id304608425?l=en-GB');
-                        //         } else {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'apple_map',
-                        //               mapNameKr: '애플 지도',
-                        //               mapUri: seoulCampusMapApple,
-                        //               playStoreLink:
-                        //                   'https://apps.apple.com/kr/app/maps/id915056765?l=en-GB',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/maps/id915056765?l=en-GB');
-                        //         }
-                        //       },
-                        //       child: LiveActivityBusETA(
-                        //         screenWidth: MediaQuery.of(context).size.width,
-                        //         title: '대중교통',
-                        //         duration: '1시간 32분',
-                        //         distance: '150.1km',
-                        //         timeRange: '15:00 ~ 16:32',
-                        //         isAvailable: true,
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.fromLTRB(5, 15, 0, 0),
-                          child: Obx(() {
-                            return DataTable(
-                              columnSpacing: 35,
-                              columns: [
-                                DataColumn(label: Text('운영시간'.tr)),
-                                DataColumn(label: Text('운영대수'.tr)),
-                                DataColumn(label: Text('특이사항'.tr)),
-                              ],
-                              rows:
-                                  controller.injaBusSchedule.map((schedule) {
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 5),
-                                              Text(
-                                                schedule.operatingHours,
-                                                style: TextStyle(
-                                                  fontWeight:
-                                                      (schedule.isFastestBus &&
-                                                              controller
-                                                                      .selectedDay ==
-                                                                  controller
-                                                                      .today)
-                                                          ? FontWeight.bold
-                                                          : FontWeight.normal,
-                                                  color:
-                                                      (schedule.isFastestBus &&
-                                                              controller
-                                                                      .selectedDay ==
-                                                                  controller
-                                                                      .today)
-                                                          ? AppColors.green_main
-                                                          : Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Row(
-                                            children: [
-                                              const SizedBox(width: 15),
-                                              Text(
-                                                schedule.busCount.toString(),
-                                                style: TextStyle(
-                                                  fontWeight:
-                                                      (schedule.isFastestBus &&
-                                                              controller
-                                                                      .selectedDay ==
-                                                                  controller
-                                                                      .today)
-                                                          ? FontWeight.bold
-                                                          : FontWeight.normal,
-                                                  color:
-                                                      (schedule.isFastestBus &&
-                                                              controller
-                                                                      .selectedDay ==
-                                                                  controller
-                                                                      .today)
-                                                          ? AppColors.green_main
-                                                          : Colors.black,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            schedule.specialNotes?.replaceAll(
-                                                  r'\n',
-                                                  '\n',
-                                                ) ??
-                                                ' ',
-                                            style: TextStyle(
-                                              fontWeight:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
-                                              color:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? AppColors.green_main
-                                                      : Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
-                            );
-                          }),
-                        ),
-                      ],
-                    ),
+  Widget _buildScheduleList(
+    InjaMainController controller,
+    List<BusSchedule> schedules,
+    bool isFriday,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          // Column header
+          _buildColumnHeader(isFriday),
+          // Rows
+          ...List.generate(schedules.length, (index) {
+            return _buildScheduleRow(
+              controller,
+              schedules[index],
+              index,
+              schedules.length,
+              isFriday,
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColumnHeader(bool isFriday) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Row(
+        children: [
+          const SizedBox(width: 15), // dot space
+          SizedBox(
+            width: isFriday ? 80 : 105,
+            child: Text(
+              '시간'.tr,
+              style: const TextStyle(
+                fontSize: 11,
+                color: _grayLight,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+              ),
+            ),
+          ),
+          if (isFriday)
+            SizedBox(
+              width: 68,
+              child: Text(
+                '노선'.tr,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: _grayLight,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'WantedSansMedium',
+                ),
+              ),
+            ),
+          SizedBox(
+            width: 44,
+            child: Text(
+              '대수'.tr,
+              style: const TextStyle(
+                fontSize: 11,
+                color: _grayLight,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              '특이사항'.tr,
+              style: const TextStyle(
+                fontSize: 11,
+                color: _grayLight,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScheduleRow(
+    InjaMainController controller,
+    BusSchedule schedule,
+    int index,
+    int total,
+    bool isFriday,
+  ) {
+    final isPast = controller.isPastBus(schedule);
+    final isNext = controller.isViewingToday && schedule.isFastestBus;
+    final textColor = isPast ? _grayLight : isNext ? _heroGreen : _textColor;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+      decoration: BoxDecoration(
+        color: isNext ? _greenLight : Colors.white,
+        border: index < total - 1
+            ? const Border(bottom: BorderSide(color: _grayBg))
+            : null,
+      ),
+      child: Row(
+        children: [
+          // Timeline dot
+          Container(
+            width: 7,
+            height: 7,
+            decoration: BoxDecoration(
+              color: !controller.isViewingToday
+                  ? _grayLight // non-today: all dots grey
+                  : isPast
+                      ? const Color(0xFFE4E6E8)
+                      : isNext
+                          ? _heroGreen
+                          : _greenMid,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          // Time + "다음" badge
+          SizedBox(
+            width: isFriday ? 80 : 105,
+            child: Row(
+              children: [
+                Text(
+                  schedule.operatingHours,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
+                    fontFamily:
+                        isNext ? 'WantedSansBold' : 'WantedSansMedium',
+                    color: textColor,
                   ),
-                  const SizedBox(height: 25),
+                ),
+                if (isNext) ...[
+                  const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.fromLTRB(20, 3, 20, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
-                          child: Divider(color: Colors.grey[300]),
-                        ),
-                        Row(
-                          children: [
-                            const SizedBox(width: 5),
-                            Text(
-                              '${'자인셔틀'.tr} ${'[자과캠 → 인사캠]'.tr}',
-                              style: const TextStyle(
-                                color: AppColors.green_main,
-                                fontFamily: 'WantedSansBold',
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                            const Spacer(),
-                            // InkWell(
-                            //   onTap: () {
-                            //     print("자인 승하차 장소 클릭됨");
-                            //     print("네이버지도: $suwonCampusMapNaver");
-                            //     print("카카오맵: $suwonCampusMapKakao");
-                            //     print("애플지도: $suwonCampusMapApple");
-                            //   },
-                            //   child: Row(
-                            //     children: [
-                            //       Icon(Icons.place_rounded,
-                            //           color: Colors.grey[800], size: 15),
-                            //       const SizedBox(width: 1),
-                            //       Text(
-                            //         '승하차 장소',
-                            //         style: TextStyle(
-                            //           color: Colors.grey[800],
-                            //           fontFamily: 'WantedSansBold',
-                            //         ),
-                            //         textAlign: TextAlign.start,
-                            //       ),
-                            //     ],
-                            //   ),
-                            // )
-                          ],
-                        ),
-                        // const SizedBox(
-                        //   height: 8,
-                        // ),
-                        // const SizedBox(
-                        //   height: 10,
-                        // ),
-                        // Row(
-                        //   children: [
-                        //     // live activity bus eta
-                        //     LiveActivityBusETA(
-                        //       screenWidth: MediaQuery.of(context).size.width,
-                        //       title: '인사캠 → 자과캠 셔틀',
-                        //       duration: '1시간 30분',
-                        //       distance: '131.1km',
-                        //       timeRange: '17:00 ~ 18:30',
-                        //       isAvailable: false,
-                        //     ),
-
-                        //     const Spacer(),
-
-                        //     InkWell(
-                        //       onTap: () async {
-                        //         var result =
-                        //             await FlutterPlatformAlert.showCustomAlert(
-                        //           windowTitle: "대중교통 길찾기",
-                        //           text: "원하는 지도 앱을 선택해주세요",
-                        //           positiveButtonTitle: "네이버지도",
-                        //           neutralButtonTitle: "카카오맵",
-                        //           negativeButtonTitle: "애플지도",
-                        //         );
-
-                        //         // 네이버지도 선택
-                        //         if (result == CustomButton.positiveButton) {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'naver_map',
-                        //               mapNameKr: '네이버 지도',
-                        //               mapUri: suwonCampusMapNaver,
-                        //               playStoreLink:
-                        //                   'https://play.google.com/store/apps/details?id=com.nhn.android.nmap&hl=ko&gl=US',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/naver-map-navigation/id311867728?l=en-GB');
-                        //         }
-                        //         // 카카오맵 선택
-                        //         else if (result == CustomButton.neutralButton) {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'kakao_map',
-                        //               mapNameKr: '카카오맵',
-                        //               mapUri: suwonCampusMapKakao,
-                        //               playStoreLink:
-                        //                   'https://play.google.com/store/apps/details?id=net.daum.android.map&hl=ko&gl=US',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/kakaomap-korea-no-1-map/id304608425?l=en-GB');
-                        //         } else {
-                        //           controller.executeMap(
-                        //               type: 'seoul',
-                        //               mapNameEn: 'apple_map',
-                        //               mapNameKr: '애플 지도',
-                        //               mapUri: suwonCampusMapApple,
-                        //               playStoreLink:
-                        //                   'https://apps.apple.com/kr/app/maps/id915056765?l=en-GB',
-                        //               appStoreLink:
-                        //                   'https://apps.apple.com/kr/app/maps/id915056765?l=en-GB');
-                        //         }
-                        //       },
-                        //       child: LiveActivityBusETA(
-                        //         screenWidth: MediaQuery.of(context).size.width,
-                        //         title: '대중교통',
-                        //         duration: '1시간 32분',
-                        //         distance: '150.1km',
-                        //         timeRange: '15:00 ~ 16:32',
-                        //         isAvailable: true,
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
-                      ],
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _greenBadge,
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 3, 20, 0),
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.fromLTRB(5, 15, 0, 0),
-                      child: Obx(() {
-                        return DataTable(
-                          columnSpacing: 35,
-                          columns: [
-                            DataColumn(label: Text('운영시간'.tr)),
-                            DataColumn(label: Text('운영대수'.tr)),
-                            DataColumn(label: Text('특이사항'.tr)),
-                          ],
-                          rows:
-                              controller.jainBusSchedule.map((schedule) {
-                                return DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            schedule.operatingHours,
-                                            style: TextStyle(
-                                              fontWeight:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
-                                              color:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? AppColors.green_main
-                                                      : Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Row(
-                                        children: [
-                                          const SizedBox(width: 15),
-                                          Text(
-                                            schedule.busCount.toString(),
-                                            style: TextStyle(
-                                              fontWeight:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
-                                              color:
-                                                  (schedule.isFastestBus &&
-                                                          controller
-                                                                  .selectedDay ==
-                                                              controller.today)
-                                                      ? AppColors.green_main
-                                                      : Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    DataCell(
-                                      SizedBox(
-                                        child: Text(
-                                          schedule.specialNotes?.replaceAll(
-                                                r'\n',
-                                                '\n',
-                                              ) ??
-                                              ' ',
-                                          style: TextStyle(
-                                            fontWeight:
-                                                (schedule.isFastestBus &&
-                                                        controller
-                                                                .selectedDay ==
-                                                            controller.today)
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
-                                            color:
-                                                (schedule.isFastestBus &&
-                                                        controller
-                                                                .selectedDay ==
-                                                            controller.today)
-                                                    ? AppColors.green_main
-                                                    : Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                        );
-                      }),
+                    child: Text(
+                      '다음'.tr,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: 'WantedSansBold',
+                        color: _heroGreen,
+                      ),
                     ),
                   ),
                 ],
+              ],
+            ),
+          ),
+          // Route type (Friday only)
+          if (isFriday)
+            SizedBox(
+              width: 68,
+              child: Text(
+                schedule.routeType == 'hakbu' ? '학부대학'.tr : '일반'.tr,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'WantedSansMedium',
+                  color: isPast ? _grayLight : _textColor,
+                ),
+              ),
+            ),
+          // Bus count
+          SizedBox(
+            width: 44,
+            child: Text(
+              '${schedule.busCount}대',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+                color: isPast ? _grayLight : _textColor,
+              ),
+            ),
+          ),
+          // Special notes
+          Expanded(
+            child: Text(
+              schedule.specialNotes?.replaceAll(r'\n', ' ') ?? '—',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: schedule.specialNotes != null
+                    ? FontWeight.w600
+                    : FontWeight.w400,
+                fontFamily: schedule.specialNotes != null
+                    ? 'WantedSansMedium'
+                    : 'WantedSansRegular',
+                color: isPast
+                    ? _grayLight
+                    : schedule.specialNotes != null
+                        ? _orange
+                        : _grayLight,
               ),
             ),
           ),

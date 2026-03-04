@@ -58,4 +58,26 @@ class BusRepository {
       cancelToken: cancelToken,
     );
   }
+
+  /// Returns { 'inja': durationMs, 'jain': durationMs }
+  Future<Result<Map<String, int>>> getCampusEta({
+    CancelToken? cancelToken,
+  }) {
+    return _client.safeGet(
+      ApiEndpoints.campusEta(),
+      (json) {
+        final data = (json as Map<String, dynamic>)['data']
+            as Map<String, dynamic>;
+        final result = <String, int>{};
+        if (data['inja'] != null) {
+          result['inja'] = data['inja']['duration'] as int;
+        }
+        if (data['jain'] != null) {
+          result['jain'] = data['jain']['duration'] as int;
+        }
+        return result;
+      },
+      cancelToken: cancelToken,
+    );
+  }
 }
