@@ -15,10 +15,8 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:skkumap/app/pages/KingoLogin/controller/KingoLogin_controller.dart';
-import 'package:skkumap/app/pages/bus_inja_detail/controller/bus_inja_detail_controller.dart';
 import 'package:skkumap/app/pages/bus_inja_main/controller/bus_inja_main_controller.dart';
 import 'package:skkumap/app/pages/hssc_building_map/controller/hssc_building_map_controller.dart';
-import 'package:skkumap/app/pages/bus_main_detail/controller/bus_seoul_detail_controller.dart';
 import 'package:skkumap/app/pages/bus_main_main/controller/bus_seoul_main_controller.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
 import 'package:skkumap/app/pages/webview/controller/webview_controller.dart';
@@ -158,14 +156,8 @@ void registerDependencies() {
   Get.lazyPut(() => BusDataController());
   Get.lazyPut(() => SeoulMainLifeCycle());
 
-  Get.lazyPut(() => SeoulDetailController());
-  Get.lazyPut(() => SeoulDetailLifeCycle());
-
   Get.lazyPut(() => InjaMainController());
   Get.lazyPut(() => InjaMainLifeCycle());
-
-  Get.put(InjaDetailController());
-  Get.put(InjaDetailLifeCycle());
 
   Get.lazyPut(() => MainpageController());
   Get.lazyPut(() => MainpageLifeCycle());

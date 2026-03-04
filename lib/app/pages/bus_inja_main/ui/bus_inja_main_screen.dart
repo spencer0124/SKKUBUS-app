@@ -102,7 +102,12 @@ class ESKARA extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed('/injadetail'),
+            onTap: () => Get.toNamed('/customwebview', arguments: {
+              'title': '인자셔틀'.tr,
+              'color': '003626',
+              'webviewLink':
+                  'https://webview.skkuuniverse.com/#/bus/campus/info',
+            }),
             child: Text(
               '정보'.tr,
               style: const TextStyle(

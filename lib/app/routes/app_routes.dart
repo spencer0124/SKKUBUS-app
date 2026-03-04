@@ -4,8 +4,6 @@ import 'package:skkumap/app/pages/KingoInfo/ui/kingoinfo_view.dart';
 import 'package:skkumap/app/pages/KingoLogin/binding/kingoLogin_binding.dart';
 import 'package:skkumap/app/pages/KingoLogin/ui/KingoLogin_view.dart';
 
-import 'package:skkumap/app/pages/bus_inja_detail/binding/bus_inja_detail_binding.dart';
-import 'package:skkumap/app/pages/bus_inja_detail/ui/bus_inja_detail_screen.dart';
 import 'package:skkumap/app/pages/bus_inja_main/binding/bus_inja_main_binding.dart';
 
 import 'package:skkumap/app/pages/hssc_building_map/binding/hssc_building_map_binding.dart';
@@ -13,7 +11,6 @@ import 'package:skkumap/app/pages/hssc_building_map/ui/hssc_building_map_screen.
 import 'package:skkumap/app/pages/bus_main_main/binding/bus_seoul_main_binding.dart';
 import 'package:skkumap/app/pages/bus_main_main/ui/bus_seoul_main_screen.dart';
 
-import 'package:skkumap/app/pages/bus_main_detail/ui/bus_seoul_detail_screen.dart';
 import 'package:skkumap/app/pages/bus_inja_main/ui/bus_inja_main_screen.dart';
 import 'package:skkumap/app/pages/mainpage/binding/mainpage_binding.dart';
 import 'package:skkumap/app/pages/mainpage/ui/mainpage_screen.dart';
@@ -42,11 +39,6 @@ class AppRoutes {
       binding: BusDataBinding(),
     ),
     GetPage(
-      name: '/MainbusDetail',
-      page: () => const BusDataScreenDetail(),
-      binding: BusDataBinding(),
-    ),
-    GetPage(
       name: '/eskara',
       page: () => const ESKARA(),
       binding: ESKARABinding(),
@@ -59,11 +51,6 @@ class AppRoutes {
       name: '/mainpage',
       page: () => const Mainpage(),
       binding: MainpageBinding(),
-    ),
-    GetPage(
-      name: '/injadetail',
-      page: () => const InjaDetail(),
-      binding: InjaDetailBinding(),
     ),
     GetPage(
       name: '/kingologin',

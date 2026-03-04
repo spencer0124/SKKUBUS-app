@@ -111,7 +111,12 @@ class BusDataScreen extends GetView<BusDataController> {
               Get.back();
             },
             rightBtnAction: () {
-              Get.toNamed('/MainbusDetail');
+              Get.toNamed('/customwebview', arguments: {
+                'title': '인사캠 셔틀버스'.tr,
+                'color': '003626',
+                'webviewLink':
+                    'https://webview.skkuuniverse.com/#/bus/hssc/info',
+              });
             },
             rightBtnType: CustomNavigationBtnType.info,
           ),
