@@ -10,7 +10,7 @@ import 'dart:async';
 
 enum SearchTab { all, hssc, nsc }
 
-class SearchListController extends GetxController {
+class PlaceSearchController extends GetxController {
   final _searchRepo = Get.find<SearchRepository>();
 
   var searchResult = Rx<SearchOption3Model?>(null);

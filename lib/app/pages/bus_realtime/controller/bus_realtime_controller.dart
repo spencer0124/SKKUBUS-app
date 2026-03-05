@@ -16,8 +16,8 @@ import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 // life cycle
-class SeoulMainLifeCycle extends GetxController with WidgetsBindingObserver {
-  BusDataController controller = Get.find<BusDataController>();
+class BusRealtimeLifeCycle extends GetxController with WidgetsBindingObserver {
+  BusRealtimeController controller = Get.find<BusRealtimeController>();
 
   @override
   void onInit() {
@@ -43,7 +43,7 @@ class SeoulMainLifeCycle extends GetxController with WidgetsBindingObserver {
 }
 
 // main controller
-class BusDataController extends GetxController {
+class BusRealtimeController extends GetxController {
   final _busRepo = Get.find<BusRepository>();
   final _adRepo = Get.find<AdRepository>();
 

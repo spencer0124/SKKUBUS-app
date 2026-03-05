@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:skkumap/app/pages/bus_campus/controller/bus_inja_main_controller.dart';
+import 'package:skkumap/app/pages/bus_campus/controller/bus_campus_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
 
@@ -19,12 +19,12 @@ const _grayBg = Color(0xFFF5F6F8);
 
 // ── Main Screen ──────────────────────────────────────────────────
 
-class ESKARA extends StatelessWidget {
-  const ESKARA({Key? key}) : super(key: key);
+class BusCampusScreen extends StatelessWidget {
+  const BusCampusScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<InjaMainController>();
+    final controller = Get.find<BusCampusController>();
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -154,7 +154,7 @@ class ESKARA extends StatelessWidget {
 
   // ── Day Selector (Toss-style pills) ────────────────────────────
 
-  Widget _buildDaySelector(InjaMainController controller) {
+  Widget _buildDaySelector(BusCampusController controller) {
     final todayIndex = DateTime.now().weekday - 1;
     final noServiceDays = {5, 6}; // 토, 일
 
@@ -228,7 +228,7 @@ class ESKARA extends StatelessWidget {
   // ── Schedule Content (per tab) ─────────────────────────────────
 
   Widget _buildScheduleContent(
-    InjaMainController controller,
+    BusCampusController controller,
     RxList<BusSchedule> scheduleList,
     String directionLabel,
     RxInt etaMs,
@@ -289,7 +289,7 @@ class ESKARA extends StatelessWidget {
 
   // ── No Service Card ────────────────────────────────────────────
 
-  Widget _buildNoServiceCard(InjaMainController controller) {
+  Widget _buildNoServiceCard(BusCampusController controller) {
     final dayLabel =
         controller.shortDayLabels[controller.selectedDayIndex.value].tr;
     return Center(
@@ -346,7 +346,7 @@ class ESKARA extends StatelessWidget {
   // ── Hero Card ──────────────────────────────────────────────────
 
   Widget _buildHeroCard(
-    InjaMainController controller,
+    BusCampusController controller,
     BusSchedule? heroBus,
     String directionLabel,
     bool isFriday,
@@ -413,7 +413,7 @@ class ESKARA extends StatelessWidget {
   }
 
   Widget _buildHeroContent(
-    InjaMainController controller,
+    BusCampusController controller,
     BusSchedule bus,
     String directionLabel,
     String heroLabel,
@@ -557,7 +557,7 @@ class ESKARA extends StatelessWidget {
   // ── Schedule List ──────────────────────────────────────────────
 
   Widget _buildScheduleList(
-    InjaMainController controller,
+    BusCampusController controller,
     List<BusSchedule> schedules,
     bool isFriday,
   ) {
@@ -650,7 +650,7 @@ class ESKARA extends StatelessWidget {
   }
 
   Widget _buildScheduleRow(
-    InjaMainController controller,
+    BusCampusController controller,
     BusSchedule schedule,
     int index,
     int total,

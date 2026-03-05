@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
-import 'package:skkumap/app/pages/bus_hssc/controller/bus_seoul_main_controller.dart';
+import 'package:skkumap/app/pages/bus_realtime/controller/bus_realtime_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/utils/ad_widget.dart';
 import 'package:skkumap/app_theme.dart';
@@ -25,8 +25,8 @@ import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
 
-class BusDataScreen extends GetView<BusDataController> {
-  const BusDataScreen({super.key});
+class BusRealtimeScreen extends GetView<BusRealtimeController> {
+  const BusRealtimeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

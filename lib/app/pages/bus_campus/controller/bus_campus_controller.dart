@@ -19,8 +19,8 @@ LifeCycleGetx2, WidgetsBindingObserver
 탑승 가능한 가장 빠른 버스 시간을 표시하기 위한 로직
  */
 
-class InjaMainLifeCycle extends GetxController with WidgetsBindingObserver {
-  InjaMainController injaMainController = Get.find<InjaMainController>();
+class BusCampusLifeCycle extends GetxController with WidgetsBindingObserver {
+  BusCampusController campusController = Get.find<BusCampusController>();
 
   @override
   void onInit() {
@@ -38,24 +38,24 @@ class InjaMainLifeCycle extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      injaMainController.today = InjaMainController.getCurrentWeekday().obs;
-      injaMainController.selectedEnglishDay = injaMainController
-          .translateDayToEnglish(injaMainController.selectedDay.value ?? '월요일')
+      campusController.today = BusCampusController.getCurrentWeekday().obs;
+      campusController.selectedEnglishDay = campusController
+          .translateDayToEnglish(campusController.selectedDay.value ?? '월요일')
           .obs;
 
-      injaMainController.fetchinjaBusSchedule(
-          injaMainController.selectedEnglishDay.value ?? 'monday');
-      injaMainController.fetchjainBusSchedule(
-          injaMainController.selectedEnglishDay.value ?? 'monday');
+      campusController.fetchinjaBusSchedule(
+          campusController.selectedEnglishDay.value ?? 'monday');
+      campusController.fetchjainBusSchedule(
+          campusController.selectedEnglishDay.value ?? 'monday');
     }
   }
 }
 
 /*
-InjaMainController
+BusCampusController
 메인 컨트롤러
 */
-class InjaMainController extends GetxController {
+class BusCampusController extends GetxController {
   final _busRepo = Get.find<BusRepository>();
 
   var injaBusSchedule = <BusSchedule>[].obs;

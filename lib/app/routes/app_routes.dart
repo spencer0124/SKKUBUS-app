@@ -1,23 +1,23 @@
 import 'package:get/get.dart';
 
-import 'package:skkumap/app/pages/bus_campus/binding/bus_inja_main_binding.dart';
-import 'package:skkumap/app/pages/bus_campus/ui/bus_inja_main_screen.dart';
-import 'package:skkumap/app/pages/bus_hssc/binding/bus_seoul_main_binding.dart';
-import 'package:skkumap/app/pages/bus_hssc/ui/bus_seoul_main_screen.dart';
+import 'package:skkumap/app/pages/bus_campus/binding/bus_campus_binding.dart';
+import 'package:skkumap/app/pages/bus_campus/ui/bus_campus_screen.dart';
+import 'package:skkumap/app/pages/bus_realtime/binding/bus_realtime_binding.dart';
+import 'package:skkumap/app/pages/bus_realtime/ui/bus_realtime_screen.dart';
 import 'package:skkumap/app/pages/hssc_building_map/binding/hssc_building_map_binding.dart';
 import 'package:skkumap/app/pages/hssc_building_map/ui/hssc_building_map_screen.dart';
 import 'package:skkumap/app/pages/hssc_building_credit/ui/hssc_building_credit.dart';
 import 'package:skkumap/app/pages/mainpage/binding/mainpage_binding.dart';
 import 'package:skkumap/app/pages/mainpage/ui/mainpage_screen.dart';
-import 'package:skkumap/app/pages/alert/ui/new_alert.dart';
+import 'package:skkumap/app/pages/alert/ui/alert_screen.dart';
 import 'package:skkumap/app/pages/nsc_building_map/binding/nsc_building_map_binding.dart';
 import 'package:skkumap/app/pages/nsc_building_map/ui/nsc_building_map_screen.dart';
 import 'package:skkumap/app/pages/nsc_building_credit/ui/nsc_building_credit.dart';
 import 'package:skkumap/app/pages/webview/binding/webview_binding.dart';
 import 'package:skkumap/app/pages/webview/ui/webview_screen.dart';
 import 'package:skkumap/app/pages/lost_and_found/ui/lostandfound.dart';
-import 'package:skkumap/app/pages/search_list/binding/search_list_binding.dart';
-import 'package:skkumap/app/pages/search_list/ui/search_list_screen.dart';
+import 'package:skkumap/app/pages/search/binding/search_binding.dart';
+import 'package:skkumap/app/pages/search/ui/search_screen.dart';
 import 'package:skkumap/app/pages/splash_ad/ui/splash_ad_screen.dart';
 
 abstract class Routes {
@@ -43,17 +43,17 @@ class AppRoutes {
     ),
     GetPage(
       name: Routes.busRealtime,
-      page: () => const BusDataScreen(),
-      binding: BusDataBinding(),
+      page: () => const BusRealtimeScreen(),
+      binding: BusRealtimeBinding(),
     ),
     GetPage(
       name: Routes.busCampus,
-      page: () => const ESKARA(),
-      binding: ESKARABinding(),
+      page: () => const BusCampusScreen(),
+      binding: BusCampusBinding(),
     ),
     GetPage(
       name: Routes.alert,
-      page: () => const NewAlert(),
+      page: () => const AlertScreen(),
     ),
     GetPage(
       name: Routes.home,
@@ -89,8 +89,8 @@ class AppRoutes {
     ),
     GetPage(
       name: Routes.search,
-      page: () => const SearchList(),
-      binding: SearchListBinding(),
+      page: () => const SearchScreen(),
+      binding: SearchBinding(),
     ),
   ];
 }

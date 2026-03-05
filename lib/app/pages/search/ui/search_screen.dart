@@ -5,21 +5,20 @@ import 'package:skkumap/app/components/mainpage/middle_snappingsheet/stationrow.
 import 'package:skkumap/app_theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
+import 'package:skkumap/app/pages/search/controller/search_controller.dart';
 
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app/model/search_option3_model.dart';
-import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
 
-class SearchList extends StatefulWidget {
-  const SearchList({Key? key}) : super(key: key);
+class SearchScreen extends StatefulWidget {
+  const SearchScreen({Key? key}) : super(key: key);
 
   @override
-  State<SearchList> createState() => _SearchListState();
+  State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchListState extends State<SearchList> {
+class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController searchController = TextEditingController();
 
   @override
@@ -35,7 +34,7 @@ class _SearchListState extends State<SearchList> {
     final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
 
-    final controller = Get.find<SearchListController>();
+    final controller = Get.find<PlaceSearchController>();
 
     searchController.addListener(() {
       controller.onSearchChanged(searchController.text);

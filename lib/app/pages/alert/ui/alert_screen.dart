@@ -10,8 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // 여기는 lifecycle 그거 설정안해줬다는 거 주의하기
 
-class NewAlert extends StatelessWidget {
-  const NewAlert({Key? key}) : super(key: key);
+class AlertScreen extends StatelessWidget {
+  const AlertScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
