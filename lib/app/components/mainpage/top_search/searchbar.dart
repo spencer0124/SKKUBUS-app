@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomSearchBar extends StatelessWidget {
@@ -36,7 +37,7 @@ class CustomSearchBar extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
-          Get.toNamed('/searchlist');
+          Get.toNamed(Routes.search);
         },
         child: Row(
           children: [

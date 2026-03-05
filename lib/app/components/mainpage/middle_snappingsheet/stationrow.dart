@@ -5,6 +5,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/components/mainpage/middle_snappingsheet/stationrow_component.dart'; // Import the ScrollRowContainer widget
 import 'package:get/get.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/types/bus_type.dart';
 
 final double dwidth =
@@ -110,7 +111,7 @@ class CustomRow2 extends StatelessWidget {
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTap: () {
-                                        Get.toNamed('/MainbusMain', arguments: {
+                                        Get.toNamed(Routes.busRealtime, arguments: {
                                           'bustype': BusType.jongro07Bus,
                                         });
                                       },
@@ -140,7 +141,7 @@ class CustomRow2 extends StatelessWidget {
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTap: () {
-                                        Get.toNamed('/MainbusMain', arguments: {
+                                        Get.toNamed(Routes.busRealtime, arguments: {
                                           'bustype': BusType.hsscBus,
                                         });
                                       },

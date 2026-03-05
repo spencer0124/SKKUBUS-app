@@ -5,6 +5,7 @@ import 'package:skkumap/app_theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:skkumap/app/pages/nsc_building_map/controller/nsc_building_map_controller.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/utils/screensize.dart';
@@ -39,7 +40,7 @@ class NSCBuildingMap extends StatelessWidget {
               Get.back();
             },
             rightBtnAction: () {
-              Get.toNamed('/nscbuildingcredit');
+              Get.toNamed(Routes.mapNscCredit);
             },
             rightBtnType: CustomNavigationBtnType.info,
           ),

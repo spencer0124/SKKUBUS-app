@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:skkumap/app/pages/bus_inja_main/controller/bus_inja_main_controller.dart';
+import 'package:skkumap/app/pages/bus_campus/controller/bus_inja_main_controller.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
 
 // ── Colors ───────────────────────────────────────────────────────
@@ -102,7 +103,7 @@ class ESKARA extends StatelessWidget {
             ),
           ),
           GestureDetector(
-            onTap: () => Get.toNamed('/customwebview', arguments: {
+            onTap: () => Get.toNamed(Routes.webview, arguments: {
               'title': '인자셔틀'.tr,
               'color': '003626',
               'webviewLink':

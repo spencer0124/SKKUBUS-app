@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:lottie/lottie.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/types/bus_type.dart';
 import 'dart:io' show Platform; // Platform 클래스를 사용하기 위해 import
 import 'package:flutter/material.dart';
@@ -58,7 +59,7 @@ class CustomRow1 extends StatelessWidget {
           }
         } else {
           // 웹뷰로 가는 경우
-          if (pageLink == "/customwebview") {
+          if (pageLink == Routes.webview) {
             // 로그 기록
             final parameters = <String, Object>{
               // 1. Platform 클래스로 OS 정보 수집
@@ -89,7 +90,7 @@ class CustomRow1 extends StatelessWidget {
           }
           // 인사캠 셔틀, 종로07, 종로02로 가는 경우
           // 모두 같은 페이지로 가는데, 각각의 버스타입으로 색과 api 요청을 구분한다.
-          else if (pageLink == "/MainbusMain") {
+          else if (pageLink == Routes.busRealtime) {
             BusType bustype;
             if (title == "인사캠 셔틀".tr) {
               bustype = BusType.hsscBus;

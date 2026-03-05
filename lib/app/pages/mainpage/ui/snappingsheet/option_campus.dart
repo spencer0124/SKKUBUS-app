@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_bus.dart';
 import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_campus_service_button.dart';
@@ -112,7 +113,7 @@ class OptionCampus extends StatelessWidget {
                         title: "건물지도".tr,
                         iconPath: "assets/tossface/toss_building.svg",
                         onTap: () {
-                          Get.toNamed('/hsscbuildingmap');
+                          Get.toNamed(Routes.mapHssc);
                         },
                       ),
                       const Spacer(),
@@ -120,7 +121,7 @@ class OptionCampus extends StatelessWidget {
                         title: "건물코드".tr,
                         iconPath: "assets/tossface/toss_numbers.svg",
                         onTap: () {
-                          Get.toNamed('/searchlist');
+                          Get.toNamed(Routes.search);
                         },
                       ),
                       const Spacer(),
@@ -128,7 +129,7 @@ class OptionCampus extends StatelessWidget {
                         title: "분실물".tr,
                         iconPath: "assets/tossface/toss_luggage.svg",
                         onTap: () {
-                          Get.toNamed('/lostandfound');
+                          Get.toNamed(Routes.lostAndFound);
                         },
                       ),
                       const Spacer(),

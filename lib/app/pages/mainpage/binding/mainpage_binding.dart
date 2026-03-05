@@ -5,5 +5,6 @@ class MainpageBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<MainpageController>(() => MainpageController());
+    Get.lazyPut<MainpageLifeCycle>(() => MainpageLifeCycle());
   }
 }

@@ -14,17 +14,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'package:skkumap/app/pages/KingoLogin/controller/KingoLogin_controller.dart';
-import 'package:skkumap/app/pages/bus_inja_main/controller/bus_inja_main_controller.dart';
-import 'package:skkumap/app/pages/hssc_building_map/controller/hssc_building_map_controller.dart';
-import 'package:skkumap/app/pages/bus_main_main/controller/bus_seoul_main_controller.dart';
-import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
-import 'package:skkumap/app/pages/webview/controller/webview_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
+import 'package:skkumap/app/pages/mainpage/binding/mainpage_binding.dart';
+import 'package:skkumap/app/pages/mainpage/ui/mainpage_screen.dart';
 import 'package:skkumap/firebase_options.dart';
 import 'languages.dart';
-import 'package:skkumap/app/pages/nsc_building_map/controller/nsc_building_map_controller.dart';
-import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
@@ -51,12 +45,11 @@ Future<void> main() async {
     overlays: SystemUiOverlay.values,
   );
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initEnvironmentVariables();
+  await initFirebase();
   registerDependencies();
   await Get.find<data.ApiClient>().ensureAuth();
   Get.put(ConnectivityService());
-  await initFirebase();
   await initMobileAds();
   await initNaverMapSdk_v2();
 
@@ -87,7 +80,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         ],
         debugShowCheckedModeBanner: false,
         getPages: AppRoutes.routes,
-        initialRoute: '/',
+        initialRoute: Routes.splash,
+        unknownRoute: GetPage(
+          name: '/not-found',
+          page: () => const Mainpage(),
+          binding: MainpageBinding(),
+        ),
         translations: Languages(),
         locale: Get.deviceLocale,
         fallbackLocale: const Locale('en', 'US'),
@@ -140,36 +138,18 @@ Future<void> initNaverMapSdk_v2() async {
 }
 
 void registerDependencies() {
-  // ── API infrastructure ──
+  // ── API infrastructure (fenix: true — survives controller dispose) ──
   final dio = createDioClient();
   final apiClient = data.ApiClient(dio);
   Get.put<data.ApiClient>(apiClient);
 
-  // fenix: true keeps repositories alive across controller dispose cycles
   Get.lazyPut(() => BusRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => StationRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => SearchRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => UiRepository(Get.find<data.ApiClient>()), fenix: true);
 
-  // ── Controllers ──
-  Get.lazyPut(() => BusDataController());
-  Get.lazyPut(() => SeoulMainLifeCycle());
-
-  Get.lazyPut(() => InjaMainController());
-  Get.lazyPut(() => InjaMainLifeCycle());
-
-  Get.lazyPut(() => MainpageController());
-  Get.lazyPut(() => MainpageLifeCycle());
-
-  Get.lazyPut(() => KingoLoginController());
-  Get.lazyPut(() => KingoLoginLifeCycle());
-
-  Get.put(HSSCBuildingMapController());
-  Get.put(CustomWebViewController());
-  Get.put(NSCBuildingMapController());
-  Get.put(SearchListController());
-
+  // ── App-global controllers (needed across all pages) ──
   Get.lazyPut(() => UltimateNMapController());
   Get.lazyPut(() => LocationController());
 }

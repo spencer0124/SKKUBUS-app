@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
-import 'package:skkumap/app/pages/bus_main_main/controller/bus_seoul_main_controller.dart';
+import 'package:skkumap/app/pages/bus_hssc/controller/bus_seoul_main_controller.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/utils/ad_widget.dart';
 import 'package:skkumap/app_theme.dart';
 
@@ -111,7 +112,7 @@ class BusDataScreen extends GetView<BusDataController> {
               Get.back();
             },
             rightBtnAction: () {
-              Get.toNamed('/customwebview', arguments: {
+              Get.toNamed(Routes.webview, arguments: {
                 'title': '인사캠 셔틀버스'.tr,
                 'color': '003626',
                 'webviewLink':

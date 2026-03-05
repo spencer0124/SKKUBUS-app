@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/utils/screensize.dart';
@@ -33,7 +34,7 @@ class _SplashAdState extends State<SplashAd> {
     final adRepo = Get.find<AdRepository>();
 
     Future.delayed(const Duration(milliseconds: 4000), () {
-      Get.offNamed('/mainpage');
+      Get.offNamed(Routes.home);
       FlutterNativeSplash.remove();
     });
 

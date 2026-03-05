@@ -4,6 +4,7 @@ import 'package:skkumap/app/components/mainpage/middle_snappingsheet/stationrow.
 import 'package:skkumap/app_theme.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skkumap/app/utils/screensize.dart';
@@ -132,7 +133,7 @@ class OptionStation extends StatelessWidget {
                         "정보 없음",
                     containerColor: Colors.black,
                     containerText: '정류장',
-                    routeName: '/MainbusMain',
+                    routeName: Routes.busRealtime,
                   ),
                 ],
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // late SharedPreferences prefs;
@@ -12,7 +13,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class NewAlert extends StatelessWidget {
   const NewAlert({Key? key}) : super(key: key);
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,8 +112,7 @@ class NewAlert extends StatelessWidget {
                 FirebaseAnalytics.instance.logEvent(
                   name: 'newalert_nextclicked',
                 );
-                Get.toNamed('/busData');
-                Get.toNamed('/eskara');
+                Get.toNamed(Routes.busCampus);
               },
               child: Container(
                 alignment: Alignment.center,

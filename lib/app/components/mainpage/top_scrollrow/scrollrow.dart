@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/pages/mainpage/controller/snappingsheet_controller.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'scrollrow_component.dart'; // Import the ScrollRowContainer widget
@@ -60,7 +61,7 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed('/nscbuildingmap');
+              Get.toNamed(Routes.mapNsc);
             },
             child: ScrollRowContainer(
               text: '카페'.tr,
@@ -74,7 +75,7 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed('/lostandfound');
+              Get.toNamed(Routes.lostAndFound);
             },
             child: ScrollRowContainer(
               text: '술집'.tr,
@@ -88,7 +89,7 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed('/lostandfound');
+              Get.toNamed(Routes.lostAndFound);
             },
             child: ScrollRowContainer(
               text: '새로오픈'.tr,
@@ -102,7 +103,7 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed('/lostandfound');
+              Get.toNamed(Routes.lostAndFound);
             },
             child: ScrollRowContainer(
               text: '더보기'.tr,
