@@ -16,8 +16,11 @@ class OptionBus extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = ScreenSize.width(context);
 
+    final double screenHeight = MediaQuery.of(context).size.height;
+
     return Container(
       color: Colors.white,
+      constraints: BoxConstraints(minHeight: screenHeight * 0.9),
       child: Obx(() {
         if (controller.mainpageBusList.value == null) {
           return const Center(child: CircularProgressIndicator());

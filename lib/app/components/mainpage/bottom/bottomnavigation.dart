@@ -31,41 +31,9 @@ class Bottomnavigation extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: 10, left: 60, right: 60),
+        padding: const EdgeInsets.only(top: 10, left: 40, right: 40),
         child: Row(
           children: [
-            // Column(
-            //   children: [
-            //     Icon(Icons.home),
-            //     Text('홈'),
-            //   ],
-            // ),
-
-            // const Spacer(),
-            // GestureDetector(
-            //   behavior: HitTestBehavior.translucent,
-            //   onTap: () {
-            //     onItemTapped(0);
-            //   },
-            //   child: Column(
-            //     children: [
-            //       Image.asset(
-            //         'assets/images/flaticon_two_point.png',
-            //         width: 22,
-            //         color: index == 0 ? AppColors.green_main : Colors.grey,
-            //       ),
-            //       const SizedBox(
-            //         height: 5,
-            //       ),
-            //       Text(
-            //         '주변',
-            //         style: TextStyle(
-            //           color: index == 0 ? AppColors.green_main : Colors.grey,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             const Spacer(),
             GestureDetector(
               behavior: HitTestBehavior.translucent,
@@ -90,31 +58,29 @@ class Bottomnavigation extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            // const Spacer(),
-            // GestureDetector(
-            //   behavior: HitTestBehavior.translucent,
-            //   onTap: () {
-            //     onItemTapped(2);
-            //   },
-            //   child: Column(
-            //     children: [
-            //       Image.asset(
-            //         'assets/images/flaticon_stop1.png',
-            //         width: 22,
-            //         color: index == 2 ? AppColors.green_main : Colors.grey,
-            //       ),
-            //       const SizedBox(
-            //         height: 5,
-            //       ),
-            //       Text(
-            //         '공지',
-            //         style: TextStyle(
-            //           color: index == 2 ? AppColors.green_main : Colors.grey,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
+            GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onTap: () {
+                onItemTapped(2);
+              },
+              child: Column(
+                children: [
+                  Image.asset(
+                    'assets/images/flaticon_bus1.png',
+                    width: 22,
+                    color: index == 2 ? AppColors.green_main : Colors.grey,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '버스'.tr,
+                    style: TextStyle(
+                      color: index == 2 ? AppColors.green_main : Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
           ],
         ),
       ),

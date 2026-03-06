@@ -112,8 +112,22 @@ Widget _getSnappingSheetContent(
         ),
       );
     case 2:
-      return OptionCampus();
+      return SingleChildScrollView(
+        controller: scrollController,
+        physics: physics,
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [OptionBus()],
+        ),
+      );
     default:
-      return OptionBus(); // Default case
+      return SingleChildScrollView(
+        controller: scrollController,
+        physics: physics,
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [OptionCampus()],
+        ),
+      );
   }
 }
