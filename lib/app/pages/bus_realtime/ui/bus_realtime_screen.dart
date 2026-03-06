@@ -10,8 +10,7 @@ import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/components/bus/buslist_component.dart';
 import 'package:skkumap/app/components/bus/refresh_button.dart';
-// import 'package:skkumap/app/utils/screensize.dart';
-import 'package:skkumap/app/types/bus_type.dart';
+import 'package:skkumap/app/model/bus_route_config.dart';
 import 'package:skkumap/app/components/bus/topinfo.dart';
 
 import 'package:skkumap/app/types/bus_status.dart';
@@ -19,7 +18,6 @@ import 'package:skkumap/app/types/time_format.dart';
 import 'package:skkumap/app/components/bus/businfo_component.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
 
-import 'package:skkumap/app/types/bus_type.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,17 +29,14 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = ScreenSize.width(context);
-    // final double screenHeight = ScreenSize.height(context);
-    // final double screenWidth = ScreenSize.width(context);
-    controller.setBusType(Get.arguments['bustype']);
-    // controller.busType = Get.arguments['bustype'];
-    final BusType busType = Get.arguments['bustype'];
-    // controller.busType = busType;
+    final BusRouteConfig routeConfig = Get.arguments['busConfig'];
+    controller.setRouteConfig(routeConfig);
+    final themeColor = routeConfig.display.themeColor;
 
     return Scaffold(
       // floating action button
       floatingActionButton: RefreshButton(
-          busType: busType,
+          themeColor: themeColor,
           onRefresh: () {
             controller.localfetchBusLocation();
             controller.localfetchBusStations();
@@ -96,7 +91,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: busType.color,
+          backgroundColor: themeColor,
           elevation: 0,
         ),
       ),
@@ -104,20 +99,24 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
         children: [
           // 상단 커스텀 내비게이션 바
           CustomNavigationBar(
-            title: busType.title.tr,
-            backgroundColor: busType.color,
+            title: routeConfig.display.name,
+            backgroundColor: themeColor,
             isDisplayLeftBtn: true,
-            isDisplayRightBtn: busType == BusType.hsscBus ? true : false,
+            isDisplayRightBtn: routeConfig.features.info != null,
             leftBtnAction: () {
               Get.back();
             },
             rightBtnAction: () {
-              Get.toNamed(Routes.webview, arguments: {
-                'title': '인사캠 셔틀버스'.tr,
-                'color': '003626',
-                'webviewLink':
-                    'https://webview.skkuuniverse.com/#/bus/hssc/info',
-              });
+              final infoUrl = routeConfig.features.info?.url;
+              if (infoUrl != null) {
+                Get.toNamed(Routes.webview, arguments: {
+                  'title': routeConfig.display.name,
+                  'color': routeConfig.display.themeColor.value
+                      .toRadixString(16)
+                      .substring(2),
+                  'webviewLink': infoUrl,
+                });
+              }
             },
             rightBtnType: CustomNavigationBtnType.info,
           ),
@@ -187,11 +186,12 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                                     isLastStation: station.isLastStation,
                                     isRotationStation:
                                         station.isRotationStation,
-                                    busType: busType,
+                                    themeColor: themeColor,
+                                    transferLines: station.transferLines,
                                   );
                                 } else {
                                   return const SizedBox
-                                      .shrink(); // Return an empty widget if station is null
+                                      .shrink();
                                 }
                               },
                             ),
@@ -212,7 +212,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                                     .value?.metadata.lastStationIndex ??
                                 10,
                             plateNumber: e.value.carNumber,
-                            busType: busType,
+                            themeColor: themeColor,
                             onDataUpdated: (Function callback) {
                               callback();
                             },

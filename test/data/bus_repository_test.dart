@@ -5,7 +5,6 @@ import 'package:skkumap/app/data/api_client.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 
 void main() {
   late Dio dio;
@@ -18,7 +17,7 @@ void main() {
     repository = BusRepository(ApiClient(dio));
   });
 
-  group('getLocations', () {
+  group('getLocationsByPath', () {
     test('uses correct path for hsscBus', () async {
       dioAdapter.onGet(
         '/bus/hssc/location',
@@ -28,7 +27,7 @@ void main() {
         }),
       );
 
-      final result = await repository.getLocations(BusType.hsscBus);
+      final result = await repository.getLocationsByPath('/bus/hssc/location');
       expect(result, isA<Ok<List<MainBusLocation>>>());
       expect((result as Ok).data, isEmpty);
     });
@@ -42,7 +41,8 @@ void main() {
         }),
       );
 
-      final result = await repository.getLocations(BusType.jongro07Bus);
+      final result =
+          await repository.getLocationsByPath('/bus/jongro/location/07');
       expect(result, isA<Ok<List<MainBusLocation>>>());
     });
 
@@ -55,7 +55,8 @@ void main() {
         }),
       );
 
-      final result = await repository.getLocations(BusType.jongro02Bus);
+      final result =
+          await repository.getLocationsByPath('/bus/jongro/location/02');
       expect(result, isA<Ok<List<MainBusLocation>>>());
     });
 
@@ -85,7 +86,7 @@ void main() {
         }),
       );
 
-      final result = await repository.getLocations(BusType.hsscBus);
+      final result = await repository.getLocationsByPath('/bus/hssc/location');
       expect(result, isA<Ok<List<MainBusLocation>>>());
       final locations = (result as Ok<List<MainBusLocation>>).data;
       expect(locations, hasLength(2));
@@ -94,7 +95,7 @@ void main() {
     });
   });
 
-  group('getStations', () {
+  group('getStationsByPath', () {
     test('uses correct path for hsscBus', () async {
       dioAdapter.onGet(
         '/bus/hssc/stations',
@@ -109,7 +110,8 @@ void main() {
         }),
       );
 
-      final result = await repository.getStations(BusType.hsscBus);
+      final result =
+          await repository.getStationsByPath('/bus/hssc/stations');
       expect(result, isA<Ok>());
     });
 
@@ -127,7 +129,8 @@ void main() {
         }),
       );
 
-      final result = await repository.getStations(BusType.jongro07Bus);
+      final result =
+          await repository.getStationsByPath('/bus/jongro/stations/07');
       expect(result, isA<Ok>());
     });
   });
@@ -139,7 +142,8 @@ void main() {
         (server) => server.reply(500, 'Server Error'),
       );
 
-      final result = await repository.getLocations(BusType.hsscBus);
+      final result =
+          await repository.getLocationsByPath('/bus/hssc/location');
       expect(result, isA<Err>());
       final failure = (result as Err).failure;
       expect(failure, isA<ServerFailure>());

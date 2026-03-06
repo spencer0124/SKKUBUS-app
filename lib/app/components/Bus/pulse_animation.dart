@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 
 class PulseAnimation extends StatefulWidget {
-  final BusType busType;
+  final Color themeColor;
 
   const PulseAnimation({
     Key? key,
-    required this.busType,
+    required this.themeColor,
   }) : super(key: key);
 
   @override
@@ -61,7 +60,7 @@ class _PulseAnimationState extends State<PulseAnimation>
                   width: 25,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: widget.busType.color,
+                    color: widget.themeColor,
                   ),
                 ),
               ),
@@ -74,7 +73,7 @@ class _PulseAnimationState extends State<PulseAnimation>
           width: 28,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.busType.color,
+            color: widget.themeColor,
           ),
           alignment: Alignment.center,
           child: const Icon(

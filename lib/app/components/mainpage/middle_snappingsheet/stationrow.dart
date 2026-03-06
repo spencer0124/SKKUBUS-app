@@ -6,7 +6,7 @@ import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/components/mainpage/middle_snappingsheet/stationrow_component.dart'; // Import the ScrollRowContainer widget
 import 'package:get/get.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
-import 'package:skkumap/app/types/bus_type.dart';
+import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
 
 final double dwidth =
     MediaQueryData.fromView(WidgetsBinding.instance.window).size.width;
@@ -110,10 +110,13 @@ class CustomRow2 extends StatelessWidget {
                                   children: [
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
-                                      onTap: () {
-                                        Get.toNamed(Routes.busRealtime, arguments: {
-                                          'bustype': BusType.jongro07Bus,
-                                        });
+                                      onTap: () async {
+                                        final config = await Get.find<BusConfigRepository>().ensureAndGet('jongro07');
+                                        if (config != null) {
+                                          Get.toNamed(Routes.busRealtime, arguments: {
+                                            'busConfig': config,
+                                          });
+                                        }
                                       },
                                       child: Row(
                                         children: [
@@ -140,10 +143,13 @@ class CustomRow2 extends StatelessWidget {
                                     ),
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
-                                      onTap: () {
-                                        Get.toNamed(Routes.busRealtime, arguments: {
-                                          'bustype': BusType.hsscBus,
-                                        });
+                                      onTap: () async {
+                                        final config = await Get.find<BusConfigRepository>().ensureAndGet('hssc');
+                                        if (config != null) {
+                                          Get.toNamed(Routes.busRealtime, arguments: {
+                                            'busConfig': config,
+                                          });
+                                        }
                                       },
                                       child: Row(
                                         children: [

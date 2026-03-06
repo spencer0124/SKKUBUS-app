@@ -1,16 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 class RefreshButton extends StatefulWidget {
-  final BusType busType;
+  final Color themeColor;
   final VoidCallback onRefresh;
 
   const RefreshButton({
     Key? key,
-    required this.busType,
+    required this.themeColor,
     required this.onRefresh,
   }) : super(key: key);
 
@@ -39,18 +38,6 @@ class _RefreshButtonState extends State<RefreshButton>
     _controller
       ..reset()
       ..forward();
-
-    // switch (widget.busType) {
-    //   case BusType.jonroBus:
-    //     // TODO: Implement refresh logic for Jonro07Bus
-    //     break;
-    //   case BusType.hsscBus:
-    //     // TODO: Implement refresh logic for HSSCBus
-    //     break;
-    //   case BusType.campusBus:
-    //     // TODO: Implement refresh logic for CampusBus
-    //     break;
-    // }
   }
 
   void resetTimer() {

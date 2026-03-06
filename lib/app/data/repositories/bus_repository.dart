@@ -5,21 +5,15 @@ import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 
 class BusRepository {
   final ApiClient _client;
   const BusRepository(this._client);
 
-  Future<Result<List<MainBusLocation>>> getLocations(
-    BusType type, {
+  Future<Result<List<MainBusLocation>>> getLocationsByPath(
+    String path, {
     CancelToken? cancelToken,
   }) {
-    final path = switch (type) {
-      BusType.jongro07Bus => ApiEndpoints.busJongroLocation('07'),
-      BusType.jongro02Bus => ApiEndpoints.busJongroLocation('02'),
-      _ => ApiEndpoints.busHsscLocation(),
-    };
     return _client.safeGet(
       path,
       (json) => ((json as Map<String, dynamic>)['data'] as List)
@@ -29,15 +23,10 @@ class BusRepository {
     );
   }
 
-  Future<Result<MainBusStationList>> getStations(
-    BusType type, {
+  Future<Result<MainBusStationList>> getStationsByPath(
+    String path, {
     CancelToken? cancelToken,
   }) {
-    final path = switch (type) {
-      BusType.jongro07Bus => ApiEndpoints.busJongroStations('07'),
-      BusType.jongro02Bus => ApiEndpoints.busJongroStations('02'),
-      _ => ApiEndpoints.busHsscStations(),
-    };
     return _client.safeGet(
       path,
       (json) => MainBusStationList.fromJson(json as Map<String, dynamic>),
@@ -76,6 +65,24 @@ class BusRepository {
           result['jain'] = data['jain']['duration'] as int;
         }
         return result;
+      },
+      cancelToken: cancelToken,
+    );
+  }
+
+  /// Fetch route overlay coordinates.
+  Future<Result<List<List<double>>>> getRouteOverlay(
+    String endpoint, {
+    CancelToken? cancelToken,
+  }) {
+    return _client.safeGet(
+      endpoint,
+      (json) {
+        final data = (json as Map<String, dynamic>)['data']
+            as Map<String, dynamic>;
+        return (data['coords'] as List)
+            .map((e) => (e as List).map((c) => (c as num).toDouble()).toList())
+            .toList();
       },
       cancelToken: cancelToken,
     );

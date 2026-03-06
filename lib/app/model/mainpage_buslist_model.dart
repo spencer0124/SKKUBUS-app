@@ -48,6 +48,7 @@ class BusList {
   final bool showAnimation;
 
   final bool showNoticeText;
+  final String? busConfigId;
 
   BusList({
     required this.title,
@@ -61,6 +62,7 @@ class BusList {
     required this.useAltPageLink,
     required this.showAnimation,
     required this.showNoticeText,
+    this.busConfigId,
   });
 
   factory BusList.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class BusList {
       useAltPageLink: json['useAltPageLink'],
       showAnimation: json['showAnimation'],
       showNoticeText: json['showNoticeText'],
+      busConfigId: json['busConfigId'],
     );
   }
 }

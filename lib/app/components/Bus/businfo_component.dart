@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import 'licenseplate.dart';
 import 'pulse_animation.dart';
 import 'package:skkumap/app/utils/constants.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 
 class BusInfoComponent extends StatefulWidget {
   final int elapsedSeconds;
   final int currentStationIndex;
   final int lastStationIndex;
   final String plateNumber;
-  final BusType busType;
+  final Color themeColor;
   final Function onDataUpdated;
 
   const BusInfoComponent({
@@ -19,7 +18,7 @@ class BusInfoComponent extends StatefulWidget {
     required this.currentStationIndex,
     required this.lastStationIndex,
     required this.plateNumber,
-    required this.busType,
+    required this.themeColor,
     required this.onDataUpdated,
   }) : super(key: key);
 
@@ -60,13 +59,6 @@ class _BusInfoComponentState extends State<BusInfoComponent> {
     widget.onDataUpdated(updateElapsedSeconds);
 
     return Positioned(
-      /*
-      얼마나 버스 아이콘을 이동시킬지 결정한다
-      1. 현재 정류장이 마지막 정류장인 경우: 이동시키면 안된다
-      2. 현재 정류장이 마지막 정류장이 아닌 경우:
-        2-1. 버스가 출발한지 550초가 지난 경우: 이동시키면 안된다
-        2-2. 버스가 출발한지 550초가 지나지 않은 경우: 1초에 1/9씩 이동시킨다
-      */
       top: widget.currentStationIndex >= widget.lastStationIndex
           ? 26 + 66.0 * widget.currentStationIndex
           : elapsedSecondsOverride > 200
@@ -84,7 +76,7 @@ class _BusInfoComponentState extends State<BusInfoComponent> {
             width: 5,
           ),
           PulseAnimation(
-            busType: widget.busType,
+            themeColor: widget.themeColor,
           ),
         ],
       ),

@@ -27,7 +27,6 @@ import 'package:skkumap/app/model/main_bus_stationlist.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
 import 'package:skkumap/app/model/search_option3_model.dart';
 import 'package:skkumap/app/model/station_model.dart';
-import 'package:skkumap/app/types/bus_type.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Real API response snapshots (captured 2026-03-02)
@@ -467,7 +466,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocations(BusType.hsscBus);
+      final result = await repo.getLocationsByPath(ApiEndpoints.busHsscLocation());
 
       expect(result, isA<Ok<List<MainBusLocation>>>());
       final locations = (result as Ok<List<MainBusLocation>>).data;
@@ -484,7 +483,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocations(BusType.jongro02Bus);
+      final result = await repo.getLocationsByPath(ApiEndpoints.busJongroLocation('02'));
 
       expect(result, isA<Ok<List<MainBusLocation>>>());
       final locations = (result as Ok<List<MainBusLocation>>).data;
@@ -509,7 +508,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.hsscBus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
 
       expect(result, isA<Ok<MainBusStationList>>());
       final data = (result as Ok<MainBusStationList>).data;
@@ -527,7 +526,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.hsscBus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
       final stations = (result as Ok<MainBusStationList>).data.stations;
       expect(stations, hasLength(11));
     });
@@ -539,7 +538,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.hsscBus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
       final first = (result as Ok<MainBusStationList>).data.stations[0];
 
       expect(first.stationName, '농구장');
@@ -558,7 +557,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.hsscBus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
       final last = (result as Ok<MainBusStationList>).data.stations[10];
 
       expect(last.stationName, '600주년기념관');
@@ -576,7 +575,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.jongro02Bus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
 
       expect(result, isA<Ok<MainBusStationList>>());
       final data = (result as Ok<MainBusStationList>).data;
@@ -591,7 +590,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.jongro02Bus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
       final first = (result as Ok<MainBusStationList>).data.stations[0];
 
       expect(first.stationName, '성균관대학교');
@@ -607,7 +606,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.jongro02Bus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
       final rotation = (result as Ok<MainBusStationList>).data.stations[2];
 
       expect(rotation.stationName, '금강제화');
@@ -621,7 +620,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.jongro02Bus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
       final last = (result as Ok<MainBusStationList>).data.stations[3];
 
       expect(last.stationName, '성대후문.와룡공원');
@@ -968,7 +967,7 @@ void main() {
     test('campus shuttle path', () {
       expect(
         ApiEndpoints.campusSchedule('INJA', 'weekday'),
-        '/bus/schedule/INJA_weekday',
+        '/bus/campus/INJA_weekday',
       );
     });
   });
@@ -982,7 +981,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocations(BusType.hsscBus);
+      final result = await repo.getLocationsByPath(ApiEndpoints.busHsscLocation());
 
       expect(result, isA<Err<List<MainBusLocation>>>());
       final failure =
@@ -1006,7 +1005,7 @@ void main() {
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getStations(BusType.hsscBus);
+      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
 
       expect(result, isA<Err<MainBusStationList>>());
       final failure =

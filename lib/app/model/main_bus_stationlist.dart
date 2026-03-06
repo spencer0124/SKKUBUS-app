@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class ResponseMetadata {
   final String currentTime;
   final int totalBuses;
@@ -18,6 +20,20 @@ class ResponseMetadata {
   }
 }
 
+class TransferLine {
+  final String line;
+  final Color color;
+
+  const TransferLine({required this.line, required this.color});
+
+  factory TransferLine.fromJson(Map<String, dynamic> json) {
+    return TransferLine(
+      line: json['line'] as String,
+      color: Color(int.parse('0xFF${json['color']}')),
+    );
+  }
+}
+
 class BusStation {
   final String stationName;
   final String? stationNumber;
@@ -26,6 +42,7 @@ class BusStation {
   final bool isLastStation;
   final bool isRotationStation;
   final String busType;
+  final List<TransferLine> transferLines;
 
   BusStation({
     required this.stationName,
@@ -35,6 +52,7 @@ class BusStation {
     required this.isLastStation,
     required this.isRotationStation,
     required this.busType,
+    this.transferLines = const [],
   });
 
   factory BusStation.fromJson(Map<String, dynamic> json) {
@@ -46,6 +64,10 @@ class BusStation {
       isLastStation: json['isLastStation'],
       isRotationStation: json['isRotationStation'],
       busType: json['busType'],
+      transferLines: (json['transferLines'] as List?)
+              ?.map((e) => TransferLine.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 }

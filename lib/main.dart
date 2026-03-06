@@ -28,6 +28,7 @@ import 'package:skkumap/app/utils/app_logger.dart';
 import 'package:skkumap/app/data/api_client.dart' as data;
 import 'package:skkumap/app/data/dio_client.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
+import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
 import 'package:skkumap/app/data/repositories/station_repository.dart';
 import 'package:skkumap/app/data/repositories/search_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
@@ -49,6 +50,7 @@ Future<void> main() async {
   await initFirebase();
   registerDependencies();
   await Get.find<data.ApiClient>().ensureAuth();
+  Get.find<BusConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
   await initNaverMapSdk_v2();
@@ -144,6 +146,7 @@ void registerDependencies() {
   Get.put<data.ApiClient>(apiClient);
 
   Get.lazyPut(() => BusRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.put(BusConfigRepository(Get.find<data.ApiClient>()));
   Get.lazyPut(() => StationRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => SearchRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);

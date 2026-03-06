@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:skkumap/app/pages/bus_campus/controller/bus_campus_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
+import 'package:skkumap/app/model/bus_route_config.dart';
 
 // ── Colors ───────────────────────────────────────────────────────
 
@@ -25,8 +26,14 @@ class BusCampusScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<BusCampusController>();
+    final BusRouteConfig routeConfig = Get.arguments['busConfig'];
+    controller.setRouteConfig(routeConfig);
+    controller.loadInitialData();
+
+    final directions = routeConfig.schedule!.directions;
+
     return DefaultTabController(
-      length: 2,
+      length: directions.length,
       child: Scaffold(
         backgroundColor: _grayBg,
         appBar: PreferredSize(
@@ -44,30 +51,33 @@ class BusCampusScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  _buildTitleBar(),
-                  _buildDirectionTabs(),
+                  _buildTitleBar(routeConfig),
+                  _buildDirectionTabs(directions),
                   _buildDaySelector(controller),
                 ],
               ),
             ),
             // ── Content ──
             Expanded(
-              child: TabBarView(
-                children: [
-                  _buildScheduleContent(
-                    controller,
-                    controller.injaBusSchedule,
-                    '인사캠 → 자과캠'.tr,
-                    controller.injaEtaMs,
-                  ),
-                  _buildScheduleContent(
-                    controller,
-                    controller.jainBusSchedule,
-                    '자과캠 → 인사캠'.tr,
-                    controller.jainEtaMs,
-                  ),
-                ],
-              ),
+              child: Obx(() {
+                // Rebuild when direction schedules change
+                final _ = controller.directionSchedules.length;
+                return TabBarView(
+                  children: List.generate(directions.length, (i) {
+                    if (i >= controller.directionSchedules.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return _buildScheduleContent(
+                      controller,
+                      controller.directionSchedules[i],
+                      directions[i].label,
+                      i < controller.directionEtaMs.length
+                          ? controller.directionEtaMs[i]
+                          : 0.obs,
+                    );
+                  }),
+                );
+              }),
             ),
           ],
         ),
@@ -77,7 +87,7 @@ class BusCampusScreen extends StatelessWidget {
 
   // ── Title Bar ──────────────────────────────────────────────────
 
-  Widget _buildTitleBar() {
+  Widget _buildTitleBar(BusRouteConfig routeConfig) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
       child: Row(
@@ -92,7 +102,7 @@ class BusCampusScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '인자셔틀'.tr,
+              routeConfig.display.name,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 17,
@@ -102,23 +112,25 @@ class BusCampusScreen extends StatelessWidget {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: () => Get.toNamed(Routes.webview, arguments: {
-              'title': '인자셔틀'.tr,
-              'color': '003626',
-              'webviewLink':
-                  'https://webview.skkuuniverse.com/#/bus/campus/info',
-            }),
-            child: Text(
-              '정보'.tr,
-              style: const TextStyle(
-                fontSize: 14,
-                color: _heroGreen,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
+          if (routeConfig.features.info != null)
+            GestureDetector(
+              onTap: () => Get.toNamed(Routes.webview, arguments: {
+                'title': routeConfig.display.name,
+                'color': routeConfig.display.themeColor.value
+                    .toRadixString(16)
+                    .substring(2),
+                'webviewLink': routeConfig.features.info!.url,
+              }),
+              child: Text(
+                '정보'.tr,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: _heroGreen,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'WantedSansMedium',
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -126,7 +138,7 @@ class BusCampusScreen extends StatelessWidget {
 
   // ── Direction Tabs ─────────────────────────────────────────────
 
-  Widget _buildDirectionTabs() {
+  Widget _buildDirectionTabs(List<BusDirection> directions) {
     return TabBar(
       labelColor: _heroGreen,
       unselectedLabelColor: _gray,
@@ -145,10 +157,7 @@ class BusCampusScreen extends StatelessWidget {
       dividerColor: Colors.transparent,
       splashFactory: NoSplash.splashFactory,
       overlayColor: WidgetStateProperty.all(Colors.transparent),
-      tabs: [
-        Tab(text: '인사캠 → 자과캠'.tr),
-        Tab(text: '자과캠 → 인사캠'.tr),
-      ],
+      tabs: directions.map((d) => Tab(text: d.label)).toList(),
     );
   }
 
@@ -156,7 +165,6 @@ class BusCampusScreen extends StatelessWidget {
 
   Widget _buildDaySelector(BusCampusController controller) {
     final todayIndex = DateTime.now().weekday - 1;
-    final noServiceDays = {5, 6}; // 토, 일
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -165,7 +173,7 @@ class BusCampusScreen extends StatelessWidget {
           children: List.generate(7, (index) {
             final isSelected = controller.selectedDayIndex.value == index;
             final isToday = index == todayIndex;
-            final isWeekend = noServiceDays.contains(index);
+            final isNoService = !controller.isServiceDay(index);
 
             return Expanded(
               child: GestureDetector(
@@ -175,7 +183,7 @@ class BusCampusScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? (isWeekend ? _grayLight : _heroGreen)
+                        ? (isNoService ? _grayLight : _heroGreen)
                         : _grayBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -194,7 +202,7 @@ class BusCampusScreen extends StatelessWidget {
                               isSelected || isToday ? FontWeight.w700 : FontWeight.w400,
                           color: isSelected
                               ? Colors.white
-                              : isWeekend
+                              : isNoService
                                   ? _grayLight
                                   : isToday
                                       ? _heroGreen
@@ -241,13 +249,13 @@ class BusCampusScreen extends StatelessWidget {
         return const SizedBox.shrink();
       }
 
-      final schedules = scheduleList.toList();
-      final isNoService = controller.isNoServiceSchedule(schedules);
-      final isFriday = controller.hasMultipleRouteTypes(schedules);
-
-      if (isNoService) {
+      // Use server config calendar — not schedule data — to decide service days
+      if (!controller.isServiceDay(controller.selectedDayIndex.value)) {
         return _buildNoServiceCard(controller);
       }
+
+      final schedules = scheduleList.toList();
+      final isFriday = controller.hasMultipleRouteTypes(schedules);
 
       final heroBus = controller.getHeroBus(schedules);
 
@@ -358,7 +366,7 @@ class BusCampusScreen extends StatelessWidget {
         ? _gray
         : isToday
             ? _heroGreen
-            : const Color(0xFF8A9AA0); // muted grey-green for non-today
+            : const Color(0xFF8A9AA0);
     final heroLabel =
         isToday ? '다음 셔틀'.tr : '첫 운행'.tr;
 
@@ -676,7 +684,7 @@ class BusCampusScreen extends StatelessWidget {
             height: 7,
             decoration: BoxDecoration(
               color: !controller.isViewingToday
-                  ? _grayLight // non-today: all dots grey
+                  ? _grayLight
                   : isPast
                       ? const Color(0xFFE4E6E8)
                       : isNext
@@ -729,7 +737,7 @@ class BusCampusScreen extends StatelessWidget {
             SizedBox(
               width: 68,
               child: Text(
-                schedule.routeType == 'hakbu' ? '학부대학'.tr : '일반'.tr,
+                controller.getRouteTypeLabel(schedule.routeType),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,

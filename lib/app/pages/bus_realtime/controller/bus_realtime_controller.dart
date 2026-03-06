@@ -9,7 +9,7 @@ import 'package:skkumap/app/model/main_bus_location.dart';
 
 import 'dart:async';
 
-import 'package:skkumap/app/types/bus_type.dart';
+import 'package:skkumap/app/model/bus_route_config.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
 import 'package:skkumap/app/data/result.dart';
@@ -34,7 +34,6 @@ class BusRealtimeLifeCycle extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      // 화면 다시 돌아왔을때 할 일 정해주기
       controller.localfetchBusLocation();
       controller.localfetchBusStations();
       update();
@@ -53,24 +52,26 @@ class BusRealtimeController extends GetxController {
   BannerAd? get bannerAd => _bannerAd;
   RxBool isBannerAdLoaded = false.obs;
 
-  BusType busType = BusType.hsscBus;
+  late BusRouteConfig routeConfig;
+  bool _configSet = false;
 
   @override
   void onInit() {
     super.onInit();
     _initializeBannerAd();
-
-    _timer = Timer.periodic(const Duration(seconds: 10), (Timer t) {
-      localfetchBusLocation();
-      localfetchBusStations();
-    });
-    update();
-
     fetchMainpageAd();
   }
 
-  void setBusType(BusType type) {
-    busType = type;
+  void setRouteConfig(BusRouteConfig config) {
+    if (_configSet) return; // prevent re-init on widget rebuild
+    _configSet = true;
+    routeConfig = config;
+    final interval = routeConfig.realtime?.refreshInterval ?? 15;
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: interval), (Timer t) {
+      localfetchBusLocation();
+      localfetchBusStations();
+    });
     localfetchBusStations();
     localfetchBusLocation();
   }
@@ -83,7 +84,7 @@ class BusRealtimeController extends GetxController {
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           _bannerAd = ad as BannerAd;
-          update(); // Call update to refresh UI if needed
+          update();
           isBannerAdLoaded.value = true;
         },
         onAdFailedToLoad: (ad, err) {
@@ -97,11 +98,11 @@ class BusRealtimeController extends GetxController {
 
   var mainBusStationList = Rx<MainBusStationList?>(null);
 
-  // 역 목록을 불러오고 적용하기까지 로딩을 보여주기 위한 값
   var loadingdone = false.obs;
 
   Future<void> localfetchBusStations() async {
-    final result = await _busRepo.getStations(busType);
+    final endpoint = routeConfig.realtime!.stationsEndpoint;
+    final result = await _busRepo.getStationsByPath(endpoint);
     switch (result) {
       case Ok(:final data):
         mainBusStationList.value = data;
@@ -114,7 +115,8 @@ class BusRealtimeController extends GetxController {
 
   var mainBusLocation = Rx<List<MainBusLocation>>([]);
   Future<void> localfetchBusLocation() async {
-    final result = await _busRepo.getLocations(busType);
+    final endpoint = routeConfig.realtime!.locationsEndpoint;
+    final result = await _busRepo.getLocationsByPath(endpoint);
     switch (result) {
       case Ok(:final data):
         mainBusLocation.value = data;

@@ -38,6 +38,10 @@ class ApiEndpoints {
   static String adPlacements() => '/ad/placements';
   static String adEvents() => '/ad/events';
 
+  // ── Bus config ────────────────────────────────
+  static String busConfig() => '/bus/config';
+  static String busConfigVersion() => '/bus/config/version';
+
   // ── App config ─────────────────────────────────
   static String appConfig() => '/app/config';
 }

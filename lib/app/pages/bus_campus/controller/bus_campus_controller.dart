@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
+import 'package:skkumap/app/model/bus_route_config.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 /*
@@ -43,9 +44,7 @@ class BusCampusLifeCycle extends GetxController with WidgetsBindingObserver {
           .translateDayToEnglish(campusController.selectedDay.value ?? '월요일')
           .obs;
 
-      campusController.fetchinjaBusSchedule(
-          campusController.selectedEnglishDay.value ?? 'monday');
-      campusController.fetchjainBusSchedule(
+      campusController._fetchAllDirections(
           campusController.selectedEnglishDay.value ?? 'monday');
     }
   }
@@ -58,12 +57,12 @@ BusCampusController
 class BusCampusController extends GetxController {
   final _busRepo = Get.find<BusRepository>();
 
-  var injaBusSchedule = <BusSchedule>[].obs;
-  var jainBusSchedule = <BusSchedule>[].obs;
+  late BusRouteConfig routeConfig;
+  bool _configSet = false;
 
-  // Driving ETA from Naver API (milliseconds, 0 = not loaded)
-  var injaEtaMs = 0.obs;
-  var jainEtaMs = 0.obs;
+  // Dynamic direction schedules
+  var directionSchedules = <RxList<BusSchedule>>[].obs;
+  var directionEtaMs = <RxInt>[].obs;
 
   // Day selector
   var selectedDayIndex = 0.obs;
@@ -76,6 +75,19 @@ class BusCampusController extends GetxController {
   // Loading state: prevents flash of "no service" card on initial fetch
   var isLoading = true.obs;
 
+  void setRouteConfig(BusRouteConfig config) {
+    if (_configSet) return; // prevent re-init on widget rebuild
+    _configSet = true;
+    routeConfig = config;
+    final directions = routeConfig.schedule!.directions;
+
+    // Initialize dynamic lists for each direction
+    directionSchedules.value =
+        List.generate(directions.length, (_) => <BusSchedule>[].obs);
+    directionEtaMs.value =
+        List.generate(directions.length, (_) => 0.obs);
+  }
+
   @override
   void onInit() {
     super.onInit();
@@ -86,20 +98,38 @@ class BusCampusController extends GetxController {
     selectedDay = getCurrentWeekday().obs;
     selectedEnglishDay = translateDayToEnglish(selectedDay.value ?? '월요일').obs;
 
-    _loadInitialData();
-    _initialize();
     _startEtaTicker();
   }
 
-  Future<void> _loadInitialData() async {
+  /// Called after setRouteConfig to load initial data
+  Future<void> loadInitialData() async {
     try {
       await Future.wait([
-        fetchinjaBusSchedule(selectedEnglishDay.value ?? 'monday'),
-        fetchjainBusSchedule(selectedEnglishDay.value ?? 'monday'),
+        _fetchAllDirections(selectedEnglishDay.value ?? 'monday'),
         fetchCampusEta(),
       ]);
+      _initialize();
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _fetchAllDirections(String dayType) async {
+    final directions = routeConfig.schedule!.directions;
+    await Future.wait(
+      List.generate(directions.length, (i) =>
+        _fetchDirectionSchedule(i, directions[i].id, dayType)),
+    );
+  }
+
+  Future<void> _fetchDirectionSchedule(
+      int index, String prefix, String dayType) async {
+    final result = await _busRepo.getSchedule(prefix, dayType);
+    switch (result) {
+      case Ok(:final data):
+        directionSchedules[index].value = data;
+      case Err(:final failure):
+        logger.e('$prefix schedule fetch failed: $failure');
     }
   }
 
@@ -107,15 +137,18 @@ class BusCampusController extends GetxController {
     final result = await _busRepo.getCampusEta();
     switch (result) {
       case Ok(:final data):
-        injaEtaMs.value = data['inja'] ?? 0;
-        jainEtaMs.value = data['jain'] ?? 0;
+        // Map ETA data to directions by lowercase id
+        final directions = routeConfig.schedule!.directions;
+        for (int i = 0; i < directions.length; i++) {
+          final key = directions[i].id.toLowerCase();
+          directionEtaMs[i].value = data[key] ?? 0;
+        }
       case Err(:final failure):
         logger.e('Campus ETA fetch failed: $failure');
     }
   }
 
   /// Format milliseconds into localized duration string.
-  /// e.g. 5400000 → "1시간 30분" (ko) / "1h 30m" (en) / "1小时 30分" (zh)
   String formatDuration(int ms) {
     final totalMinutes = (ms / 60000).round();
     final h = totalMinutes ~/ 60;
@@ -152,8 +185,18 @@ class BusCampusController extends GetxController {
     selectedDayIndex.value = index;
     selectedDay.value = dateitems[index];
     selectedEnglishDay.value = translateDayToEnglish(dateitems[index]);
-    fetchinjaBusSchedule(selectedEnglishDay.value ?? 'monday');
-    fetchjainBusSchedule(selectedEnglishDay.value ?? 'monday');
+    _fetchAllDirections(selectedEnglishDay.value ?? 'monday');
+  }
+
+  // ── Service day check (using server config) ────────────────────
+
+  bool isServiceDay(int dayIndex) {
+    // Build a DateTime for the selected day index to check against calendar
+    final now = DateTime.now();
+    final todayIdx = now.weekday - 1;
+    final diff = dayIndex - todayIdx;
+    final targetDate = now.add(Duration(days: diff));
+    return routeConfig.schedule!.serviceCalendar.isServiceDay(targetDate);
   }
 
   // ── Today awareness ────────────────────────────────────────────
@@ -164,25 +207,20 @@ class BusCampusController extends GetxController {
 
   // ── Hero bus ───────────────────────────────────────────────────
 
-  /// Today: find the server-flagged next bus (isFastestBus: true),
-  ///   then verify it hasn't departed (handles stale server data).
-  /// Other days: return the first bus in the schedule.
   BusSchedule? getHeroBus(List<BusSchedule> schedules) {
     if (schedules.isEmpty) return null;
     if (isViewingToday) {
       try {
         final next = schedules.firstWhere((s) => s.isFastestBus);
         if (getMinutesUntil(next) != null) return next;
-        return null; // bus already departed — server data is stale
+        return null;
       } catch (_) {
-        return null; // all buses have departed
+        return null;
       }
     }
     return schedules.firstOrNull;
   }
 
-  /// Client-side ETA: operatingHours minus current wall-clock time.
-  /// Only meaningful when isViewingToday is true.
   int? getMinutesUntil(BusSchedule bus) {
     final now = DateTime.now();
     final currentMinutes = now.hour * 60 + now.minute;
@@ -205,7 +243,11 @@ class BusCampusController extends GetxController {
   bool hasMultipleRouteTypes(List<BusSchedule> schedules) =>
       schedules.map((s) => s.routeType).toSet().length > 1;
 
-  /// Only greys out past buses when viewing today's schedule.
+  /// Get display name for a route type from server config
+  String getRouteTypeLabel(String routeType) {
+    return routeConfig.schedule?.routeTypes[routeType] ?? routeType;
+  }
+
   bool isPastBus(BusSchedule bus) {
     if (!isViewingToday) return false;
     final now = DateTime.now();
@@ -215,8 +257,6 @@ class BusCampusController extends GetxController {
     return busMinutes <= currentMinutes;
   }
 
-  /// Uses server response to determine no-service.
-  /// Handles: weekends, holidays, temporary suspension.
   bool isNoServiceSchedule(List<BusSchedule> schedules) {
     if (schedules.isEmpty) return true;
     return schedules.length == 1 && schedules[0].operatingHours == '-';
@@ -267,28 +307,6 @@ class BusCampusController extends GetxController {
       '일요일': 'sunday'
     };
     return translationMap[koreanDay] ?? 'Monday';
-  }
-
-  // ── Data fetching ──────────────────────────────────────────────
-
-  Future<void> fetchinjaBusSchedule(String type) async {
-    final result = await _busRepo.getSchedule('INJA', type);
-    switch (result) {
-      case Ok(:final data):
-        injaBusSchedule.value = data;
-      case Err(:final failure):
-        logger.e('INJA schedule fetch failed: $failure');
-    }
-  }
-
-  Future<void> fetchjainBusSchedule(String type) async {
-    final result = await _busRepo.getSchedule('JAIN', type);
-    switch (result) {
-      case Ok(:final data):
-        jainBusSchedule.value = data;
-      case Err(:final failure):
-        logger.e('JAIN schedule fetch failed: $failure');
-    }
   }
 
   // ── Map helpers (kept for /injadetail) ─────────────────────────

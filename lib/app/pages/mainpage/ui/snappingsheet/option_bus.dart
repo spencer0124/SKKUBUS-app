@@ -37,6 +37,7 @@ class OptionBus extends StatelessWidget {
               useAltPageLink: bus.useAltPageLink,
               showAnimation: bus.showAnimation,
               showNoticeText: bus.showNoticeText,
+              busConfigId: bus.busConfigId,
             );
           }).toList();
 
