@@ -31,11 +31,11 @@ Widget buildMap() {
       // Save native controller for later bounds queries
       ultimateNampController.mapController.value = mapcontroller;
 
-      // Location overlay setup
-      mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
-      final locationOverlay = mapcontroller.getLocationOverlay();
-      locationOverlay.setCircleRadius(10.0);
-      locationOverlay.setIsVisible(true);
+      // Location overlay 비활성화
+      // mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
+      // final locationOverlay = mapcontroller.getLocationOverlay();
+      // locationOverlay.setCircleRadius(10.0);
+      // locationOverlay.setIsVisible(true);
 
       // Initialize map layers from server config.
       // unawaited — errors are caught internally in MapLayerController.

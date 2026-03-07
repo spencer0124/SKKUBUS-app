@@ -66,32 +66,32 @@ class MainPageBackground extends StatelessWidget {
                           //   top: (statusBarHeight + 10 + 60),
                           //   child: const Center(child: ScrollableRow()),
                           // ),
-                          // scrollableRow 임시 비활성화에 따른 현재위치 버튼 위치 임시 조정 (-40)
-                          Positioned(
-                            top: statusBarHeight + 10 + 100 - 40,
-                            right: 10,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onTap: () {
-                                ultimateController.moveToCurrentLocation();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(Icons.my_location),
-                              ),
-                            ),
-                          ),
+                          // 현재위치 GPS 버튼 비활성화
+                          // Positioned(
+                          //   top: statusBarHeight + 10 + 100 - 40,
+                          //   right: 10,
+                          //   child: GestureDetector(
+                          //     behavior: HitTestBehavior.translucent,
+                          //     onTap: () {
+                          //       ultimateController.moveToCurrentLocation();
+                          //     },
+                          //     child: Container(
+                          //       padding: const EdgeInsets.all(10),
+                          //       decoration: BoxDecoration(
+                          //         color: Colors.white,
+                          //         borderRadius: BorderRadius.circular(10),
+                          //         boxShadow: [
+                          //           BoxShadow(
+                          //             color: Colors.black.withOpacity(0.2),
+                          //             blurRadius: 4,
+                          //             offset: const Offset(0, 2),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       child: const Icon(Icons.my_location),
+                          //     ),
+                          //   ),
+                          // ),
                           // Positioned(
                           //   top: statusBarHeight + 10 + 150,
                           //   right: 10,

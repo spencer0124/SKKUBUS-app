@@ -22,38 +22,39 @@ class LocationController extends GetxController {
     }
   }
 
+  // GPS 권한 요청 비활성화
   Future<void> getCurrentPosition() async {
-    // 위치 서비스 활성화 여부 확인
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      logger.d("위치 서비스가 활성화되어 있지 않습니다.");
-
-      await showPermissionAlert();
-      return;
-    }
-
-    // 위치 권한 확인 및 요청
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        await showPermissionAlert();
-        return;
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      await showPermissionAlert();
-      return;
-    }
-
-    // 위치 정보 가져오기
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    // 위도, 경도 업데이트
-    latitude.value = position.latitude.toString();
-    longitude.value = position.longitude.toString();
+    // // 위치 서비스 활성화 여부 확인
+    // bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // if (!serviceEnabled) {
+    //   logger.d("위치 서비스가 활성화되어 있지 않습니다.");
+    //
+    //   await showPermissionAlert();
+    //   return;
+    // }
+    //
+    // // 위치 권한 확인 및 요청
+    // LocationPermission permission = await Geolocator.checkPermission();
+    // if (permission == LocationPermission.denied) {
+    //   permission = await Geolocator.requestPermission();
+    //   if (permission == LocationPermission.denied) {
+    //     await showPermissionAlert();
+    //     return;
+    //   }
+    // }
+    //
+    // if (permission == LocationPermission.deniedForever) {
+    //   await showPermissionAlert();
+    //   return;
+    // }
+    //
+    // // 위치 정보 가져오기
+    // Position position = await Geolocator.getCurrentPosition(
+    //   desiredAccuracy: LocationAccuracy.high,
+    // );
+    //
+    // // 위도, 경도 업데이트
+    // latitude.value = position.latitude.toString();
+    // longitude.value = position.longitude.toString();
   }
 }
