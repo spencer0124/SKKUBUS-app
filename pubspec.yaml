@@ -64,7 +64,6 @@ dependencies:
   squircle: "^0.0.2"
   flutter_sfsymbols: "^2.0.0"
   webview_flutter: "^4.4.3"
-  google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
   chat_bubbles: ^1.6.0
   flutter_native_splash: ^2.4.1
@@ -85,10 +84,8 @@ flutter:
     - .env
     - assets/
     - assets/applogo/
-    - assets/fonts/
     - assets/images/
     - assets/lottie/
-    - assets/SKKU/
     - assets/tossface/
     - shorebird.yaml
 
