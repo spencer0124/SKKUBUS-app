@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skkumap/app/utils/color_utils.dart';
 
 class BusRouteConfig {
   final String id;
@@ -51,7 +52,7 @@ class BusDisplay {
   factory BusDisplay.fromJson(Map<String, dynamic> json) {
     return BusDisplay(
       name: json['name'] as String,
-      themeColor: Color(int.parse('0xFF${json['themeColor']}')),
+      themeColor: parseHexColor(json['themeColor'] as String?),
       iconType: json['iconType'] as String,
     );
   }
@@ -72,7 +73,7 @@ class RealtimeConfig {
     return RealtimeConfig(
       stationsEndpoint: json['stationsEndpoint'] as String,
       locationsEndpoint: json['locationsEndpoint'] as String,
-      refreshInterval: json['refreshInterval'] as int,
+      refreshInterval: (json['refreshInterval'] as num).toInt(),
     );
   }
 }
@@ -214,7 +215,7 @@ class RouteOverlayFeature {
   factory RouteOverlayFeature.fromJson(Map<String, dynamic> json) {
     return RouteOverlayFeature(
       coordsEndpoint: json['coordsEndpoint'] as String,
-      color: Color(int.parse('0xFF${json['color']}')),
+      color: parseHexColor(json['color'] as String?),
     );
   }
 }

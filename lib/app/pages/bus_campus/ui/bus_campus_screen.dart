@@ -120,6 +120,7 @@ class BusCampusScreen extends StatelessWidget {
                     .toRadixString(16)
                     .substring(2),
                 'webviewLink': routeConfig.features.info!.url,
+                'screenName': routeConfig.id,
               }),
               child: Text(
                 '정보'.tr,

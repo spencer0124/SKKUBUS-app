@@ -3,6 +3,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
+/// Result of a conditional GET (ETag-based). Kept in api_client.dart
+/// because it's tightly coupled to [ApiClient.safeGetConditional].
+class ConditionalResult<T> {
+  /// Parsed data, or `null` if the server returned 304 Not Modified.
+  final T? data;
+
+  /// ETag value from the response `etag` header. Store this and pass it
+  /// back as `ifNoneMatch` on subsequent calls.
+  final String? etag;
+
+  const ConditionalResult({this.data, this.etag});
+
+  /// `true` when the server returned 304 — cached data is still fresh.
+  bool get notModified => data == null;
+}
+
 /// Dio-based API client with typed error handling.
 ///
 /// All network calls go through [safeGet] / [safePost] which return
@@ -43,6 +59,49 @@ class ApiClient {
           raw.containsKey('meta') &&
           raw.containsKey('data')) {
         return Result.ok(parser(raw));
+      } else {
+        return Result.error(const ParseFailure('Invalid v2 envelope'));
+      }
+    } on DioException catch (e) {
+      return Result.error(_mapDioError(e));
+    } catch (e) {
+      return Result.error(ParseFailure('Parse error: $e'));
+    }
+  }
+
+  /// Conditional GET with ETag support (RFC 7232).
+  ///
+  /// Pass the previously received [ifNoneMatch] value. If the server
+  /// responds with 304, [ConditionalResult.notModified] is `true` and
+  /// the caller should keep its cached copy.
+  Future<Result<ConditionalResult<T>>> safeGetConditional<T>(
+    String path,
+    T Function(dynamic json) parser, {
+    String? ifNoneMatch,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: Options(
+          headers: {
+            if (ifNoneMatch != null) 'If-None-Match': ifNoneMatch,
+          },
+          validateStatus: (s) => s != null && (s == 200 || s == 304),
+        ),
+      );
+
+      if (response.statusCode == 304) {
+        return Result.ok(ConditionalResult<T>(etag: ifNoneMatch));
+      }
+
+      final raw = response.data;
+      if (raw is Map<String, dynamic> &&
+          raw.containsKey('meta') &&
+          raw.containsKey('data')) {
+        final etag = response.headers.value('etag');
+        return Result.ok(ConditionalResult(data: parser(raw), etag: etag));
       } else {
         return Result.error(const ParseFailure('Invalid v2 envelope'));
       }

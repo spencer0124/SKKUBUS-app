@@ -16,7 +16,7 @@ class CustomSearchBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       height: 49,
       // width: screenWidth * 0.8,
-      width: screenWidth - 20,
+      // width set by parent Expanded
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(5),

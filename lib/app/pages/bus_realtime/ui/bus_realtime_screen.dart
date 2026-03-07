@@ -115,6 +115,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                       .toRadixString(16)
                       .substring(2),
                   'webviewLink': infoUrl,
+                  'screenName': routeConfig.id,
                 });
               }
             },

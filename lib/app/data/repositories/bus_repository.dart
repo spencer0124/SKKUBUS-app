@@ -34,13 +34,12 @@ class BusRepository {
     );
   }
 
-  Future<Result<List<BusSchedule>>> getSchedule(
-    String prefix,
-    String dayType, {
+  Future<Result<List<BusSchedule>>> getScheduleByPath(
+    String path, {
     CancelToken? cancelToken,
   }) {
     return _client.safeGet(
-      ApiEndpoints.campusSchedule(prefix, dayType),
+      path,
       (json) => ((json as Map<String, dynamic>)['data'] as List)
           .map((e) => BusSchedule.fromJson(e as Map<String, dynamic>))
           .toList(),

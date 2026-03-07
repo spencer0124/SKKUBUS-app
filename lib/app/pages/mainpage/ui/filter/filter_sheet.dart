@@ -2,39 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/components/mainpage/middle_snappingsheet/grabbing_box.dart';
 import 'package:skkumap/app/pages/mainpage/ui/filter/filter_campus_component.dart';
-import 'package:skkumap/app/utils/screensize.dart';
-import 'package:skkumap/app/pages/mainpage/ui/filter/filter_sheet.dart';
-import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
+import 'package:skkumap/app/pages/mainpage/controller/map_layer_controller.dart';
 import 'package:skkumap/app/pages/mainpage/ui/filter/filter_info_component.dart';
+import 'package:skkumap/app/data/repositories/map_config_repository.dart';
 
 class FilterSheet extends StatelessWidget {
   const FilterSheet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenwidth = ScreenSize.width(context);
-
-    var controller = Get.find<MainpageController>();
-    List<Widget> buildInfoComponentsRow(List<Map<String, dynamic>> items) {
-      return items.expand((item) {
-        return [
-          FilterInfoComponent(
-            text: item["text"],
-            index: item["index"],
-            selected: controller.selectedCampusInfo.contains(item["index"]),
-            onInfoItemTapped: (index) {
-              if (controller.selectedCampusInfo.contains(index)) {
-                controller.selectedCampusInfo.remove(index);
-              } else {
-                controller.selectedCampusInfo.add(index);
-              }
-            },
-          ),
-          const SizedBox(width: 5),
-        ];
-      }).toList();
-    }
+    final controller = Get.find<MainpageController>();
+    final layerCtrl = Get.find<MapLayerController>();
 
     return Container(
       decoration: const BoxDecoration(
@@ -77,9 +56,9 @@ class FilterSheet extends StatelessWidget {
             thickness: 0.7,
             endIndent: 0,
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
+
+          // ── Campus selector ──
           Padding(
             padding: const EdgeInsets.only(left: 15),
             child: Row(
@@ -92,27 +71,12 @@ class FilterSheet extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(
-                  width: 3,
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    // Get.toNamed(routeName);
-                  },
-                  child: const Icon(
-                    Icons.info_outline,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
-                ),
+                const SizedBox(width: 3),
+                const Icon(Icons.info_outline, size: 14, color: Colors.grey),
               ],
             ),
           ),
-          const SizedBox(
-            height: 3,
-          ),
-
+          const SizedBox(height: 3),
           const Padding(
             padding: EdgeInsets.only(left: 15),
             child: Text(
@@ -125,82 +89,62 @@ class FilterSheet extends StatelessWidget {
               ),
             ),
           ),
-
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Padding(
-              padding: const EdgeInsets.only(left: 15),
-              child: Obx(
-                () {
-                  return Row(
-                    children: [
-                      FilterCampusComponent(
-                        selected:
-                            controller.selectedCampus.value == 0 ? true : false,
-                        index: 0,
-                        text: "인사캠",
-                        onCampusItemTapped: (int index) {
-                          controller.selectedCampus.value = index;
-                        },
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      FilterCampusComponent(
-                        selected:
-                            controller.selectedCampus.value == 1 ? true : false,
-                        index: 1,
-                        text: "자과캠",
-                        onCampusItemTapped: (int index) {
-                          controller.selectedCampus.value = index;
-                        },
-                      ),
-                    ],
-                  );
-                },
-              )),
-
-          // 두번재
-          const SizedBox(
-            height: 20,
+            padding: const EdgeInsets.only(left: 15),
+            child: Obx(
+              () {
+                return Row(
+                  children: [
+                    FilterCampusComponent(
+                      selected: controller.selectedCampus.value == 0,
+                      index: 0,
+                      text: "인사캠",
+                      onCampusItemTapped: (int index) {
+                        controller.selectedCampus.value = index;
+                        layerCtrl.onCampusChanged();
+                      },
+                    ),
+                    const SizedBox(width: 5),
+                    FilterCampusComponent(
+                      selected: controller.selectedCampus.value == 1,
+                      index: 1,
+                      text: "자과캠",
+                      onCampusItemTapped: (int index) {
+                        controller.selectedCampus.value = index;
+                        layerCtrl.onCampusChanged();
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
+
+          // ── Layer toggles (config-driven) ──
+          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.only(left: 15),
             child: Row(
               children: [
                 const Text(
-                  "캠퍼스 정보",
+                  "지도 레이어",
                   style: TextStyle(
                     color: Colors.black,
                     fontFamily: 'WantedSansMedium',
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(
-                  width: 3,
-                ),
-                GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () {
-                    // Get.toNamed(routeName);
-                  },
-                  child: const Icon(
-                    Icons.info_outline,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
-                ),
+                const SizedBox(width: 3),
+                const Icon(Icons.info_outline, size: 14, color: Colors.grey),
               ],
             ),
           ),
-          const SizedBox(
-            height: 3,
-          ),
+          const SizedBox(height: 3),
           const Padding(
             padding: EdgeInsets.only(left: 15),
             child: Text(
-              "지도에 표시할 캠퍼스 정보를 선택하세요",
+              "지도에 표시할 정보를 선택하세요",
               style: TextStyle(
                 color: Colors.grey,
                 fontFamily: 'WantedSansMedium',
@@ -209,37 +153,28 @@ class FilterSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Padding(
-            padding: const EdgeInsets.only(left: 15),
-            child: Obx(
-              () {
-                return Column(
-                  children: [
-                    Row(
-                      children: buildInfoComponentsRow(
-                          controller.campusInfo.sublist(0, 4)),
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    Row(
-                      children: buildInfoComponentsRow(
-                          controller.campusInfo.sublist(4, 9)),
-                    ),
-                    const SizedBox(
-                      height: 7,
-                    ),
-                    Row(
-                      children: buildInfoComponentsRow(
-                          controller.campusInfo.sublist(9)),
-                    ),
-                  ],
-                );
-              },
-            ),
+            padding: const EdgeInsets.only(left: 15, right: 15),
+            child: Obx(() {
+              final layers = Get.find<MapConfigRepository>().layers;
+              return Wrap(
+                spacing: 5,
+                runSpacing: 7,
+                children: layers.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final layer = entry.value;
+                  final isActive =
+                      layerCtrl.layerStates[layer.id]?.visible ?? false;
+                  return FilterInfoComponent(
+                    text: layer.label,
+                    index: idx,
+                    selected: isActive,
+                    onInfoItemTapped: (_) => layerCtrl.toggleLayer(layer.id),
+                  );
+                }).toList(),
+              );
+            }),
           ),
         ],
       ),

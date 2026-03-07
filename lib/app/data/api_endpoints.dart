@@ -16,9 +16,7 @@ class ApiEndpoints {
   static String busHsscStations() => '/bus/hssc/stations';
   static String busJongroStations(String line) => '/bus/jongro/stations/$line';
 
-  // ── Campus shuttle (INJA/JAIN) ───────────────────
-  static String campusSchedule(String prefix, String type) =>
-      '/bus/campus/${prefix}_$type';
+  // ── Campus shuttle ─────────────────────────────────
   static String campusEta() => '/bus/campus/eta';
 
   // ── Station ──────────────────────────────────────
@@ -41,6 +39,9 @@ class ApiEndpoints {
   // ── Bus config ────────────────────────────────
   static String busConfig() => '/bus/config';
   static String busConfigVersion() => '/bus/config/version';
+
+  // ── Map config ──────────────────────────────────
+  static String mapConfig() => '/map/config';
 
   // ── App config ─────────────────────────────────
   static String appConfig() => '/app/config';

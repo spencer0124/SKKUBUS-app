@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:skkumap/app/pages/mainpage/ui/navermap/marker_campus.dart';
 import "package:skkumap/app/model/campusmarker_model.dart";
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -14,11 +13,11 @@ class UltimateNMapController extends GetxController {
   final mapController = Rx<NaverMapController?>(null);
   final markers = <NMarker>[].obs;
   final overlays = <NOverlay>[].obs;
+  // Fallback before config loads — HSSC is default campus.
+  // Config-driven position is set by MapLayerController.initFromConfig().
   final cameraPosition = const NCameraPosition(
     target: NLatLng(37.587241, 126.992858),
     zoom: 15.8,
-    // bearing: 330,
-    // tilt: 50,
   ).obs;
 
   @override

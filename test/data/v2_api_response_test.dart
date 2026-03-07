@@ -964,12 +964,6 @@ void main() {
       expect(ApiEndpoints.appConfig(), '/app/config');
     });
 
-    test('campus shuttle path', () {
-      expect(
-        ApiEndpoints.campusSchedule('INJA', 'weekday'),
-        '/bus/campus/INJA_weekday',
-      );
-    });
   });
 
   // ── 10. Invalid envelope handling ────────────────────────────────────

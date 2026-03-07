@@ -74,11 +74,13 @@ class CustomRow1 extends StatelessWidget {
                   'title': busConfig.display.name,
                   'color': busTypeBgColor,
                   'webviewLink': busConfig.fallbackUrl,
+                  'screenName': busConfig.id,
                 });
               default:
                 if (busConfig.fallbackUrl != null) {
                   Get.toNamed(Routes.webview, arguments: {
                     'webviewLink': busConfig.fallbackUrl,
+                    'screenName': busConfig.id,
                   });
                 }
             }

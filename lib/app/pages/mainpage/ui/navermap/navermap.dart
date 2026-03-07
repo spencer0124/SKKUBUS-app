@@ -1,17 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter/material.dart';
-import 'package:skkumap/app/pages/mainpage/ui/navermap/marker_bus.dart';
-import 'package:skkumap/app/pages/mainpage/ui/navermap/marker_campus.dart';
-import 'package:skkumap/app/types/campus_type.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
-import 'package:skkumap/app/utils/geolocator.dart';
-import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
-import 'package:skkumap/app/data/repositories/bus_repository.dart';
-import 'package:skkumap/app/data/result.dart';
+import 'package:skkumap/app/pages/mainpage/controller/map_layer_controller.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
-const initCameraPosition = NCameraPosition(
+// Fallback before config loads — HSSC is default campus.
+// Config-driven camera position is applied in MapLayerController.initFromConfig().
+const _fallbackCameraPosition = NCameraPosition(
   target: NLatLng(37.587241, 126.992858),
   zoom: 15.8,
 );
@@ -27,35 +25,30 @@ Widget buildMap() {
       logoClickEnable: true,
       logoMargin: EdgeInsets.all(1000),
       activeLayerGroups: [NLayerGroup.building, NLayerGroup.transit],
-      initialCameraPosition: initCameraPosition,
+      initialCameraPosition: _fallbackCameraPosition,
     ),
     onMapReady: (mapcontroller) {
-      // save native controller for later bounds queries
+      // Save native controller for later bounds queries
       ultimateNampController.mapController.value = mapcontroller;
-      mapcontroller.addOverlayAll({
-        // 초기 마커 세팅
-        ...ultimateNampController.markers,
-        ...buildCampusMarkers(CampusType.hssc),
-      });
 
-      // 서버에서 경로 오버레이 동적 로드
-      _loadRouteOverlays(mapcontroller);
-
-      // 위치 오버레이 추적 모드 설정
-      mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
-
+      // Location overlay setup
       mapcontroller.setLocationTrackingMode(NLocationTrackingMode.noFollow);
       final locationOverlay = mapcontroller.getLocationOverlay();
       locationOverlay.setCircleRadius(10.0);
       locationOverlay.setIsVisible(true);
 
-      // 마커 갱신
-      ever(ultimateNampController.markers, (_) {
-        mapcontroller.clearOverlays();
-        mapcontroller.addOverlayAll({...ultimateNampController.markers});
-      });
+      // Initialize map layers from server config.
+      // unawaited — errors are caught internally in MapLayerController.
+      final layerCtrl = Get.find<MapLayerController>();
+      unawaited(layerCtrl.initFromConfig());
 
-      // 카메라 갱신
+      // Unified overlay reconciliation: re-render all active layers + bus markers
+      ever(layerCtrl.layerStates,
+          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController));
+      ever(ultimateNampController.markers,
+          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController));
+
+      // Camera updates
       ever<NCameraPosition>(ultimateNampController.cameraPosition, (pos) {
         mapcontroller.updateCamera(
           NCameraUpdate.withParams(
@@ -70,42 +63,23 @@ Widget buildMap() {
   );
 }
 
-/// Fetch route overlays from server based on BusConfigRepository configs.
-Future<void> _loadRouteOverlays(NaverMapController mapcontroller) async {
+/// Rebuild all map overlays from all sources.
+///
+/// Clears and re-adds everything to avoid the previous bug where
+/// clearOverlays() wiped bus route polylines on marker updates.
+void _reconcileOverlays(
+  NaverMapController mc,
+  MapLayerController layerCtrl,
+  UltimateNMapController nmapCtrl,
+) {
   try {
-    final configRepo = Get.find<BusConfigRepository>();
-    final busRepo = Get.find<BusRepository>();
-    final configs = configRepo.all;
-
-    for (final entry in configs.entries) {
-      final config = entry.value;
-      final overlay = config.features.routeOverlay;
-      if (overlay == null) continue;
-
-      final result = await busRepo.getRouteOverlay(overlay.coordsEndpoint);
-      switch (result) {
-        case Ok(:final data):
-          final coords =
-              data.map((c) => NLatLng(c[0], c[1])).toList();
-          if (coords.length >= 2) {
-            mapcontroller.addOverlay(
-              NMultipartPathOverlay(
-                id: '${config.id}Route',
-                paths: [
-                  NMultipartPath(
-                    color: overlay.color,
-                    outlineColor: Colors.white,
-                    coords: coords,
-                  ),
-                ],
-              ),
-            );
-          }
-        case Err(:final failure):
-          logger.d('Route overlay fetch failed for ${config.id}: $failure');
-      }
-    }
+    mc.clearOverlays();
+    mc.addOverlayAll({
+      ...layerCtrl.activeMarkers,
+      ...layerCtrl.activeOverlays,
+      ...nmapCtrl.markers,
+    });
   } catch (e) {
-    logger.d('Route overlay loading error: $e');
+    logger.d('Overlay reconciliation error: $e');
   }
 }

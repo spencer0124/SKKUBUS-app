@@ -24,11 +24,14 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/app/utils/geolocator.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
+import 'package:skkumap/app/utils/analytics_screen_names.dart';
 
 import 'package:skkumap/app/data/api_client.dart' as data;
 import 'package:skkumap/app/data/dio_client.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
+import 'package:skkumap/app/data/repositories/map_config_repository.dart';
+import 'package:skkumap/app/data/repositories/map_layer_repository.dart';
 import 'package:skkumap/app/data/repositories/station_repository.dart';
 import 'package:skkumap/app/data/repositories/search_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
@@ -51,6 +54,7 @@ Future<void> main() async {
   registerDependencies();
   await Get.find<data.ApiClient>().ensureAuth();
   Get.find<BusConfigRepository>().initialize(); // fire-and-forget, non-blocking
+  Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
   await initNaverMapSdk_v2();
@@ -70,6 +74,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      Get.find<BusConfigRepository>().checkForUpdates();
+      Get.find<MapConfigRepository>().checkForUpdates();
+    }
   }
 
   @override
@@ -78,7 +97,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       designSize: const Size(390, 844),
       builder: (context, child) => GetMaterialApp(
         navigatorObservers: [
-          FirebaseAnalyticsObserver(analytics: analytics),
+          if (!kDebugMode)
+            FirebaseAnalyticsObserver(
+              analytics: analytics,
+              nameExtractor: (settings) =>
+                  analyticsNameExtractor(settings) ?? settings.name,
+            ),
         ],
         debugShowCheckedModeBanner: false,
         getPages: AppRoutes.routes,
@@ -103,7 +127,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
 Future<void> initFirebase() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  if (!kDebugMode) {
+  if (kDebugMode) {
+    // Disable Analytics & Crashlytics in debug to keep production data clean
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  } else {
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
@@ -151,6 +179,8 @@ void registerDependencies() {
   Get.lazyPut(() => SearchRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => UiRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.put(MapConfigRepository(Get.find<data.ApiClient>()));
+  Get.lazyPut(() => MapLayerRepository(Get.find<data.ApiClient>()), fenix: true);
 
   // ── App-global controllers (needed across all pages) ──
   Get.lazyPut(() => UltimateNMapController());

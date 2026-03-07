@@ -1,13 +1,7 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
-import 'package:dio/dio.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/bus_schedule.dart';
@@ -59,6 +53,7 @@ class BusCampusController extends GetxController {
 
   late BusRouteConfig routeConfig;
   bool _configSet = false;
+  bool _dataLoaded = false;
 
   // Dynamic direction schedules
   var directionSchedules = <RxList<BusSchedule>>[].obs;
@@ -103,12 +98,13 @@ class BusCampusController extends GetxController {
 
   /// Called after setRouteConfig to load initial data
   Future<void> loadInitialData() async {
+    if (_dataLoaded) return;
+    _dataLoaded = true;
     try {
       await Future.wait([
         _fetchAllDirections(selectedEnglishDay.value ?? 'monday'),
         fetchCampusEta(),
       ]);
-      _initialize();
     } finally {
       isLoading.value = false;
     }
@@ -118,18 +114,19 @@ class BusCampusController extends GetxController {
     final directions = routeConfig.schedule!.directions;
     await Future.wait(
       List.generate(directions.length, (i) =>
-        _fetchDirectionSchedule(i, directions[i].id, dayType)),
+        _fetchDirectionSchedule(i, directions[i], dayType)),
     );
   }
 
   Future<void> _fetchDirectionSchedule(
-      int index, String prefix, String dayType) async {
-    final result = await _busRepo.getSchedule(prefix, dayType);
+      int index, BusDirection direction, String dayType) async {
+    final path = direction.endpoint.replaceAll('{dayType}', dayType);
+    final result = await _busRepo.getScheduleByPath(path);
     switch (result) {
       case Ok(:final data):
         directionSchedules[index].value = data;
       case Err(:final failure):
-        logger.e('$prefix schedule fetch failed: $failure');
+        logger.e('${direction.id} schedule fetch failed: $failure');
     }
   }
 
@@ -162,15 +159,6 @@ class BusCampusController extends GetxController {
   void onClose() {
     _etaTimer?.cancel();
     super.onClose();
-  }
-
-  Future<void> _initialize() async {
-    try {
-      await FirebaseAnalytics.instance
-          .setCurrentScreen(screenName: 'injashuttle_screen');
-    } catch (e) {
-      logger.e('Analytics error: $e');
-    }
   }
 
   void _startEtaTicker() {
@@ -264,9 +252,6 @@ class BusCampusController extends GetxController {
 
   // ── Existing properties ────────────────────────────────────────
 
-  var duration = ''.obs;
-  final Dio _dio = Dio();
-
   Rx<String?> today = '월요일'.obs;
   Rx<String?> selectedDay = '월요일'.obs;
   Rx<String?> selectedEnglishDay = 'monday'.obs;
@@ -309,90 +294,4 @@ class BusCampusController extends GetxController {
     return translationMap[koreanDay] ?? 'Monday';
   }
 
-  // ── Map helpers (kept for /injadetail) ─────────────────────────
-
-  Future<void> getDrivingDuration() async {
-    try {
-      final response = await _dio.get(
-        'https://naveropenapi.apigw.ntruss.com/map-direction/v1/driving?start=126.993688,37.587308&goal=126.975532,37.292345',
-        options: Options(
-          headers: {
-            'X-NCP-APIGW-API-KEY-ID': dotenv.env['navernewClientId'],
-            'X-NCP-APIGW-API-KEY': dotenv.env['navernewClientSecret'],
-          },
-        ),
-      );
-
-      final data = response.data;
-      if (data['code'] == 0) {
-        final durationInMillis =
-            data['route']['traoptimal'][0]['summary']['duration'];
-        final durationInHours = (durationInMillis / (1000 * 60 * 60)).floor();
-        final durationInMinutes =
-            ((durationInMillis % (1000 * 60 * 60)) / (1000 * 60)).floor();
-
-        duration.value = '$durationInHours시간 $durationInMinutes분';
-      } else {
-        logger.w('error1');
-      }
-    } catch (e) {
-      logger.e(e);
-    }
-  }
-
-  Future<void> executeMap({
-    required String type,
-    required String mapNameEn,
-    required String mapNameKr,
-    required Uri mapUri,
-    required String playStoreLink,
-    required String appStoreLink,
-  }) async {
-    FirebaseAnalytics.instance.logEvent(
-      name: 'injashuttle_${type}_$mapNameEn',
-    );
-
-    if (await canLaunchUrl(mapUri)) {
-      await launchUrl(mapUri);
-
-      FirebaseAnalytics.instance.logEvent(
-        name: 'injashuttle_${type}_${mapNameEn}_success',
-      );
-    } else {
-      var windowTitlefinal = '$mapNameKr가 설치되어 있지 않아요';
-
-      if (mapNameKr == "카카오맵" || mapNameKr == "카카오 맵") {
-        windowTitlefinal = '$mapNameKr이 설치되어 있지 않아요';
-      }
-
-      final result = await FlutterPlatformAlert.showCustomAlert(
-        windowTitle: windowTitlefinal,
-        text: '$mapNameKr 설치 페이지로 이동할까요?',
-        negativeButtonTitle: "이동",
-        positiveButtonTitle: "취소",
-      );
-
-      if (result == CustomButton.positiveButton) {
-        FirebaseAnalytics.instance.logEvent(
-          name: 'injashuttle_${type}_${mapNameEn}_fail_cancel',
-        );
-      }
-
-      if (result == CustomButton.negativeButton) {
-        FirebaseAnalytics.instance.logEvent(
-          name: 'injashuttle_${type}_${mapNameEn}_fail_move',
-        );
-        if (Platform.isAndroid) {
-          if (await canLaunchUrl(Uri.parse(playStoreLink))) {
-            await launchUrl(Uri.parse(playStoreLink));
-          }
-        }
-        if (Platform.isIOS) {
-          if (await canLaunchUrl(Uri.parse(appStoreLink))) {
-            await launchUrl(Uri.parse(appStoreLink));
-          }
-        }
-      }
-    }
-  }
 }
