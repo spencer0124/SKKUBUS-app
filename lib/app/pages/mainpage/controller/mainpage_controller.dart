@@ -7,6 +7,8 @@ import 'package:get/get.dart';
 
 import 'package:skkumap/app/model/station_model.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/model/sdui_section.dart';
+import 'package:skkumap/app/data/campus_service_defaults.dart';
 import 'package:skkumap/app/data/repositories/station_repository.dart';
 import 'package:skkumap/app/data/repositories/ui_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
@@ -70,6 +72,23 @@ class MainpageController extends GetxController {
     }
   }
 
+  var campusSections = <SduiSection>[].obs;
+  var isCampusLoading = true.obs;
+
+  Future<void> campusSectionsFetch() async {
+    final result = await _uiRepo.getCampusSections();
+    switch (result) {
+      case Ok(:final data):
+        campusSections.value = data.sections;
+      case Err(:final failure):
+        logger.e('Error fetching campus sections: $failure');
+        if (campusSections.isEmpty) {
+          campusSections.value = defaultCampusSections;
+        }
+    }
+    isCampusLoading.value = false;
+  }
+
   var mainpageBusList = Rx<MainPageBusListResponse?>(null);
 
   Future<void> mainPageBusListFetch() async {
@@ -131,6 +150,7 @@ class MainpageController extends GetxController {
     try {
       fetchMainpageAd();
       stationDataFetch();
+      campusSectionsFetch();
       await mainPageBusListFetch();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         snaptoInitPosition();

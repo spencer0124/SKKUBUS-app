@@ -75,7 +75,11 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed(Routes.lostAndFound);
+              Get.toNamed(Routes.lostAndFound, arguments: {
+                'title': '분실물'.tr,
+                'color': '003626',
+                'webviewLink': 'https://webview.skkuuniverse.com/#/skku/lostandfound',
+              });
             },
             child: ScrollRowContainer(
               text: '술집'.tr,
@@ -89,7 +93,11 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed(Routes.lostAndFound);
+              Get.toNamed(Routes.lostAndFound, arguments: {
+                'title': '분실물'.tr,
+                'color': '003626',
+                'webviewLink': 'https://webview.skkuuniverse.com/#/skku/lostandfound',
+              });
             },
             child: ScrollRowContainer(
               text: '새로오픈'.tr,
@@ -103,7 +111,11 @@ class ScrollableRow extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: () {
-              Get.toNamed(Routes.lostAndFound);
+              Get.toNamed(Routes.lostAndFound, arguments: {
+                'title': '분실물'.tr,
+                'color': '003626',
+                'webviewLink': 'https://webview.skkuuniverse.com/#/skku/lostandfound',
+              });
             },
             child: ScrollRowContainer(
               text: '더보기'.tr,

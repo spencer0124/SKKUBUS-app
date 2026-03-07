@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:skkumap/app/utils/color_utils.dart';
 
 class BusRouteConfig {
@@ -78,34 +79,49 @@ class RealtimeConfig {
   }
 }
 
-class ScheduleConfig {
-  final List<BusDirection> directions;
-  final ServiceCalendar serviceCalendar;
-  final Map<String, String> routeTypes;
+// ── Schedule config (selector-based) ──
 
-  const ScheduleConfig({
-    required this.directions,
-    required this.serviceCalendar,
-    required this.routeTypes,
+class SelectorItem {
+  final String? key; // fixed date (festival) — null if dayOfWeek is set
+  final int? dayOfWeek; // 1=Mon...7=Sun (regular) — null if key is set
+  final String label;
+  final String? sublabel;
+  final bool noService;
+
+  const SelectorItem({
+    this.key,
+    this.dayOfWeek,
+    required this.label,
+    this.sublabel,
+    this.noService = false,
   });
 
-  factory ScheduleConfig.fromJson(Map<String, dynamic> json) {
-    return ScheduleConfig(
-      directions: (json['directions'] as List)
-          .map((e) => BusDirection.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      serviceCalendar: ServiceCalendar.fromJson(
-          json['serviceCalendar'] as Map<String, dynamic>),
-      routeTypes: (json['routeTypes'] as Map<String, dynamic>)
-          .map((k, v) => MapEntry(k, v as String)),
+  factory SelectorItem.fromJson(Map<String, dynamic> json) {
+    return SelectorItem(
+      key: json['key'] as String?,
+      dayOfWeek: json['dayOfWeek'] as int?,
+      label: json['label'] as String,
+      sublabel: json['sublabel'] as String?,
+      noService: json['noService'] as bool? ?? false,
     );
+  }
+
+  /// Resolve to a YYYY-MM-DD date string.
+  /// - Fixed key items: return the key as-is.
+  /// - DayOfWeek items: compute this week's date for that weekday.
+  String resolveDate() {
+    if (key != null) return key!;
+    final now = DateTime.now();
+    final diff = dayOfWeek! - now.weekday;
+    final date = DateTime(now.year, now.month, now.day + diff);
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 }
 
 class BusDirection {
   final String id;
   final String label;
-  final String endpoint;
+  final String endpoint; // "/bus/schedule/{routeId}/{direction}/{date}"
 
   const BusDirection({
     required this.id,
@@ -122,54 +138,28 @@ class BusDirection {
   }
 }
 
-class ServiceCalendar {
-  final Set<int> defaultServiceDays;
-  final List<ServiceException> exceptions;
+class ScheduleConfig {
+  final List<SelectorItem> selector;
+  final List<BusDirection> directions;
 
-  const ServiceCalendar({
-    required this.defaultServiceDays,
-    required this.exceptions,
+  const ScheduleConfig({
+    required this.selector,
+    required this.directions,
   });
 
-  factory ServiceCalendar.fromJson(Map<String, dynamic> json) {
-    return ServiceCalendar(
-      defaultServiceDays:
-          (json['defaultServiceDays'] as List).map((e) => e as int).toSet(),
-      exceptions: (json['exceptions'] as List? ?? [])
-          .map((e) => ServiceException.fromJson(e as Map<String, dynamic>))
+  factory ScheduleConfig.fromJson(Map<String, dynamic> json) {
+    return ScheduleConfig(
+      selector: (json['selector'] as List)
+          .map((e) => SelectorItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      directions: (json['directions'] as List)
+          .map((e) => BusDirection.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
-
-  bool isServiceDay(DateTime date) {
-    final dateStr =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    final exception =
-        exceptions.where((e) => e.dateStr == dateStr).firstOrNull;
-    if (exception != null) return exception.service;
-    return defaultServiceDays.contains(date.weekday - 1); // DateTime: 1=Mon
-  }
 }
 
-class ServiceException {
-  final String dateStr;
-  final String reason;
-  final bool service;
-
-  const ServiceException({
-    required this.dateStr,
-    required this.reason,
-    required this.service,
-  });
-
-  factory ServiceException.fromJson(Map<String, dynamic> json) {
-    return ServiceException(
-      dateStr: json['date'] as String,
-      reason: json['reason'] as String,
-      service: json['service'] as bool,
-    );
-  }
-}
+// ── Features ──
 
 class BusFeatures {
   final InfoFeature? info;

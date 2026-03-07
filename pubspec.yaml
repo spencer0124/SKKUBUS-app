@@ -100,3 +100,6 @@ flutter:
     - family: WantedSansMedium
       fonts:
         - asset: assets/fonts/WantedSans-Medium.otf
+    - family: Tossface
+      fonts:
+        - asset: assets/fonts/TossFaceFontMac.ttf

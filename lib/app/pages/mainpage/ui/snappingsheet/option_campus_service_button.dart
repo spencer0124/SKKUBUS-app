@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomServiceBtn extends StatelessWidget {
   final String title;
-  final String iconPath;
+  final String emoji;
   final VoidCallback onTap;
   final double size;
 
   const CustomServiceBtn({
     Key? key,
     required this.title,
-    required this.iconPath,
+    required this.emoji,
     required this.onTap,
-    this.size = 77, // 기본 크기
+    this.size = 77,
   }) : super(key: key);
 
   @override
@@ -32,15 +31,23 @@ class CustomServiceBtn extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          // ✅ Column의 공간을 효율적으로 사용하기 위해 추가
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(iconPath, width: 30, height: 30),
+            SizedBox(
+              height: 30,
+              child: Text(
+                emoji,
+                style: const TextStyle(
+                  fontFamily: 'Tossface',
+                  fontSize: 30,
+                  height: 1.0,
+                ),
+              ),
+            ),
             const SizedBox(height: 5),
-            // ✅ Flexible과 FittedBox 추가
             Flexible(
               child: FittedBox(
-                fit: BoxFit.scaleDown, // 텍스트가 넘치지 않도록 크기를 줄임
+                fit: BoxFit.scaleDown,
                 child: Text(
                   title,
                   style: const TextStyle(fontFamily: "WantedSansRegular"),

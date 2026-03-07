@@ -15,7 +15,6 @@ import 'package:skkumap/app/pages/nsc_building_map/ui/nsc_building_map_screen.da
 import 'package:skkumap/app/pages/nsc_building_credit/ui/nsc_building_credit.dart';
 import 'package:skkumap/app/pages/webview/binding/webview_binding.dart';
 import 'package:skkumap/app/pages/webview/ui/webview_screen.dart';
-import 'package:skkumap/app/pages/lost_and_found/ui/lostandfound.dart';
 import 'package:skkumap/app/pages/search/binding/search_binding.dart';
 import 'package:skkumap/app/pages/search/ui/search_screen.dart';
 import 'package:skkumap/app/pages/splash_ad/ui/splash_ad_screen.dart';
@@ -85,7 +84,8 @@ class AppRoutes {
     ),
     GetPage(
       name: Routes.lostAndFound,
-      page: () => const LostAndFound(),
+      page: () => const CustomWebViewScreen(),
+      binding: WebViewBinding(),
     ),
     GetPage(
       name: Routes.search,

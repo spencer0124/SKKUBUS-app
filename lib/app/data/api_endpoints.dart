@@ -25,6 +25,7 @@ class ApiEndpoints {
   // ── UI (Server-Driven) ───────────────────────────
   static String homeBusList() => '/ui/home/buslist';
   static String homeScroll() => '/ui/home/scroll';
+  static String homeCampus() => '/ui/home/campus';
 
   // ── Search ───────────────────────────────────────
   // [query] is passed unencoded — Dio encodes path segments automatically.
