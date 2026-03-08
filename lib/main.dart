@@ -53,7 +53,6 @@ Future<void> main() async {
   await initFirebase();
   registerDependencies();
   await Get.find<data.ApiClient>().ensureAuth();
-  Get.find<BusConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
@@ -86,7 +85,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      Get.find<BusConfigRepository>().checkForUpdates();
       Get.find<MapConfigRepository>().checkForUpdates();
     }
   }

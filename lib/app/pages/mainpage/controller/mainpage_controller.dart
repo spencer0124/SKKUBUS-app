@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:skkumap/app/model/station_model.dart';
-import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/model/mainpage_buslist_model.dart' show BusListItem;
 import 'package:skkumap/app/model/sdui_section.dart';
 import 'package:skkumap/app/data/campus_service_defaults.dart';
 import 'package:skkumap/app/data/repositories/station_repository.dart';
@@ -89,7 +89,7 @@ class MainpageController extends GetxController {
     isCampusLoading.value = false;
   }
 
-  var mainpageBusList = Rx<MainPageBusListResponse?>(null);
+  var mainpageBusList = Rx<List<BusListItem>?>(null);
 
   Future<void> mainPageBusListFetch() async {
     final result = await _uiRepo.getMainpageBusList();

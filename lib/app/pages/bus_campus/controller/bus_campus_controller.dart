@@ -51,8 +51,9 @@ class BusScheduleController extends GetxController {
   var selectedDayIndex = 0.obs;
   var isLoading = true.obs;
 
-  // ETag cache per serviceId
+  // ETag + data cache per serviceId
   final _etagMap = <String, String>{};
+  final _weekCache = <String, WeekSchedule>{};
 
   // 1-minute ticker for ETA refresh
   Timer? _etaTimer;
@@ -99,7 +100,8 @@ class BusScheduleController extends GetxController {
 
   Future<void> _fetchCurrentWeek({String? from}) async {
     final svc = currentService.value;
-    final etag = _etagMap[_etagKey(svc.serviceId, from)];
+    final cacheKey = _etagKey(svc.serviceId, from);
+    final etag = _etagMap[cacheKey];
 
     final result = await _busRepo.getWeekSchedule(
       svc.weekEndpoint,
@@ -111,8 +113,16 @@ class BusScheduleController extends GetxController {
       case Ok(:final data):
         if (!data.notModified && data.data != null) {
           weekSchedule.value = data.data;
-          _etagMap[_etagKey(svc.serviceId, from)] = data.etag ?? '';
+          _weekCache[cacheKey] = data.data!;
+          _etagMap[cacheKey] = data.etag ?? '';
           _autoSelectToday();
+        } else if (data.notModified) {
+          // 304: restore from local cache
+          final cached = _weekCache[cacheKey];
+          if (cached != null) {
+            weekSchedule.value = cached;
+            _autoSelectToday();
+          }
         }
       case Err(:final failure):
         logger.e('Schedule fetch failed: $failure');

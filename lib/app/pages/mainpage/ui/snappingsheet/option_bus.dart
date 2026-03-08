@@ -25,22 +25,16 @@ class OptionBus extends StatelessWidget {
         if (controller.mainpageBusList.value == null) {
           return const Center(child: CircularProgressIndicator());
         } else {
-          final busList = controller.mainpageBusList.value!.busList;
+          final busList = controller.mainpageBusList.value!;
 
-          final busWidgets = busList.map((bus) {
+          final busWidgets = busList.map((item) {
             return CustomRow1(
-              title: bus.title.tr,
-              subtitle: bus.subtitle,
-              busTypeText: bus.busTypeText,
-              busTypeBgColor: bus.busTypeBgColor,
-              pageLink: bus.pageLink,
-              altPageLink: bus.altPageLink,
-              pageWebviewLink: bus.pageWebviewLink,
-              noticeText: bus.noticeText,
-              useAltPageLink: bus.useAltPageLink,
-              showAnimation: bus.showAnimation,
-              showNoticeText: bus.showNoticeText,
-              busConfigId: bus.busConfigId,
+              label: item.card.label,
+              themeColor: item.card.themeColor,
+              iconType: item.card.iconType,
+              busTypeText: item.card.busTypeText,
+              actionRoute: item.action.route,
+              groupId: item.action.groupId,
             );
           }).toList();
 

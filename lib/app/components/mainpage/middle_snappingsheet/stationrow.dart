@@ -111,7 +111,7 @@ class CustomRow2 extends StatelessWidget {
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTap: () async {
-                                        final config = await Get.find<BusConfigRepository>().ensureAndGet('jongro07');
+                                        final config = await Get.find<BusConfigRepository>().getGroupConfig('jongro07');
                                         if (config != null) {
                                           Get.toNamed(Routes.busRealtime, arguments: {
                                             'busConfig': config,
@@ -144,7 +144,7 @@ class CustomRow2 extends StatelessWidget {
                                     GestureDetector(
                                       behavior: HitTestBehavior.translucent,
                                       onTap: () async {
-                                        final config = await Get.find<BusConfigRepository>().ensureAndGet('hssc');
+                                        final config = await Get.find<BusConfigRepository>().getGroupConfig('hssc');
                                         if (config != null) {
                                           Get.toNamed(Routes.busRealtime, arguments: {
                                             'busConfig': config,

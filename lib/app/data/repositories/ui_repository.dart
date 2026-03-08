@@ -9,13 +9,18 @@ class UiRepository {
   final ApiClient _client;
   const UiRepository(this._client);
 
-  Future<Result<MainPageBusListResponse>> getMainpageBusList({
+  Future<Result<List<BusListItem>>> getMainpageBusList({
     CancelToken? cancelToken,
   }) {
     return _client.safeGet(
       ApiEndpoints.homeBusList(),
-      (json) =>
-          MainPageBusListResponse.fromJson(json as Map<String, dynamic>),
+      (json) {
+        final envelope = json as Map<String, dynamic>;
+        final data = envelope['data'] as List;
+        return data
+            .map((item) => BusListItem.fromJson(item as Map<String, dynamic>))
+            .toList();
+      },
       cancelToken: cancelToken,
     );
   }

@@ -1,84 +1,59 @@
-class MainPageBusListResponse {
-  final MetaData metaData;
-  final List<BusList> busList;
+class BusListItem {
+  final String groupId;
+  final BusListCard card;
+  final BusListAction action;
 
-  MainPageBusListResponse({required this.metaData, required this.busList});
-
-  factory MainPageBusListResponse.fromJson(Map<String, dynamic> json) {
-    var listBusList = json['data'] as List;
-
-    List<BusList> busListList =
-        listBusList.map((i) => BusList.fromJson(i)).toList();
-
-    return MainPageBusListResponse(
-      metaData: MetaData.fromJson(json['meta']),
-      busList: busListList,
-    );
-  }
-}
-
-class MetaData {
-  final int busListCount;
-
-  MetaData({required this.busListCount});
-
-  factory MetaData.fromJson(Map<String, dynamic> json) {
-    return MetaData(
-      busListCount: json['busListCount'],
-    );
-  }
-}
-
-class BusList {
-  @override
-  String toString() {
-    return 'BusList{title: $title, subtitle: $subtitle, busTypeText: $busTypeText, busTypeBgColor: $busTypeBgColor, pageLink: $pageLink, pageWebviewLink: $pageWebviewLink, altPageLink: $altPageLink, noticeText: $noticeText, useAltPageLink: $useAltPageLink, showAnimation: $showAnimation, showNoticeText: $showNoticeText}';
-  }
-
-  final String title;
-  final String subtitle;
-  final String busTypeText;
-  final String busTypeBgColor;
-  final String pageLink;
-  final String? pageWebviewLink;
-  final String? altPageLink;
-
-  final String? noticeText;
-  final bool useAltPageLink;
-  final bool showAnimation;
-
-  final bool showNoticeText;
-  final String? busConfigId;
-
-  BusList({
-    required this.title,
-    required this.subtitle,
-    required this.busTypeText,
-    required this.busTypeBgColor,
-    required this.pageLink,
-    this.pageWebviewLink,
-    this.altPageLink,
-    this.noticeText,
-    required this.useAltPageLink,
-    required this.showAnimation,
-    required this.showNoticeText,
-    this.busConfigId,
+  const BusListItem({
+    required this.groupId,
+    required this.card,
+    required this.action,
   });
 
-  factory BusList.fromJson(Map<String, dynamic> json) {
-    return BusList(
-      title: json['title'],
-      subtitle: json['subtitle'],
-      busTypeText: json['busTypeText'],
-      busTypeBgColor: json['busTypeBgColor'],
-      pageLink: json['pageLink'],
-      pageWebviewLink: json['pageWebviewLink'],
-      altPageLink: json['altPageLink'],
-      noticeText: json['noticeText'],
-      useAltPageLink: json['useAltPageLink'],
-      showAnimation: json['showAnimation'],
-      showNoticeText: json['showNoticeText'],
-      busConfigId: json['busConfigId'],
+  factory BusListItem.fromJson(Map<String, dynamic> json) {
+    return BusListItem(
+      groupId: json['groupId'] as String,
+      card: BusListCard.fromJson(json['card'] as Map<String, dynamic>),
+      action: BusListAction.fromJson(json['action'] as Map<String, dynamic>),
+    );
+  }
+}
+
+class BusListCard {
+  final String label;
+  final String themeColor;
+  final String iconType;
+  final String busTypeText;
+
+  const BusListCard({
+    required this.label,
+    required this.themeColor,
+    required this.iconType,
+    required this.busTypeText,
+  });
+
+  factory BusListCard.fromJson(Map<String, dynamic> json) {
+    return BusListCard(
+      label: json['label'] as String,
+      themeColor: json['themeColor'] as String,
+      iconType: json['iconType'] as String,
+      busTypeText: json['busTypeText'] as String,
+    );
+  }
+}
+
+class BusListAction {
+  final String route;
+  final String groupId;
+
+  const BusListAction({
+    required this.route,
+    required this.groupId,
+  });
+
+  factory BusListAction.fromJson(Map<String, dynamic> json) {
+    return BusListAction(
+      route: json['route'] as String,
+      groupId: json['groupId'] as String,
     );
   }
 }

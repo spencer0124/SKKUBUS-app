@@ -24,7 +24,7 @@ import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/ad_model.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
-import 'package:skkumap/app/model/mainpage_buslist_model.dart';
+import 'package:skkumap/app/model/mainpage_buslist_model.dart' show BusListItem;
 import 'package:skkumap/app/model/search_option3_model.dart';
 import 'package:skkumap/app/model/station_model.dart';
 
@@ -287,7 +287,7 @@ const _stationArrivalWithTimes = <String, dynamic>{
   ],
 };
 
-/// GET /ui/home/buslist — 4 bus items in the home screen list
+/// GET /ui/home/buslist — 4 bus items in the home screen list (new format)
 const _homeBusList = <String, dynamic>{
   'meta': {
     'lang': 'ko',
@@ -295,58 +295,56 @@ const _homeBusList = <String, dynamic>{
   },
   'data': [
     {
-      'title': '인사캠 셔틀버스',
-      'subtitle': '정차소(인문.농구장) ↔ 600주년 기념관',
-      'busTypeText': '성대',
-      'busTypeBgColor': '003626',
-      'pageLink': '/MainbusMain',
-      'pageWebviewLink': null,
-      'altPageLink': 'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90',
-      'useAltPageLink': false,
-      'noticeText': null,
-      'showAnimation': false,
-      'showNoticeText': false,
+      'groupId': 'hssc',
+      'card': {
+        'label': '인사캠 셔틀버스',
+        'themeColor': '003626',
+        'iconType': 'shuttle',
+        'busTypeText': '성대',
+      },
+      'action': {
+        'route': '/bus/realtime',
+        'groupId': 'hssc',
+      },
     },
     {
-      'title': '인자셔틀',
-      'subtitle': '인사캠 ↔ 자과캠',
-      'busTypeText': '성대',
-      'busTypeBgColor': '003626',
-      'pageLink': '/eskara',
-      'pageWebviewLink': null,
-      'altPageLink': 'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90',
-      'useAltPageLink': false,
-      'noticeText': '25년도 2학기 인자셔틀 시간표 업데이트',
-      'showAnimation': false,
-      'showNoticeText': true,
+      'groupId': 'campus',
+      'card': {
+        'label': '인자셔틀',
+        'themeColor': '003626',
+        'iconType': 'shuttle',
+        'busTypeText': '성대',
+      },
+      'action': {
+        'route': '/bus/schedule',
+        'groupId': 'campus',
+      },
     },
     {
-      'title': '종로 02',
-      'subtitle': '성균관대학교 ↔ 종각역YMCA',
-      'busTypeText': '마을',
-      'busTypeBgColor': '4CAF50',
-      'pageLink': '/MainbusMain',
-      'pageWebviewLink': null,
-      'altPageLink':
-          'http://m.bus.go.kr/mBus/bus.bms?search=%EC%A2%85%EB%A1%9C02&searchType=B',
-      'useAltPageLink': false,
-      'noticeText': null,
-      'showAnimation': false,
-      'showNoticeText': false,
+      'groupId': 'jongro02',
+      'card': {
+        'label': '종로 02',
+        'themeColor': '4CAF50',
+        'iconType': 'village',
+        'busTypeText': '마을',
+      },
+      'action': {
+        'route': '/bus/realtime',
+        'groupId': 'jongro02',
+      },
     },
     {
-      'title': '종로 07',
-      'subtitle': '명륜새마을금고 ↔ 명륜새마을금고',
-      'busTypeText': '마을',
-      'busTypeBgColor': '4CAF50',
-      'pageLink': '/MainbusMain',
-      'pageWebviewLink': null,
-      'altPageLink':
-          'http://m.bus.go.kr/mBus/bus.bms?search=%EC%A2%85%EB%A1%9C07&searchType=B',
-      'useAltPageLink': false,
-      'noticeText': null,
-      'showAnimation': false,
-      'showNoticeText': false,
+      'groupId': 'jongro07',
+      'card': {
+        'label': '종로 07',
+        'themeColor': '4CAF50',
+        'iconType': 'village',
+        'busTypeText': '마을',
+      },
+      'action': {
+        'route': '/bus/realtime',
+        'groupId': 'jongro07',
+      },
     },
   ],
 };
@@ -709,20 +707,6 @@ void main() {
 
   // ── 6. Home Bus List (SDUI) ──────────────────────────────────────────
   group('GET /ui/home/buslist', () {
-    test('parses meta with busListCount', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.homeBusList(),
-        (server) => server.reply(200, _homeBusList),
-      );
-
-      final repo = UiRepository(client);
-      final result = await repo.getMainpageBusList();
-
-      expect(result, isA<Ok<MainPageBusListResponse>>());
-      final data = (result as Ok<MainPageBusListResponse>).data;
-      expect(data.metaData.busListCount, 4);
-    });
-
     test('parses all 4 bus list items', () async {
       dioAdapter.onGet(
         ApiEndpoints.homeBusList(),
@@ -731,11 +715,13 @@ void main() {
 
       final repo = UiRepository(client);
       final result = await repo.getMainpageBusList();
-      final items = (result as Ok<MainPageBusListResponse>).data.busList;
+
+      expect(result, isA<Ok<List<BusListItem>>>());
+      final items = (result as Ok<List<BusListItem>>).data;
       expect(items, hasLength(4));
     });
 
-    test('first item: 인사캠 셔틀버스 with all fields', () async {
+    test('first item: hssc shuttle with card and action', () async {
       dioAdapter.onGet(
         ApiEndpoints.homeBusList(),
         (server) => server.reply(200, _homeBusList),
@@ -743,24 +729,18 @@ void main() {
 
       final repo = UiRepository(client);
       final result = await repo.getMainpageBusList();
-      final first = (result as Ok<MainPageBusListResponse>).data.busList[0];
+      final first = (result as Ok<List<BusListItem>>).data[0];
 
-      expect(first.title, '인사캠 셔틀버스');
-      expect(first.subtitle, '정차소(인문.농구장) ↔ 600주년 기념관');
-      expect(first.busTypeText, '성대');
-      expect(first.busTypeBgColor, '003626');
-      expect(first.pageLink, '/MainbusMain');
-      expect(first.pageWebviewLink, isNull);
-      expect(first.altPageLink,
-          'https://namu.wiki/w/%EB%8F%84%EB%A7%9D%EC%B3%90');
-      expect(first.useAltPageLink, false);
-      expect(first.noticeText, isNull);
-      expect(first.showAnimation, false);
-      expect(first.showNoticeText, false);
+      expect(first.groupId, 'hssc');
+      expect(first.card.label, '인사캠 셔틀버스');
+      expect(first.card.themeColor, '003626');
+      expect(first.card.iconType, 'shuttle');
+      expect(first.card.busTypeText, '성대');
+      expect(first.action.route, '/bus/realtime');
+      expect(first.action.groupId, 'hssc');
     });
 
-    test('second item: 인자셔틀 with noticeText and showNoticeText=true',
-        () async {
+    test('second item: campus schedule', () async {
       dioAdapter.onGet(
         ApiEndpoints.homeBusList(),
         (server) => server.reply(200, _homeBusList),
@@ -768,15 +748,15 @@ void main() {
 
       final repo = UiRepository(client);
       final result = await repo.getMainpageBusList();
-      final second = (result as Ok<MainPageBusListResponse>).data.busList[1];
+      final second = (result as Ok<List<BusListItem>>).data[1];
 
-      expect(second.title, '인자셔틀');
-      expect(second.subtitle, '인사캠 ↔ 자과캠');
-      expect(second.noticeText, '25년도 2학기 인자셔틀 시간표 업데이트');
-      expect(second.showNoticeText, true);
+      expect(second.groupId, 'campus');
+      expect(second.card.label, '인자셔틀');
+      expect(second.action.route, '/bus/schedule');
+      expect(second.action.groupId, 'campus');
     });
 
-    test('third item: 종로 02 (마을버스)', () async {
+    test('third item: jongro02 village bus', () async {
       dioAdapter.onGet(
         ApiEndpoints.homeBusList(),
         (server) => server.reply(200, _homeBusList),
@@ -784,11 +764,14 @@ void main() {
 
       final repo = UiRepository(client);
       final result = await repo.getMainpageBusList();
-      final third = (result as Ok<MainPageBusListResponse>).data.busList[2];
+      final third = (result as Ok<List<BusListItem>>).data[2];
 
-      expect(third.title, '종로 02');
-      expect(third.busTypeText, '마을');
-      expect(third.busTypeBgColor, '4CAF50');
+      expect(third.groupId, 'jongro02');
+      expect(third.card.label, '종로 02');
+      expect(third.card.themeColor, '4CAF50');
+      expect(third.card.iconType, 'village');
+      expect(third.card.busTypeText, '마을');
+      expect(third.action.route, '/bus/realtime');
     });
   });
 
@@ -958,6 +941,11 @@ void main() {
     test('ad paths', () {
       expect(ApiEndpoints.adPlacements(), '/ad/placements');
       expect(ApiEndpoints.adEvents(), '/ad/events');
+    });
+
+    test('bus config group path', () {
+      expect(ApiEndpoints.busConfigGroup('hssc'), '/bus/config/hssc');
+      expect(ApiEndpoints.busConfigGroup('campus'), '/bus/config/campus');
     });
 
     test('app config path', () {
