@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
+import 'package:skkumap/app/model/bus_group.dart';
 import 'dart:io' show Platform; // Platform 클래스를 사용하기 위해 import
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
@@ -69,20 +70,8 @@ class CustomRow1 extends StatelessWidget {
               case 'schedule':
                 Get.toNamed(Routes.busCampus,
                     arguments: {'busConfig': busConfig});
-              case 'webview':
-                Get.toNamed(Routes.webview, arguments: {
-                  'title': busConfig.display.name,
-                  'color': busTypeBgColor,
-                  'webviewLink': busConfig.fallbackUrl,
-                  'screenName': busConfig.id,
-                });
               default:
-                if (busConfig.fallbackUrl != null) {
-                  Get.toNamed(Routes.webview, arguments: {
-                    'webviewLink': busConfig.fallbackUrl,
-                    'screenName': busConfig.id,
-                  });
-                }
+                break;
             }
           }
         } else {
@@ -300,7 +289,7 @@ class CustomRow1 extends StatelessWidget {
     // Use busConfigId to determine icon synchronously
     final configRepo = Get.find<BusConfigRepository>();
     final config = configRepo.getById(busConfigId!);
-    final iconType = config?.display.iconType;
+    final iconType = config?.card.iconType;
 
     return switch (iconType) {
       'shuttle' => SvgPicture.asset(

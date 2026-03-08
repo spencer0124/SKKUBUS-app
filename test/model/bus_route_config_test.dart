@@ -1,267 +1,289 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skkumap/app/model/bus_route_config.dart';
+import 'package:skkumap/app/model/bus_group.dart';
+import 'package:skkumap/app/model/week_schedule.dart';
 
 void main() {
-  group('BusRouteConfig.fromJson', () {
-    test('parses realtime config correctly', () {
+  group('BusGroup.fromJson', () {
+    test('parses realtime group correctly', () {
       final json = {
         'id': 'hssc',
         'screenType': 'realtime',
-        'fallbackUrl': null,
-        'display': {
-          'name': 'HSSC Shuttle',
+        'label': 'HSSC Shuttle',
+        'visibility': {'type': 'always'},
+        'card': {
           'themeColor': '003626',
           'iconType': 'shuttle',
+          'busTypeText': 'SKKU',
         },
-        'realtime': {
+        'screen': {
           'stationsEndpoint': '/bus/hssc/stations',
           'locationsEndpoint': '/bus/hssc/location',
           'refreshInterval': 15,
-        },
-        'features': {
-          'info': {'url': 'https://example.com/info'},
+          'features': [
+            {'type': 'info', 'url': 'https://example.com/info'},
+          ],
         },
       };
 
-      final config = BusRouteConfig.fromJson(json);
-      expect(config.id, 'hssc');
-      expect(config.screenType, 'realtime');
-      expect(config.fallbackUrl, isNull);
-      expect(config.display.name, 'HSSC Shuttle');
-      expect(config.display.themeColor, const Color(0xFF003626));
-      expect(config.display.iconType, 'shuttle');
-      expect(config.realtime!.stationsEndpoint, '/bus/hssc/stations');
-      expect(config.realtime!.locationsEndpoint, '/bus/hssc/location');
-      expect(config.realtime!.refreshInterval, 15);
-      expect(config.schedule, isNull);
-      expect(config.features.info!.url, 'https://example.com/info');
-      expect(config.features.routeOverlay, isNull);
-      expect(config.features.eta, isNull);
+      final group = BusGroup.fromJson(json);
+      expect(group.id, 'hssc');
+      expect(group.screenType, 'realtime');
+      expect(group.isRealtime, isTrue);
+      expect(group.isSchedule, isFalse);
+      expect(group.label, 'HSSC Shuttle');
+      expect(group.card.themeColor, const Color(0xFF003626));
+      expect(group.card.iconType, 'shuttle');
+      expect(group.card.busTypeText, 'SKKU');
+      expect(group.screen['stationsEndpoint'], '/bus/hssc/stations');
+      expect(group.screen['locationsEndpoint'], '/bus/hssc/location');
+      expect(group.features, hasLength(1));
+      expect(group.features[0]['type'], 'info');
     });
 
-    test('parses schedule config correctly', () {
+    test('parses schedule group correctly', () {
       final json = {
         'id': 'campus',
         'screenType': 'schedule',
-        'fallbackUrl': 'https://example.com/fallback',
-        'display': {
-          'name': 'Campus Shuttle',
+        'label': 'Campus Shuttle',
+        'visibility': {'type': 'always'},
+        'card': {
           'themeColor': '1A7F4B',
           'iconType': 'shuttle',
+          'busTypeText': 'SKKU',
         },
-        'schedule': {
-          'directions': [
+        'screen': {
+          'defaultServiceId': 'campus-inja',
+          'services': [
             {
-              'id': 'inja',
+              'serviceId': 'campus-inja',
               'label': 'HSSC → NSC',
-              'endpoint': '/bus/campus/inja/{dayType}',
-            },
-            {
-              'id': 'jain',
-              'label': 'NSC → HSSC',
-              'endpoint': '/bus/campus/jain/{dayType}',
+              'weekEndpoint': '/bus/schedule/data/campus-inja/week',
             },
           ],
-          'serviceCalendar': {
-            'defaultServiceDays': [0, 1, 2, 3, 4],
-            'exceptions': [
-              {
-                'date': '2026-03-01',
-                'reason': 'Holiday',
-                'service': false,
-              },
-            ],
+          'heroCard': {
+            'etaEndpoint': '/bus/campus/eta',
+            'showUntilMinutesBefore': 0,
           },
-          'routeTypes': {
-            'hakbu': 'Undergraduate',
-            'regular': 'Regular',
-          },
-        },
-        'features': {
-          'eta': {'endpoint': '/bus/campus/eta'},
+          'routeBadges': [
+            {'id': 'regular', 'label': 'Regular', 'color': '003626'},
+            {'id': 'hakbu', 'label': 'Undergraduate', 'color': '1565C0'},
+          ],
+          'features': [],
         },
       };
 
-      final config = BusRouteConfig.fromJson(json);
-      expect(config.id, 'campus');
-      expect(config.screenType, 'schedule');
-      expect(config.fallbackUrl, 'https://example.com/fallback');
-      expect(config.realtime, isNull);
-      expect(config.schedule!.directions, hasLength(2));
-      expect(config.schedule!.directions[0].id, 'inja');
-      expect(config.schedule!.directions[0].endpoint,
-          '/bus/campus/inja/{dayType}');
-      expect(config.schedule!.serviceCalendar.defaultServiceDays,
-          {0, 1, 2, 3, 4});
-      expect(config.schedule!.serviceCalendar.exceptions, hasLength(1));
-      expect(config.schedule!.routeTypes['hakbu'], 'Undergraduate');
-      expect(config.features.eta!.endpoint, '/bus/campus/eta');
+      final group = BusGroup.fromJson(json);
+      expect(group.isSchedule, isTrue);
+      expect(group.defaultServiceId, 'campus-inja');
+      expect(group.services, hasLength(1));
+      expect(group.services[0].serviceId, 'campus-inja');
+      expect(group.heroCard!.etaEndpoint, '/bus/campus/eta');
+      expect(group.heroCard!.showUntilMinutesBefore, 0);
+      expect(group.routeBadges, hasLength(2));
+      expect(group.routeBadges[0].label, 'Regular');
     });
 
-    test('handles missing features gracefully', () {
+    test('handles null heroCard', () {
       final json = {
         'id': 'test',
-        'screenType': 'realtime',
-        'fallbackUrl': null,
-        'display': {
-          'name': 'Test',
+        'screenType': 'schedule',
+        'label': 'Test',
+        'visibility': {'type': 'always'},
+        'card': {
           'themeColor': '000000',
           'iconType': 'shuttle',
+          'busTypeText': 'Test',
         },
-        'realtime': {
-          'stationsEndpoint': '/test/stations',
-          'locationsEndpoint': '/test/locations',
-          'refreshInterval': 10,
-        },
-        'features': <String, dynamic>{},
-      };
-
-      final config = BusRouteConfig.fromJson(json);
-      expect(config.features.info, isNull);
-      expect(config.features.routeOverlay, isNull);
-      expect(config.features.eta, isNull);
-    });
-
-    test('handles null features key', () {
-      final json = {
-        'id': 'test',
-        'screenType': 'realtime',
-        'fallbackUrl': null,
-        'display': {
-          'name': 'Test',
-          'themeColor': '000000',
-          'iconType': 'shuttle',
-        },
-        'realtime': {
-          'stationsEndpoint': '/test/stations',
-          'locationsEndpoint': '/test/locations',
-          'refreshInterval': 10,
+        'screen': {
+          'defaultServiceId': 'test',
+          'services': [
+            {
+              'serviceId': 'test',
+              'label': 'Test',
+              'weekEndpoint': '/test/week',
+            },
+          ],
+          'heroCard': null,
+          'routeBadges': [],
+          'features': [],
         },
       };
 
-      final config = BusRouteConfig.fromJson(json);
-      expect(config.features.info, isNull);
+      final group = BusGroup.fromJson(json);
+      expect(group.heroCard, isNull);
     });
   });
 
-  group('BusDisplay color parsing', () {
-    test('parses valid hex color', () {
-      final display = BusDisplay.fromJson({
-        'name': 'Test',
-        'themeColor': '4CAF50',
-        'iconType': 'shuttle',
-      });
-      expect(display.themeColor, const Color(0xFF4CAF50));
+  group('BusGroupVisibility', () {
+    test('always visible', () {
+      final v = BusGroupVisibility.fromJson({'type': 'always'});
+      expect(v.isVisible(DateTime(2026, 3, 8)), isTrue);
     });
 
-    test('falls back on invalid hex', () {
-      final display = BusDisplay.fromJson({
-        'name': 'Test',
-        'themeColor': 'ZZZZZZ',
-        'iconType': 'shuttle',
+    test('dateRange visible within range', () {
+      final v = BusGroupVisibility.fromJson({
+        'type': 'dateRange',
+        'from': '2026-03-09',
+        'until': '2026-03-10',
       });
-      expect(display.themeColor, const Color(0xFF003626));
+      expect(v.isVisible(DateTime(2026, 3, 9, 12)), isTrue);
+      expect(v.isVisible(DateTime(2026, 3, 10, 23, 59)), isTrue);
+    });
+
+    test('dateRange not visible outside range', () {
+      final v = BusGroupVisibility.fromJson({
+        'type': 'dateRange',
+        'from': '2026-03-09',
+        'until': '2026-03-10',
+      });
+      expect(v.isVisible(DateTime(2026, 3, 8, 23, 59)), isFalse);
+      expect(v.isVisible(DateTime(2026, 3, 11, 0, 0)), isFalse);
+    });
+  });
+
+  group('BusGroupCard color parsing', () {
+    test('parses valid hex color', () {
+      final card = BusGroupCard.fromJson({
+        'themeColor': '4CAF50',
+        'iconType': 'shuttle',
+        'busTypeText': 'Test',
+      });
+      expect(card.themeColor, const Color(0xFF4CAF50));
     });
 
     test('falls back on null hex', () {
-      final display = BusDisplay.fromJson({
-        'name': 'Test',
+      final card = BusGroupCard.fromJson({
         'themeColor': null,
         'iconType': 'shuttle',
+        'busTypeText': 'Test',
       });
-      expect(display.themeColor, const Color(0xFF003626));
-    });
-
-    test('falls back on empty hex', () {
-      final display = BusDisplay.fromJson({
-        'name': 'Test',
-        'themeColor': '',
-        'iconType': 'shuttle',
-      });
-      expect(display.themeColor, const Color(0xFF003626));
+      expect(card.themeColor, const Color(0xFF003626));
     });
   });
 
-  group('RealtimeConfig', () {
-    test('handles refreshInterval as int', () {
-      final config = RealtimeConfig.fromJson({
-        'stationsEndpoint': '/stations',
-        'locationsEndpoint': '/locations',
-        'refreshInterval': 15,
-      });
-      expect(config.refreshInterval, 15);
+  group('WeekSchedule.fromJson', () {
+    test('parses week schedule correctly', () {
+      final json = {
+        'meta': {'lang': 'ko'},
+        'data': {
+          'serviceId': 'campus-inja',
+          'requestedFrom': '2026-03-09',
+          'from': '2026-03-09',
+          'days': [
+            {
+              'date': '2026-03-09',
+              'dayOfWeek': 1,
+              'display': 'schedule',
+              'label': null,
+              'notices': [
+                {
+                  'style': 'info',
+                  'text': 'Updated schedule',
+                  'source': 'service',
+                },
+              ],
+              'schedule': [
+                {
+                  'index': 1,
+                  'time': '07:00',
+                  'routeType': 'regular',
+                  'busCount': 1,
+                  'notes': null,
+                },
+                {
+                  'index': 2,
+                  'time': '10:00',
+                  'routeType': 'hakbu',
+                  'busCount': 2,
+                  'notes': 'Special',
+                },
+              ],
+            },
+            {
+              'date': '2026-03-14',
+              'dayOfWeek': 6,
+              'display': 'noService',
+              'label': null,
+              'notices': <Map<String, dynamic>>[],
+              'schedule': <Map<String, dynamic>>[],
+            },
+          ],
+        },
+      };
+
+      final ws = WeekSchedule.fromJson(json);
+      expect(ws.serviceId, 'campus-inja');
+      expect(ws.requestedFrom, '2026-03-09');
+      expect(ws.from, '2026-03-09');
+      expect(ws.days, hasLength(2));
+
+      final day1 = ws.days[0];
+      expect(day1.hasSchedule, isTrue);
+      expect(day1.isNoService, isFalse);
+      expect(day1.notices, hasLength(1));
+      expect(day1.schedule, hasLength(2));
+      expect(day1.schedule[0].time, '07:00');
+      expect(day1.schedule[1].notes, 'Special');
+
+      final day2 = ws.days[1];
+      expect(day2.isNoService, isTrue);
+      expect(day2.schedule, isEmpty);
     });
 
-    test('handles refreshInterval as double', () {
-      final config = RealtimeConfig.fromJson({
-        'stationsEndpoint': '/stations',
-        'locationsEndpoint': '/locations',
-        'refreshInterval': 15.0,
-      });
-      expect(config.refreshInterval, 15);
+    test('today() finds matching day', () {
+      final ws = WeekSchedule(
+        serviceId: 'test',
+        from: '2026-03-09',
+        days: [
+          DaySchedule(
+            date: '2026-03-09',
+            dayOfWeek: 1,
+            display: 'schedule',
+            notices: [],
+            schedule: [],
+          ),
+        ],
+      );
+      expect(ws.today(DateTime(2026, 3, 9)), isNotNull);
+      expect(ws.today(DateTime(2026, 3, 10)), isNull);
     });
   });
 
-  group('ServiceCalendar.isServiceDay', () {
-    final calendar = ServiceCalendar.fromJson({
-      'defaultServiceDays': [0, 1, 2, 3, 4], // Mon-Fri
-      'exceptions': [
-        {'date': '2026-03-01', 'reason': 'Holiday', 'service': false},
-        {'date': '2026-03-07', 'reason': 'Makeup day', 'service': true},
-      ],
+  group('DaySchedule display getters', () {
+    test('hasSchedule', () {
+      final day = DaySchedule(
+        date: '2026-03-09',
+        dayOfWeek: 1,
+        display: 'schedule',
+        notices: [],
+        schedule: [],
+      );
+      expect(day.hasSchedule, isTrue);
+      expect(day.isNoService, isFalse);
+      expect(day.isHidden, isFalse);
     });
 
-    test('weekday is a service day', () {
-      // 2026-03-02 is Monday
-      expect(calendar.isServiceDay(DateTime(2026, 3, 2)), isTrue);
+    test('isNoService', () {
+      final day = DaySchedule(
+        date: '2026-03-09',
+        dayOfWeek: 1,
+        display: 'noService',
+        notices: [],
+        schedule: [],
+      );
+      expect(day.isNoService, isTrue);
     });
 
-    test('weekend is not a service day', () {
-      // 2026-03-07 would be Saturday, but it's an exception (service: true)
-      // 2026-03-08 is Sunday
-      expect(calendar.isServiceDay(DateTime(2026, 3, 8)), isFalse);
-    });
-
-    test('exception overrides default (holiday on weekday)', () {
-      // 2026-03-01 is Sunday actually... let's pick a known weekday holiday
-      // The exception says 2026-03-01 service: false regardless of day
-      expect(calendar.isServiceDay(DateTime(2026, 3, 1)), isFalse);
-    });
-
-    test('exception overrides default (makeup day on weekend)', () {
-      // 2026-03-07 is Saturday but exception says service: true
-      expect(calendar.isServiceDay(DateTime(2026, 3, 7)), isTrue);
-    });
-  });
-
-  group('RouteOverlayFeature color parsing', () {
-    test('parses valid color', () {
-      final feature = RouteOverlayFeature.fromJson({
-        'coordsEndpoint': '/route/test',
-        'color': '4CAF50',
-      });
-      expect(feature.color, const Color(0xFF4CAF50));
-    });
-
-    test('falls back on invalid color', () {
-      final feature = RouteOverlayFeature.fromJson({
-        'coordsEndpoint': '/route/test',
-        'color': 'invalid',
-      });
-      expect(feature.color, const Color(0xFF003626));
-    });
-  });
-
-  group('BusDirection endpoint template', () {
-    test('endpoint contains dayType placeholder', () {
-      final dir = BusDirection.fromJson({
-        'id': 'inja',
-        'label': 'HSSC → NSC',
-        'endpoint': '/bus/campus/inja/{dayType}',
-      });
-      final path = dir.endpoint.replaceAll('{dayType}', 'monday');
-      expect(path, '/bus/campus/inja/monday');
+    test('isHidden', () {
+      final day = DaySchedule(
+        date: '2026-03-09',
+        dayOfWeek: 1,
+        display: 'hidden',
+        notices: [],
+        schedule: [],
+      );
+      expect(day.isHidden, isTrue);
     });
   });
 }

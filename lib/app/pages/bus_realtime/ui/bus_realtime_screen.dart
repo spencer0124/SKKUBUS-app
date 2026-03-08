@@ -10,7 +10,7 @@ import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/app/components/NavigationBar/custom_navigation.dart';
 import 'package:skkumap/app/components/bus/buslist_component.dart';
 import 'package:skkumap/app/components/bus/refresh_button.dart';
-import 'package:skkumap/app/model/bus_route_config.dart';
+import 'package:skkumap/app/model/bus_group.dart';
 import 'package:skkumap/app/components/bus/topinfo.dart';
 
 import 'package:skkumap/app/types/bus_status.dart';
@@ -29,9 +29,16 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = ScreenSize.width(context);
-    final BusRouteConfig routeConfig = Get.arguments['busConfig'];
-    controller.setRouteConfig(routeConfig);
-    final themeColor = routeConfig.display.themeColor;
+    final BusGroup group = Get.arguments['busConfig'];
+    controller.setRouteConfig(group);
+    final themeColor = group.card.themeColor;
+
+    // Find info feature from screen data
+    final features = group.screen['features'] as List? ?? [];
+    final infoFeature = features
+        .cast<Map<String, dynamic>>()
+        .where((f) => f['type'] == 'info')
+        .firstOrNull;
 
     return Scaffold(
       // floating action button
@@ -99,23 +106,23 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
         children: [
           // 상단 커스텀 내비게이션 바
           CustomNavigationBar(
-            title: routeConfig.display.name,
+            title: group.label,
             backgroundColor: themeColor,
             isDisplayLeftBtn: true,
-            isDisplayRightBtn: routeConfig.features.info != null,
+            isDisplayRightBtn: infoFeature != null,
             leftBtnAction: () {
               Get.back();
             },
             rightBtnAction: () {
-              final infoUrl = routeConfig.features.info?.url;
+              final infoUrl = infoFeature?['url'] as String?;
               if (infoUrl != null) {
                 Get.toNamed(Routes.webview, arguments: {
-                  'title': routeConfig.display.name,
-                  'color': routeConfig.display.themeColor.value
+                  'title': group.label,
+                  'color': group.card.themeColor.value
                       .toRadixString(16)
                       .substring(2),
                   'webviewLink': infoUrl,
-                  'screenName': routeConfig.id,
+                  'screenName': group.id,
                 });
               }
             },

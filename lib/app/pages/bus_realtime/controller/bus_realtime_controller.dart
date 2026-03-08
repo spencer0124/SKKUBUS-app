@@ -9,7 +9,7 @@ import 'package:skkumap/app/model/main_bus_location.dart';
 
 import 'dart:async';
 
-import 'package:skkumap/app/model/bus_route_config.dart';
+import 'package:skkumap/app/model/bus_group.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
 import 'package:skkumap/app/data/result.dart';
@@ -52,7 +52,7 @@ class BusRealtimeController extends GetxController {
   BannerAd? get bannerAd => _bannerAd;
   RxBool isBannerAdLoaded = false.obs;
 
-  late BusRouteConfig routeConfig;
+  late BusGroup group;
   bool _configSet = false;
 
   @override
@@ -62,11 +62,14 @@ class BusRealtimeController extends GetxController {
     fetchMainpageAd();
   }
 
-  void setRouteConfig(BusRouteConfig config) {
+  void setRouteConfig(BusGroup config) {
     if (_configSet) return; // prevent re-init on widget rebuild
     _configSet = true;
-    routeConfig = config;
-    final interval = routeConfig.realtime?.refreshInterval ?? 15;
+    group = config;
+
+    // Realtime screen data from group.screen
+    final screenData = group.screen;
+    final interval = (screenData['refreshInterval'] as num?)?.toInt() ?? 15;
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: interval), (Timer t) {
       localfetchBusLocation();
@@ -101,7 +104,8 @@ class BusRealtimeController extends GetxController {
   var loadingdone = false.obs;
 
   Future<void> localfetchBusStations() async {
-    final endpoint = routeConfig.realtime!.stationsEndpoint;
+    final endpoint = group.screen['stationsEndpoint'] as String?;
+    if (endpoint == null) return;
     final result = await _busRepo.getStationsByPath(endpoint);
     switch (result) {
       case Ok(:final data):
@@ -115,7 +119,8 @@ class BusRealtimeController extends GetxController {
 
   var mainBusLocation = Rx<List<MainBusLocation>>([]);
   Future<void> localfetchBusLocation() async {
-    final endpoint = routeConfig.realtime!.locationsEndpoint;
+    final endpoint = group.screen['locationsEndpoint'] as String?;
+    if (endpoint == null) return;
     final result = await _busRepo.getLocationsByPath(endpoint);
     switch (result) {
       case Ok(:final data):

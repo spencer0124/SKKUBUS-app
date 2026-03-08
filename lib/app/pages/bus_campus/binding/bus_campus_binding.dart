@@ -5,7 +5,7 @@ import 'package:skkumap/app/pages/bus_campus/controller/bus_campus_controller.da
 class BusCampusBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<BusCampusController>(() => BusCampusController());
-    Get.lazyPut<BusCampusLifeCycle>(() => BusCampusLifeCycle());
+    Get.lazyPut<BusScheduleController>(() => BusScheduleController());
+    Get.lazyPut<BusScheduleLifeCycle>(() => BusScheduleLifeCycle());
   }
 }

@@ -39,7 +39,6 @@ class ApiEndpoints {
 
   // ── Bus config ────────────────────────────────
   static String busConfig() => '/bus/config';
-  static String busConfigVersion() => '/bus/config/version';
 
   // ── Map config ──────────────────────────────────
   static String mapConfig() => '/map/config';

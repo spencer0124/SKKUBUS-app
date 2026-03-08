@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/bus_campus/controller/bus_campus_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
-import 'package:skkumap/app/model/bus_schedule.dart';
-import 'package:skkumap/app/model/bus_route_config.dart';
+import 'package:skkumap/app/model/bus_group.dart';
+import 'package:skkumap/app/model/week_schedule.dart';
+import 'package:skkumap/app/utils/color_utils.dart';
 
 // ── Colors ───────────────────────────────────────────────────────
 
@@ -25,15 +26,15 @@ class BusCampusScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<BusCampusController>();
-    final BusRouteConfig routeConfig = Get.arguments['busConfig'];
-    controller.setRouteConfig(routeConfig);
+    final controller = Get.find<BusScheduleController>();
+    final BusGroup group = Get.arguments['busConfig'];
+    controller.setGroup(group);
     controller.loadInitialData();
 
-    final directions = routeConfig.schedule!.directions;
+    final services = group.services;
 
     return DefaultTabController(
-      length: directions.length,
+      length: services.length,
       child: Scaffold(
         backgroundColor: _grayBg,
         appBar: PreferredSize(
@@ -51,32 +52,35 @@ class BusCampusScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  _buildTitleBar(routeConfig),
-                  _buildDirectionTabs(directions),
+                  _buildTitleBar(group),
+                  _buildServiceTabs(controller, services),
+                  _buildWeekHeader(controller),
                   _buildDaySelector(controller),
                 ],
               ),
             ),
+            // ── Notices ──
+            _buildNotices(controller),
             // ── Content ──
             Expanded(
               child: Obx(() {
-                // Rebuild when direction schedules change
-                final _ = controller.directionSchedules.length;
-                return TabBarView(
-                  children: List.generate(directions.length, (i) {
-                    if (i >= controller.directionSchedules.length) {
-                      return const SizedBox.shrink();
-                    }
-                    return _buildScheduleContent(
-                      controller,
-                      controller.directionSchedules[i],
-                      directions[i].label,
-                      i < controller.directionEtaMs.length
-                          ? controller.directionEtaMs[i]
-                          : 0.obs,
-                    );
-                  }),
-                );
+                controller.tick.value; // observe ticker
+
+                if (controller.isLoading.value) {
+                  return const SizedBox.shrink();
+                }
+
+                final day = controller.selectedDay;
+                if (day == null) return const SizedBox.shrink();
+
+                switch (day.display) {
+                  case 'noService':
+                    return _buildNoServiceCard(controller, day);
+                  case 'hidden':
+                    return const SizedBox.shrink();
+                  default: // 'schedule'
+                    return _buildScheduleContent(controller, group);
+                }
               }),
             ),
           ],
@@ -87,7 +91,11 @@ class BusCampusScreen extends StatelessWidget {
 
   // ── Title Bar ──────────────────────────────────────────────────
 
-  Widget _buildTitleBar(BusRouteConfig routeConfig) {
+  Widget _buildTitleBar(BusGroup group) {
+    final infoFeature = group.features
+        .where((f) => f['type'] == 'info')
+        .firstOrNull;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
       child: Row(
@@ -102,7 +110,7 @@ class BusCampusScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              routeConfig.display.name,
+              group.label,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 17,
@@ -112,15 +120,15 @@ class BusCampusScreen extends StatelessWidget {
               ),
             ),
           ),
-          if (routeConfig.features.info != null)
+          if (infoFeature != null)
             GestureDetector(
               onTap: () => Get.toNamed(Routes.webview, arguments: {
-                'title': routeConfig.display.name,
-                'color': routeConfig.display.themeColor.value
+                'title': group.label,
+                'color': group.card.themeColor.value
                     .toRadixString(16)
                     .substring(2),
-                'webviewLink': routeConfig.features.info!.url,
-                'screenName': routeConfig.id,
+                'webviewLink': infoFeature['url'],
+                'screenName': group.id,
               }),
               child: Text(
                 '정보'.tr,
@@ -137,9 +145,10 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  // ── Direction Tabs ─────────────────────────────────────────────
+  // ── Service Tabs ──────────────────────────────────────────────
 
-  Widget _buildDirectionTabs(List<BusDirection> directions) {
+  Widget _buildServiceTabs(
+      BusScheduleController controller, List<BusService> services) {
     return TabBar(
       labelColor: _heroGreen,
       unselectedLabelColor: _gray,
@@ -158,71 +167,172 @@ class BusCampusScreen extends StatelessWidget {
       dividerColor: Colors.transparent,
       splashFactory: NoSplash.splashFactory,
       overlayColor: WidgetStateProperty.all(Colors.transparent),
-      tabs: directions.map((d) => Tab(text: d.label)).toList(),
+      onTap: (index) => controller.switchService(services[index]),
+      tabs: services.map((s) => Tab(text: s.label)).toList(),
     );
   }
 
-  // ── Day Selector (Toss-style pills) ────────────────────────────
+  // ── Week Navigation Header ────────────────────────────────────
 
-  Widget _buildDaySelector(BusCampusController controller) {
-    final todayIndex = DateTime.now().weekday - 1;
+  Widget _buildWeekHeader(BusScheduleController controller) {
+    return Obx(() {
+      final ws = controller.weekSchedule.value;
+      if (ws == null) return const SizedBox.shrink();
 
+      final fromDate = DateTime.parse(ws.from);
+      final weekLabel = '${fromDate.month}/${fromDate.day}${'주'.tr}';
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: controller.goToPreviousWeek,
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('‹',
+                    style: TextStyle(fontSize: 18, color: _gray)),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              weekLabel,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'WantedSansMedium',
+                color: _textColor,
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: controller.goToNextWeek,
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('›',
+                    style: TextStyle(fontSize: 18, color: _gray)),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // ── Day Selector (date-based chips) ───────────────────────────
+
+  Widget _buildDaySelector(BusScheduleController controller) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
       child: Obx(() {
+        final ws = controller.weekSchedule.value;
+        if (ws == null) return const SizedBox.shrink();
+        final todayStr = _formatDate(DateTime.now());
+
         return Row(
-          children: List.generate(7, (index) {
+          children: List.generate(ws.days.length, (index) {
+            final day = ws.days[index];
             final isSelected = controller.selectedDayIndex.value == index;
-            final isToday = index == todayIndex;
-            final isNoService = !controller.isServiceDay(index);
+            final isToday = day.date == todayStr;
+            final isHidden = day.isHidden;
+            final isNoService = day.isNoService;
+
+            final dateObj = DateTime.parse(day.date);
+            final dateLabel = '${dateObj.month}/${dateObj.day}';
+            final dayName = _shortDayName(day.dayOfWeek);
 
             return Expanded(
               child: GestureDetector(
-                onTap: () => controller.onDaySelected(index),
+                onTap: isHidden ? null : () => controller.onDaySelected(index),
                 child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? (isNoService ? _grayLight : _heroGreen)
                         : _grayBg,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        controller.shortDayLabels[index].tr,
+                        dateLabel,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontFamily: isSelected || isToday
                               ? 'WantedSansBold'
                               : 'WantedSansRegular',
-                          fontWeight:
-                              isSelected || isToday ? FontWeight.w700 : FontWeight.w400,
-                          color: isSelected
-                              ? Colors.white
-                              : isNoService
-                                  ? _grayLight
-                                  : isToday
-                                      ? _heroGreen
-                                      : _gray,
+                          fontWeight: isSelected || isToday
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: isHidden
+                              ? _grayLight.withValues(alpha: 0.5)
+                              : isSelected
+                                  ? Colors.white
+                                  : isNoService
+                                      ? _grayLight
+                                      : isToday
+                                          ? _heroGreen
+                                          : _gray,
                         ),
                       ),
-                      // Today dot indicator
-                      if (isToday && !isSelected)
-                        Positioned(
-                          bottom: -2,
-                          child: Container(
-                            width: 4,
-                            height: 4,
-                            decoration: const BoxDecoration(
-                              color: _heroGreen,
-                              shape: BoxShape.circle,
+                      const SizedBox(height: 2),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Text(
+                            dayName,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontFamily: isSelected || isToday
+                                  ? 'WantedSansBold'
+                                  : 'WantedSansRegular',
+                              fontWeight: isSelected || isToday
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: isHidden
+                                  ? _grayLight.withValues(alpha: 0.5)
+                                  : isSelected
+                                      ? Colors.white
+                                      : isNoService
+                                          ? _grayLight
+                                          : isToday
+                                              ? _heroGreen
+                                              : _gray,
                             ),
                           ),
+                          if (isToday && !isSelected)
+                            Positioned(
+                              bottom: -4,
+                              child: Container(
+                                width: 4,
+                                height: 4,
+                                decoration: const BoxDecoration(
+                                  color: _heroGreen,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (day.label != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          day.label!,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontFamily: 'WantedSansRegular',
+                            color: isSelected ? Colors.white70 : _gray,
+                          ),
                         ),
+                      ],
                     ],
                   ),
                 ),
@@ -234,52 +344,81 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  // ── Schedule Content (per tab) ─────────────────────────────────
+  // ── Notices ────────────────────────────────────────────────────
+
+  Widget _buildNotices(BusScheduleController controller) {
+    return Obx(() {
+      final notices = controller.dayNotices;
+      if (notices.isEmpty) return const SizedBox.shrink();
+
+      return Column(
+        children: notices.map((notice) {
+          final isWarning = notice.style == 'warning';
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            color: isWarning
+                ? const Color(0xFFFFF3E0)
+                : const Color(0xFFE3F2FD),
+            child: Row(
+              children: [
+                Icon(
+                  isWarning ? Icons.warning_amber_rounded : Icons.info_outline,
+                  size: 16,
+                  color: isWarning
+                      ? const Color(0xFFE65100)
+                      : const Color(0xFF1565C0),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    notice.text,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'WantedSansMedium',
+                      color: isWarning
+                          ? const Color(0xFFE65100)
+                          : const Color(0xFF1565C0),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      );
+    });
+  }
+
+  // ── Schedule Content ──────────────────────────────────────────
 
   Widget _buildScheduleContent(
-    BusCampusController controller,
-    RxList<BusSchedule> scheduleList,
-    String directionLabel,
-    RxInt etaMs,
-  ) {
+      BusScheduleController controller, BusGroup group) {
     return Obx(() {
-      controller.tick.value; // observe 1-min ticker for ETA refresh
-
-      // Show nothing while initial data is loading (prevents "no service" flash)
-      if (controller.isLoading.value) {
-        return const SizedBox.shrink();
-      }
-
-      // Use server config calendar — not schedule data — to decide service days
-      if (!controller.isServiceDay(controller.selectedDayIndex.value)) {
-        return _buildNoServiceCard(controller);
-      }
-
-      final schedules = scheduleList.toList();
-      final isFriday = controller.hasMultipleRouteTypes(schedules);
-
-      final heroBus = controller.getHeroBus(schedules);
+      controller.tick.value;
+      final entries = controller.currentEntries;
+      final showRouteBadges = controller.hasMultipleRouteTypes(entries);
+      final heroBus = controller.getHeroBus(entries);
 
       return Column(
         children: [
-          // Hero card — fixed at top
+          // Hero card
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-            child: _buildHeroCard(
-                controller, heroBus, directionLabel, isFriday, etaMs.value),
+            child: _buildHeroCard(controller, heroBus, showRouteBadges),
           ),
-          // Schedule list — scrollable
+          // Schedule list
           Expanded(
             child: ListView(
               physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
-                _buildScheduleList(controller, schedules, isFriday),
+                _buildScheduleList(
+                    controller, entries, showRouteBadges, heroBus),
                 const SizedBox(height: 12),
-                // Footer
                 Center(
                   child: Text(
-                    '${controller.shortDayLabels[controller.selectedDayIndex.value].tr}${'요일'.tr} ${'시간표'.tr} · ${'총'.tr} ${schedules.length}${'편'.tr}',
+                    '${'시간표'.tr} · ${'총'.tr} ${entries.length}${'편'.tr}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: _grayLight,
@@ -296,11 +435,10 @@ class BusCampusScreen extends StatelessWidget {
     });
   }
 
-  // ── No Service Card ────────────────────────────────────────────
+  // ── No Service Card ───────────────────────────────────────────
 
-  Widget _buildNoServiceCard(BusCampusController controller) {
-    final dayLabel =
-        controller.shortDayLabels[controller.selectedDayIndex.value].tr;
+  Widget _buildNoServiceCard(
+      BusScheduleController controller, DaySchedule day) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -317,7 +455,7 @@ class BusCampusScreen extends StatelessWidget {
               const Text('🚌', style: TextStyle(fontSize: 40)),
               const SizedBox(height: 10),
               Text(
-                '$dayLabel${'요일은'.tr} ${'운행하지 않아요'.tr}',
+                '운행하지 않아요'.tr,
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -325,26 +463,19 @@ class BusCampusScreen extends StatelessWidget {
                   color: _textColor,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                '인자셔틀은 월요일부터 금요일까지'.tr,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: _gray,
-                  fontFamily: 'WantedSansRegular',
-                  height: 1.6,
+              if (day.label != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  day.label!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: _gray,
+                    fontFamily: 'WantedSansRegular',
+                    height: 1.6,
+                  ),
                 ),
-              ),
-              Text(
-                '운행합니다'.tr,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: _gray,
-                  fontFamily: 'WantedSansRegular',
-                  height: 1.6,
-                ),
-              ),
+              ],
             ],
           ),
         ),
@@ -352,14 +483,12 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  // ── Hero Card ──────────────────────────────────────────────────
+  // ── Hero Card ─────────────────────────────────────────────────
 
   Widget _buildHeroCard(
-    BusCampusController controller,
-    BusSchedule? heroBus,
-    String directionLabel,
-    bool isFriday,
-    int etaMs,
+    BusScheduleController controller,
+    ScheduleEntry? heroBus,
+    bool showRouteBadges,
   ) {
     final isToday = controller.isViewingToday;
     final hasNextBus = heroBus != null;
@@ -368,8 +497,7 @@ class BusCampusScreen extends StatelessWidget {
         : isToday
             ? _heroGreen
             : const Color(0xFF8A9AA0);
-    final heroLabel =
-        isToday ? '다음 셔틀'.tr : '첫 운행'.tr;
+    final heroLabel = isToday ? '다음 셔틀'.tr : '첫 운행'.tr;
 
     return Container(
       width: double.infinity,
@@ -380,7 +508,6 @@ class BusCampusScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Decorative circles
           Positioned(
             top: -40,
             right: -40,
@@ -405,14 +532,13 @@ class BusCampusScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Content
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 120),
               child: hasNextBus
-                  ? _buildHeroContent(controller, heroBus, directionLabel,
-                      heroLabel, isFriday, isToday, etaMs)
+                  ? _buildHeroContent(
+                      controller, heroBus, heroLabel, showRouteBadges, isToday)
                   : _buildHeroEnded(),
             ),
           ),
@@ -422,22 +548,20 @@ class BusCampusScreen extends StatelessWidget {
   }
 
   Widget _buildHeroContent(
-    BusCampusController controller,
-    BusSchedule bus,
-    String directionLabel,
+    BusScheduleController controller,
+    ScheduleEntry bus,
     String heroLabel,
-    bool isFriday,
+    bool showRouteBadges,
     bool isToday,
-    int etaMs,
   ) {
     final etaMinutes = isToday ? controller.getMinutesUntil(bus) : null;
+    final badge = controller.getRouteBadge(bus.routeType);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Subtitle
         Text(
-          '$heroLabel · $directionLabel',
+          '$heroLabel · ${controller.currentService.value.label}',
           style: TextStyle(
             fontSize: 12,
             color: Colors.white.withValues(alpha: 0.75),
@@ -446,13 +570,12 @@ class BusCampusScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        // Time + Bus count
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              bus.operatingHours,
+              bus.time,
               style: const TextStyle(
                 fontSize: 52,
                 fontWeight: FontWeight.w800,
@@ -489,7 +612,6 @@ class BusCampusScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        // Badges row
         Wrap(
           spacing: 6,
           runSpacing: 6,
@@ -499,14 +621,14 @@ class BusCampusScreen extends StatelessWidget {
                 '${controller.formatETA(etaMinutes)} ${'출발'.tr}',
                 Colors.white.withValues(alpha: 0.22),
               ),
-            if (isToday && etaMs > 0)
+            if (showRouteBadges)
               _heroBadge(
-                '${controller.formatDuration(etaMs)} ${'소요 예상'.tr}',
+                badge.label,
                 Colors.white.withValues(alpha: 0.15),
               ),
-            if (bus.specialNotes != null && bus.specialNotes!.isNotEmpty)
+            if (bus.notes != null && bus.notes!.isNotEmpty)
               _heroBadge(
-                '📌 ${bus.specialNotes!.replaceAll(r'\n', ' ')}',
+                bus.notes!,
                 Colors.white.withValues(alpha: 0.15),
               ),
           ],
@@ -563,12 +685,13 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  // ── Schedule List ──────────────────────────────────────────────
+  // ── Schedule List ─────────────────────────────────────────────
 
   Widget _buildScheduleList(
-    BusCampusController controller,
-    List<BusSchedule> schedules,
-    bool isFriday,
+    BusScheduleController controller,
+    List<ScheduleEntry> entries,
+    bool showRouteBadges,
+    ScheduleEntry? heroBus,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -578,16 +701,15 @@ class BusCampusScreen extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          // Column header
-          _buildColumnHeader(isFriday),
-          // Rows
-          ...List.generate(schedules.length, (index) {
+          _buildColumnHeader(showRouteBadges),
+          ...List.generate(entries.length, (index) {
             return _buildScheduleRow(
               controller,
-              schedules[index],
+              entries[index],
               index,
-              schedules.length,
-              isFriday,
+              entries.length,
+              showRouteBadges,
+              heroBus,
             );
           }),
         ],
@@ -595,7 +717,7 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildColumnHeader(bool isFriday) {
+  Widget _buildColumnHeader(bool showRouteBadges) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
       decoration: BoxDecoration(
@@ -604,9 +726,9 @@ class BusCampusScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const SizedBox(width: 15), // dot space
+          const SizedBox(width: 15),
           SizedBox(
-            width: isFriday ? 80 : 105,
+            width: showRouteBadges ? 80 : 105,
             child: Text(
               '시간'.tr,
               style: const TextStyle(
@@ -617,7 +739,7 @@ class BusCampusScreen extends StatelessWidget {
               ),
             ),
           ),
-          if (isFriday)
+          if (showRouteBadges)
             SizedBox(
               width: 68,
               child: Text(
@@ -659,15 +781,19 @@ class BusCampusScreen extends StatelessWidget {
   }
 
   Widget _buildScheduleRow(
-    BusCampusController controller,
-    BusSchedule schedule,
+    BusScheduleController controller,
+    ScheduleEntry entry,
     int index,
     int total,
-    bool isFriday,
+    bool showRouteBadges,
+    ScheduleEntry? heroBus,
   ) {
-    final isPast = controller.isPastBus(schedule);
-    final isNext = controller.isViewingToday && schedule.isFastestBus;
+    final isPast = controller.isPastBus(entry);
+    final isNext =
+        controller.isViewingToday && heroBus?.index == entry.index;
     final textColor = isPast ? _grayLight : isNext ? _heroGreen : _textColor;
+    final badge = controller.getRouteBadge(entry.routeType);
+    final badgeColor = parseHexColor(badge.color);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
@@ -697,11 +823,11 @@ class BusCampusScreen extends StatelessWidget {
           const SizedBox(width: 8),
           // Time + "다음" badge
           SizedBox(
-            width: isFriday ? 80 : 105,
+            width: showRouteBadges ? 80 : 105,
             child: Row(
               children: [
                 Text(
-                  schedule.operatingHours,
+                  entry.time,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
@@ -733,17 +859,27 @@ class BusCampusScreen extends StatelessWidget {
               ],
             ),
           ),
-          // Route type (Friday only)
-          if (isFriday)
+          // Route type badge
+          if (showRouteBadges)
             SizedBox(
               width: 68,
-              child: Text(
-                controller.getRouteTypeLabel(schedule.routeType),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'WantedSansMedium',
-                  color: isPast ? _grayLight : _textColor,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isPast
+                      ? _grayBg
+                      : badgeColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  badge.label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'WantedSansMedium',
+                    color: isPast ? _grayLight : badgeColor,
+                  ),
                 ),
               ),
             ),
@@ -751,7 +887,7 @@ class BusCampusScreen extends StatelessWidget {
           SizedBox(
             width: 44,
             child: Text(
-              '${schedule.busCount}대',
+              '${entry.busCount}대',
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -760,23 +896,23 @@ class BusCampusScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Special notes
+          // Notes
           Expanded(
             child: Text(
-              schedule.specialNotes?.replaceAll(r'\n', ' ') ?? '—',
+              entry.notes?.replaceAll(r'\n', ' ') ?? '—',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight: schedule.specialNotes != null
+                fontWeight: entry.notes != null
                     ? FontWeight.w600
                     : FontWeight.w400,
-                fontFamily: schedule.specialNotes != null
+                fontFamily: entry.notes != null
                     ? 'WantedSansMedium'
                     : 'WantedSansRegular',
                 color: isPast
                     ? _grayLight
-                    : schedule.specialNotes != null
+                    : entry.notes != null
                         ? _orange
                         : _grayLight,
               ),
@@ -786,4 +922,15 @@ class BusCampusScreen extends StatelessWidget {
       ),
     );
   }
+
+  // ── Helpers ───────────────────────────────────────────────────
+
+  String _shortDayName(int dayOfWeek) {
+    const names = ['월', '화', '수', '목', '금', '토', '일'];
+    if (dayOfWeek >= 1 && dayOfWeek <= 7) return names[dayOfWeek - 1];
+    return '';
+  }
+
+  static String _formatDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

@@ -4,18 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/result.dart';
-import 'package:skkumap/app/model/bus_schedule.dart';
-import 'package:skkumap/app/model/bus_route_config.dart';
+import 'package:skkumap/app/model/bus_group.dart';
+import 'package:skkumap/app/model/week_schedule.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
-/*
-LifeCycleGetx2, WidgetsBindingObserver
-라이프사이클을 이용해 앱이 백그라운드에서 포그라운드로 돌아올때
-탑승 가능한 가장 빠른 버스 시간을 표시하기 위한 로직
- */
+// ── Lifecycle observer ─────────────────────────────────────────────
 
-class BusCampusLifeCycle extends GetxController with WidgetsBindingObserver {
-  BusCampusController campusController = Get.find<BusCampusController>();
+class BusScheduleLifeCycle extends GetxController with WidgetsBindingObserver {
+  BusScheduleController controller = Get.find<BusScheduleController>();
 
   @override
   void onInit() {
@@ -25,196 +21,202 @@ class BusCampusLifeCycle extends GetxController with WidgetsBindingObserver {
 
   @override
   void onClose() {
-    super.onClose();
-
     WidgetsBinding.instance.removeObserver(this);
+    super.onClose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      campusController.today = BusCampusController.getCurrentWeekday().obs;
-      campusController.selectedEnglishDay = campusController
-          .translateDayToEnglish(campusController.selectedDay.value ?? '월요일')
-          .obs;
-
-      campusController._fetchAllDirections(
-          campusController.selectedEnglishDay.value ?? 'monday');
+      controller._resetToToday();
+      controller._fetchCurrentWeek();
     }
   }
 }
 
-/*
-BusCampusController
-메인 컨트롤러
-*/
-class BusCampusController extends GetxController {
+// ── Main controller ────────────────────────────────────────────────
+
+class BusScheduleController extends GetxController {
   final _busRepo = Get.find<BusRepository>();
 
-  late BusRouteConfig routeConfig;
+  late BusGroup group;
   bool _configSet = false;
   bool _dataLoaded = false;
 
-  // Dynamic direction schedules
-  var directionSchedules = <RxList<BusSchedule>>[].obs;
-  var directionEtaMs = <RxInt>[].obs;
+  // Current service (tab)
+  late Rx<BusService> currentService;
 
-  // Day selector
+  // Week schedule data
+  var weekSchedule = Rx<WeekSchedule?>(null);
   var selectedDayIndex = 0.obs;
-  final shortDayLabels = ['월', '화', '수', '목', '금', '토', '일'];
+  var isLoading = true.obs;
 
-  // 1-minute ticker: forces Obx rebuild so ETA & past-bus greying stay fresh
+  // ETag cache per serviceId
+  final _etagMap = <String, String>{};
+
+  // 1-minute ticker for ETA refresh
   Timer? _etaTimer;
   var tick = 0.obs;
 
-  // Loading state: prevents flash of "no service" card on initial fetch
-  var isLoading = true.obs;
-
-  void setRouteConfig(BusRouteConfig config) {
-    if (_configSet) return; // prevent re-init on widget rebuild
+  void setGroup(BusGroup g) {
+    if (_configSet) return;
     _configSet = true;
-    routeConfig = config;
-    final directions = routeConfig.schedule!.directions;
-
-    // Initialize dynamic lists for each direction
-    directionSchedules.value =
-        List.generate(directions.length, (_) => <BusSchedule>[].obs);
-    directionEtaMs.value =
-        List.generate(directions.length, (_) => 0.obs);
+    group = g;
+    currentService = Rx(group.services.firstWhere(
+      (s) => s.serviceId == group.defaultServiceId,
+      orElse: () => group.services.first,
+    ));
   }
 
   @override
   void onInit() {
     super.onInit();
-    final todayIdx = DateTime.now().weekday - 1; // 0=Mon...6=Sun
-    selectedDayIndex.value = todayIdx;
-
-    today = getCurrentWeekday().obs;
-    selectedDay = getCurrentWeekday().obs;
-    selectedEnglishDay = translateDayToEnglish(selectedDay.value ?? '월요일').obs;
-
     _startEtaTicker();
   }
 
-  /// Called after setRouteConfig to load initial data
+  /// Called after setGroup to load initial data
   Future<void> loadInitialData() async {
     if (_dataLoaded) return;
     _dataLoaded = true;
     try {
-      await Future.wait([
-        _fetchAllDirections(selectedEnglishDay.value ?? 'monday'),
-        fetchCampusEta(),
-      ]);
+      await _fetchCurrentWeek();
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> _fetchAllDirections(String dayType) async {
-    final directions = routeConfig.schedule!.directions;
-    await Future.wait(
-      List.generate(directions.length, (i) =>
-        _fetchDirectionSchedule(i, directions[i], dayType)),
+  // ── Service tab switching ─────────────────────────────────────────
+
+  void switchService(BusService service) {
+    currentService.value = service;
+    weekSchedule.value = null;
+    selectedDayIndex.value = 0;
+    isLoading.value = true;
+    _fetchCurrentWeek().then((_) => isLoading.value = false);
+  }
+
+  // ── Week data fetch ───────────────────────────────────────────────
+
+  Future<void> _fetchCurrentWeek({String? from}) async {
+    final svc = currentService.value;
+    final etag = _etagMap[_etagKey(svc.serviceId, from)];
+
+    final result = await _busRepo.getWeekSchedule(
+      svc.weekEndpoint,
+      from: from,
+      ifNoneMatch: etag,
     );
-  }
 
-  Future<void> _fetchDirectionSchedule(
-      int index, BusDirection direction, String dayType) async {
-    final path = direction.endpoint.replaceAll('{dayType}', dayType);
-    final result = await _busRepo.getScheduleByPath(path);
     switch (result) {
       case Ok(:final data):
-        directionSchedules[index].value = data;
-      case Err(:final failure):
-        logger.e('${direction.id} schedule fetch failed: $failure');
-    }
-  }
-
-  Future<void> fetchCampusEta() async {
-    final result = await _busRepo.getCampusEta();
-    switch (result) {
-      case Ok(:final data):
-        // Map ETA data to directions by lowercase id
-        final directions = routeConfig.schedule!.directions;
-        for (int i = 0; i < directions.length; i++) {
-          final key = directions[i].id.toLowerCase();
-          directionEtaMs[i].value = data[key] ?? 0;
+        if (!data.notModified && data.data != null) {
+          weekSchedule.value = data.data;
+          _etagMap[_etagKey(svc.serviceId, from)] = data.etag ?? '';
+          _autoSelectToday();
         }
       case Err(:final failure):
-        logger.e('Campus ETA fetch failed: $failure');
+        logger.e('Schedule fetch failed: $failure');
     }
   }
 
-  /// Format milliseconds into localized duration string.
-  String formatDuration(int ms) {
-    final totalMinutes = (ms / 60000).round();
-    final h = totalMinutes ~/ 60;
-    final m = totalMinutes % 60;
-    if (h > 0 && m > 0) return '$h${'시간_unit'.tr} $m${'분'.tr}';
-    if (h > 0) return '$h${'시간_unit'.tr}';
-    return '$m${'분'.tr}';
-  }
+  String _etagKey(String serviceId, String? from) => '$serviceId:${from ?? ''}';
 
-  @override
-  void onClose() {
-    _etaTimer?.cancel();
-    super.onClose();
-  }
+  // ── Week navigation ───────────────────────────────────────────────
 
-  void _startEtaTicker() {
-    _etaTimer = Timer.periodic(const Duration(minutes: 1), (_) {
-      tick.value++;
+  void goToPreviousWeek() {
+    final ws = weekSchedule.value;
+    if (ws == null) return;
+    final current = DateTime.parse(ws.from);
+    final prev = current.subtract(const Duration(days: 7));
+    selectedDayIndex.value = 0;
+    isLoading.value = true;
+    _fetchCurrentWeek(from: _formatDate(prev)).then((_) {
+      isLoading.value = false;
     });
   }
 
-  // ── Day selection ──────────────────────────────────────────────
+  void goToNextWeek() {
+    final ws = weekSchedule.value;
+    if (ws == null) return;
+    final current = DateTime.parse(ws.from);
+    final next = current.add(const Duration(days: 7));
+    selectedDayIndex.value = 0;
+    isLoading.value = true;
+    _fetchCurrentWeek(from: _formatDate(next)).then((_) {
+      isLoading.value = false;
+    });
+  }
+
+  // ── Day selection ─────────────────────────────────────────────────
 
   void onDaySelected(int index) {
+    final day = weekSchedule.value?.days[index];
+    if (day == null || day.isHidden) return;
     selectedDayIndex.value = index;
-    selectedDay.value = dateitems[index];
-    selectedEnglishDay.value = translateDayToEnglish(dateitems[index]);
-    _fetchAllDirections(selectedEnglishDay.value ?? 'monday');
   }
 
-  // ── Service day check (using server config) ────────────────────
-
-  bool isServiceDay(int dayIndex) {
-    // Build a DateTime for the selected day index to check against calendar
-    final now = DateTime.now();
-    final todayIdx = now.weekday - 1;
-    final diff = dayIndex - todayIdx;
-    final targetDate = now.add(Duration(days: diff));
-    return routeConfig.schedule!.serviceCalendar.isServiceDay(targetDate);
+  void _autoSelectToday() {
+    final ws = weekSchedule.value;
+    if (ws == null) return;
+    final todayStr = _formatDate(DateTime.now());
+    final idx = ws.days.indexWhere((d) => d.date == todayStr);
+    selectedDayIndex.value = idx >= 0 ? idx : 0;
   }
 
-  // ── Today awareness ────────────────────────────────────────────
+  void _resetToToday() {
+    _autoSelectToday();
+  }
 
-  int get _todayIndex => DateTime.now().weekday - 1;
+  // ── Computed getters ──────────────────────────────────────────────
 
-  bool get isViewingToday => selectedDayIndex.value == _todayIndex;
+  DaySchedule? get selectedDay {
+    final ws = weekSchedule.value;
+    if (ws == null || selectedDayIndex.value >= ws.days.length) return null;
+    return ws.days[selectedDayIndex.value];
+  }
 
-  // ── Hero bus ───────────────────────────────────────────────────
+  List<ScheduleEntry> get currentEntries => selectedDay?.schedule ?? [];
 
-  BusSchedule? getHeroBus(List<BusSchedule> schedules) {
-    if (schedules.isEmpty) return null;
+  bool get isNoService => selectedDay?.isNoService ?? false;
+
+  String? get dayLabel => selectedDay?.label;
+
+  List<ScheduleNotice> get dayNotices => selectedDay?.notices ?? [];
+
+  bool get isViewingToday {
+    final day = selectedDay;
+    if (day == null) return false;
+    return day.date == _formatDate(DateTime.now());
+  }
+
+  // ── Hero bus ──────────────────────────────────────────────────────
+
+  ScheduleEntry? getHeroBus(List<ScheduleEntry> entries) {
+    if (entries.isEmpty) return null;
     if (isViewingToday) {
-      try {
-        final next = schedules.firstWhere((s) => s.isFastestBus);
-        if (getMinutesUntil(next) != null) return next;
-        return null;
-      } catch (_) {
-        return null;
+      final showUntil = group.heroCard?.showUntilMinutesBefore ?? 0;
+      final now = DateTime.now();
+      final currentMinutes = now.hour * 60 + now.minute;
+      for (final entry in entries) {
+        final entryMinutes = _parseTimeMinutes(entry.time);
+        if (entryMinutes == null) continue;
+        // Skip entries that are too close to departure
+        if (showUntil > 0 && (entryMinutes - showUntil) < currentMinutes) {
+          continue;
+        }
+        if (entryMinutes > currentMinutes) return entry;
       }
+      return null; // all buses departed
     }
-    return schedules.firstOrNull;
+    return entries.firstOrNull;
   }
 
-  int? getMinutesUntil(BusSchedule bus) {
+  int? getMinutesUntil(ScheduleEntry entry) {
     final now = DateTime.now();
     final currentMinutes = now.hour * 60 + now.minute;
-    final parts = bus.operatingHours.split(':');
-    final busMinutes = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-    final diff = busMinutes - currentMinutes;
+    final entryMinutes = _parseTimeMinutes(entry.time);
+    if (entryMinutes == null) return null;
+    final diff = entryMinutes - currentMinutes;
     return diff > 0 ? diff : null;
   }
 
@@ -226,72 +228,75 @@ class BusCampusController extends GetxController {
     return '$h${'시간_unit'.tr} ${'후'.tr}';
   }
 
-  // ── Schedule helpers ───────────────────────────────────────────
-
-  bool hasMultipleRouteTypes(List<BusSchedule> schedules) =>
-      schedules.map((s) => s.routeType).toSet().length > 1;
-
-  /// Get display name for a route type from server config
-  String getRouteTypeLabel(String routeType) {
-    return routeConfig.schedule?.routeTypes[routeType] ?? routeType;
+  String formatDuration(int ms) {
+    final totalMinutes = (ms / 60000).round();
+    final h = totalMinutes ~/ 60;
+    final m = totalMinutes % 60;
+    if (h > 0 && m > 0) return '$h${'시간_unit'.tr} $m${'분'.tr}';
+    if (h > 0) return '$h${'시간_unit'.tr}';
+    return '$m${'분'.tr}';
   }
 
-  bool isPastBus(BusSchedule bus) {
+  // ── Route badge lookup ────────────────────────────────────────────
+
+  RouteBadge getRouteBadge(String routeType) {
+    final badge =
+        group.routeBadges.where((b) => b.id == routeType).firstOrNull;
+    return badge ??
+        RouteBadge(id: routeType, label: routeType, color: '9E9E9E');
+  }
+
+  bool hasMultipleRouteTypes(List<ScheduleEntry> entries) =>
+      entries.map((e) => e.routeType).toSet().length > 1;
+
+  // ── Schedule helpers ──────────────────────────────────────────────
+
+  bool isPastBus(ScheduleEntry entry) {
     if (!isViewingToday) return false;
     final now = DateTime.now();
     final currentMinutes = now.hour * 60 + now.minute;
-    final parts = bus.operatingHours.split(':');
-    final busMinutes = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-    return busMinutes <= currentMinutes;
+    final entryMinutes = _parseTimeMinutes(entry.time);
+    if (entryMinutes == null) return false;
+    return entryMinutes <= currentMinutes;
   }
 
-  bool isNoServiceSchedule(List<BusSchedule> schedules) {
-    if (schedules.isEmpty) return true;
-    return schedules.length == 1 && schedules[0].operatingHours == '-';
+  // ── ETA fetch (for hero card) ─────────────────────────────────────
+
+  var directionEtaMs = <String, int>{}.obs;
+
+  Future<void> fetchCampusEta() async {
+    final result = await _busRepo.getCampusEta();
+    switch (result) {
+      case Ok(:final data):
+        directionEtaMs.value = data;
+      case Err(:final failure):
+        logger.e('Campus ETA fetch failed: $failure');
+    }
   }
 
-  // ── Existing properties ────────────────────────────────────────
+  // ── Private helpers ───────────────────────────────────────────────
 
-  Rx<String?> today = '월요일'.obs;
-  Rx<String?> selectedDay = '월요일'.obs;
-  Rx<String?> selectedEnglishDay = 'monday'.obs;
-
-  final List<String> dateitems = [
-    '월요일',
-    '화요일',
-    '수요일',
-    '목요일',
-    '금요일',
-    '토요일',
-    '일요일'
-  ];
-
-  static String getCurrentWeekday() {
-    DateTime now = DateTime.now();
-    int weekday = now.weekday;
-    Map<int, String> weekdayMap = {
-      1: '월요일',
-      2: '화요일',
-      3: '수요일',
-      4: '목요일',
-      5: '금요일',
-      6: '토요일',
-      7: '일요일'
-    };
-    return weekdayMap[weekday] ?? '월요일';
+  int? _parseTimeMinutes(String time) {
+    final parts = time.split(':');
+    if (parts.length != 2) return null;
+    final h = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    if (h == null || m == null) return null;
+    return h * 60 + m;
   }
 
-  String translateDayToEnglish(String koreanDay) {
-    Map<String, String> translationMap = {
-      '월요일': 'monday',
-      '화요일': 'tuesday',
-      '수요일': 'wednesday',
-      '목요일': 'thursday',
-      '금요일': 'friday',
-      '토요일': 'saturday',
-      '일요일': 'sunday'
-    };
-    return translationMap[koreanDay] ?? 'Monday';
+  void _startEtaTicker() {
+    _etaTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      tick.value++;
+    });
   }
 
+  static String _formatDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  @override
+  void onClose() {
+    _etaTimer?.cancel();
+    super.onClose();
+  }
 }

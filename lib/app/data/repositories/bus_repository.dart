@@ -3,8 +3,8 @@ import 'package:skkumap/app/data/api_client.dart';
 import 'package:skkumap/app/data/api_endpoints.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/main_bus_location.dart';
-import 'package:skkumap/app/model/bus_schedule.dart';
 import 'package:skkumap/app/model/main_bus_stationlist.dart';
+import 'package:skkumap/app/model/week_schedule.dart';
 
 class BusRepository {
   final ApiClient _client;
@@ -34,16 +34,17 @@ class BusRepository {
     );
   }
 
-  Future<Result<List<BusSchedule>>> getScheduleByPath(
-    String path, {
-    CancelToken? cancelToken,
+  /// Fetch weekly schedule with ETag caching.
+  Future<Result<ConditionalResult<WeekSchedule>>> getWeekSchedule(
+    String weekEndpoint, {
+    String? from,
+    String? ifNoneMatch,
   }) {
-    return _client.safeGet(
-      path,
-      (json) => ((json as Map<String, dynamic>)['data'] as List)
-          .map((e) => BusSchedule.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      cancelToken: cancelToken,
+    return _client.safeGetConditional<WeekSchedule>(
+      weekEndpoint,
+      (json) => WeekSchedule.fromJson(json as Map<String, dynamic>),
+      queryParameters: from != null ? {'from': from} : null,
+      ifNoneMatch: ifNoneMatch,
     );
   }
 
