@@ -181,7 +181,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                                 final station = controller.stations[index];
                                 return BusListComponent(
                                   stationName: station.name,
-                                  stationNumber: station.stationNumber,
+                                  subtitle: station.subtitle,
                                   eta: controller
                                       .etaForStation(station.index),
                                   isFirstStation: station.isFirstStation,

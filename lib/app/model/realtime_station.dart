@@ -4,6 +4,7 @@ import 'package:skkumap/app/model/main_bus_stationlist.dart';
 class RealtimeStation {
   final int index;
   final String name;
+  final String? subtitle;
   final String? stationNumber;
   final bool isFirstStation;
   final bool isLastStation;
@@ -13,6 +14,7 @@ class RealtimeStation {
   const RealtimeStation({
     required this.index,
     required this.name,
+    this.subtitle,
     this.stationNumber,
     required this.isFirstStation,
     required this.isLastStation,
@@ -24,6 +26,7 @@ class RealtimeStation {
     return RealtimeStation(
       index: (json['index'] as num).toInt(),
       name: json['name'] as String,
+      subtitle: json['subtitle'] as String?,
       stationNumber: json['stationNumber'] as String?,
       isFirstStation: json['isFirstStation'] as bool,
       isLastStation: json['isLastStation'] as bool,

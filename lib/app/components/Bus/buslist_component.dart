@@ -4,7 +4,7 @@ import 'package:skkumap/app/model/main_bus_stationlist.dart';
 
 class BusListComponent extends StatelessWidget {
   final String stationName;
-  final String? stationNumber;
+  final String? subtitle;
   final String eta;
   final bool isFirstStation;
   final bool isLastStation;
@@ -15,7 +15,7 @@ class BusListComponent extends StatelessWidget {
   const BusListComponent({
     Key? key,
     required this.stationName,
-    this.stationNumber,
+    this.subtitle,
     required this.eta,
     required this.isFirstStation,
     required this.isLastStation,
@@ -152,16 +152,16 @@ class BusListComponent extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (stationNumber != null)
+                      if (subtitle != null)
                         Text(
-                          stationNumber!,
+                          subtitle!,
                           style: TextStyle(
                             fontSize: 11,
                             fontFamily: 'WantedSansRegular',
                             color: Colors.grey[500],
                           ),
                         ),
-                      if (stationNumber != null)
+                      if (subtitle != null && eta.isNotEmpty)
                         Text(
                           " | ",
                           style: TextStyle(
