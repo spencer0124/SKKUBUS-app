@@ -30,13 +30,11 @@ class OptionCampus extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ...sections.map(buildSection),
-            ],
-          ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...sections.map(buildSection),
+          ],
         );
       }),
     );
