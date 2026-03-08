@@ -2,34 +2,21 @@ import 'package:dio/dio.dart';
 import 'package:skkumap/app/data/api_client.dart';
 import 'package:skkumap/app/data/api_endpoints.dart';
 import 'package:skkumap/app/data/result.dart';
-import 'package:skkumap/app/model/main_bus_location.dart';
-import 'package:skkumap/app/model/main_bus_stationlist.dart';
+import 'package:skkumap/app/model/realtime_data.dart';
 import 'package:skkumap/app/model/week_schedule.dart';
 
 class BusRepository {
   final ApiClient _client;
   const BusRepository(this._client);
 
-  Future<Result<List<MainBusLocation>>> getLocationsByPath(
+  /// Fetch realtime bus data (buses + stationEtas) from the unified data endpoint.
+  Future<Result<RealtimeData>> getRealtimeData(
     String path, {
     CancelToken? cancelToken,
   }) {
     return _client.safeGet(
       path,
-      (json) => ((json as Map<String, dynamic>)['data'] as List)
-          .map((e) => MainBusLocation.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      cancelToken: cancelToken,
-    );
-  }
-
-  Future<Result<MainBusStationList>> getStationsByPath(
-    String path, {
-    CancelToken? cancelToken,
-  }) {
-    return _client.safeGet(
-      path,
-      (json) => MainBusStationList.fromJson(json as Map<String, dynamic>),
+      (json) => RealtimeData.fromJson(json as Map<String, dynamic>),
       cancelToken: cancelToken,
     );
   }

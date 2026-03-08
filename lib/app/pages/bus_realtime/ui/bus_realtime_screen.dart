@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:skkumap/app/model/main_bus_stationlist.dart';
 import 'package:skkumap/app/pages/bus_realtime/controller/bus_realtime_controller.dart';
 import 'package:skkumap/app/routes/app_routes.dart';
 import 'package:skkumap/app/utils/ad_widget.dart';
@@ -16,7 +15,6 @@ import 'package:skkumap/app/components/bus/topinfo.dart';
 import 'package:skkumap/app/types/bus_status.dart';
 import 'package:skkumap/app/types/time_format.dart';
 import 'package:skkumap/app/components/bus/businfo_component.dart';
-import 'package:skkumap/app/model/main_bus_location.dart';
 
 import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app/utils/screensize.dart';
@@ -45,8 +43,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
       floatingActionButton: RefreshButton(
           themeColor: themeColor,
           onRefresh: () {
-            controller.localfetchBusLocation();
-            controller.localfetchBusStations();
+            controller.fetchRealtimeData();
           }),
       bottomNavigationBar: BottomAppBar(
         color: Colors.grey[200],
@@ -135,20 +132,15 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
             color: Colors.grey[300],
           ),
           Obx(() {
+            final meta = controller.realtimeData.value?.meta;
             return TopInfo(
               isLoaded: true,
-              currentTime:
-                  controller.mainBusStationList.value?.metadata.currentTime ??
-                      '00:00 AM',
+              currentTime: meta?.currentTime ?? '00:00 AM',
               timeFormat: TimeFormat.format12Hour,
-              busCount:
-                  controller.mainBusStationList.value?.metadata.totalBuses ?? 0,
-              busStatus:
-                  (controller.mainBusStationList.value?.metadata.totalBuses ??
-                              0) >
-                          0
-                      ? BusStatus.active
-                      : BusStatus.inactive,
+              busCount: meta?.totalBuses ?? 0,
+              busStatus: (meta?.totalBuses ?? 0) > 0
+                  ? BusStatus.active
+                  : BusStatus.inactive,
             );
           }),
           Container(
@@ -158,6 +150,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
 
           // 버스 정보 부분
           Obx(() {
+            // Reference realtimeData to trigger reactive rebuild on poll
+            final data = controller.realtimeData.value;
             return Expanded(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
@@ -172,6 +166,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                             ),
                           );
                         }
+                        // Reference realtimeData again for ETA updates
+                        controller.realtimeData.value;
                         return Column(
                           children: [
                             const SizedBox(
@@ -180,27 +176,21 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                             ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: controller
-                                  .mainBusStationList.value?.stations.length,
+                              itemCount: controller.stations.length,
                               itemBuilder: (context, index) {
-                                final station = controller
-                                    .mainBusStationList.value?.stations[index];
-                                if (station != null) {
-                                  return BusListComponent(
-                                    stationName: station.stationName,
-                                    stationNumber: station.stationNumber,
-                                    eta: station.eta,
-                                    isFirstStation: station.isFirstStation,
-                                    isLastStation: station.isLastStation,
-                                    isRotationStation:
-                                        station.isRotationStation,
-                                    themeColor: themeColor,
-                                    transferLines: station.transferLines,
-                                  );
-                                } else {
-                                  return const SizedBox
-                                      .shrink();
-                                }
+                                final station = controller.stations[index];
+                                return BusListComponent(
+                                  stationName: station.name,
+                                  stationNumber: station.stationNumber,
+                                  eta: controller
+                                      .etaForStation(station.index),
+                                  isFirstStation: station.isFirstStation,
+                                  isLastStation: station.isLastStation,
+                                  isRotationStation:
+                                      station.isRotationStation,
+                                  themeColor: themeColor,
+                                  transferLines: station.transferLines,
+                                );
                               },
                             ),
                             const SizedBox(
@@ -211,15 +201,12 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                       },
                     ),
                     // 번호판 && 버스 현재 위치 정보 부분
-                    ...controller.mainBusLocation.value.asMap().entries.map(
-                          (e) => BusInfoComponent(
-                            elapsedSeconds: e.value.estimatedTime,
-                            currentStationIndex:
-                                int.parse(e.value.sequence) - 1,
-                            lastStationIndex: controller.mainBusStationList
-                                    .value?.metadata.lastStationIndex ??
-                                10,
-                            plateNumber: e.value.carNumber,
+                    ...(data?.buses ?? []).map(
+                          (bus) => BusInfoComponent(
+                            elapsedSeconds: bus.estimatedTime,
+                            currentStationIndex: bus.stationIndex,
+                            lastStationIndex: controller.lastStationIndex,
+                            plateNumber: bus.carNumber,
                             themeColor: themeColor,
                             onDataUpdated: (Function callback) {
                               callback();

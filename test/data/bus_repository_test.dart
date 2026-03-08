@@ -4,7 +4,7 @@ import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:skkumap/app/data/api_client.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/result.dart';
-import 'package:skkumap/app/model/main_bus_location.dart';
+import 'package:skkumap/app/model/realtime_data.dart';
 
 void main() {
   late Dio dio;
@@ -17,133 +17,109 @@ void main() {
     repository = BusRepository(ApiClient(dio));
   });
 
-  group('getLocationsByPath', () {
-    test('uses correct path for hsscBus', () async {
+  group('getRealtimeData', () {
+    test('parses empty buses and stationEtas', () async {
       dioAdapter.onGet(
-        '/bus/hssc/location',
+        '/bus/realtime/data/hssc',
         (server) => server.reply(200, {
-          'meta': {'lang': 'ko'},
-          'data': [],
-        }),
-      );
-
-      final result = await repository.getLocationsByPath('/bus/hssc/location');
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-      expect((result as Ok).data, isEmpty);
-    });
-
-    test('uses correct path for jongro07Bus', () async {
-      dioAdapter.onGet(
-        '/bus/jongro/location/07',
-        (server) => server.reply(200, {
-          'meta': {'lang': 'ko'},
-          'data': [],
-        }),
-      );
-
-      final result =
-          await repository.getLocationsByPath('/bus/jongro/location/07');
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-    });
-
-    test('uses correct path for jongro02Bus', () async {
-      dioAdapter.onGet(
-        '/bus/jongro/location/02',
-        (server) => server.reply(200, {
-          'meta': {'lang': 'ko'},
-          'data': [],
-        }),
-      );
-
-      final result =
-          await repository.getLocationsByPath('/bus/jongro/location/02');
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-    });
-
-    test('parses bus location list from JSON', () async {
-      dioAdapter.onGet(
-        '/bus/hssc/location',
-        (server) => server.reply(200, {
-          'meta': {'lang': 'ko'},
-          'data': [
-            {
-              'sequence': '1',
-              'stationName': '혜화역',
-              'carNumber': '서울70사1234',
-              'eventDate': '20240301120000',
-              'estimatedTime': 5,
-              'isLastBus': false,
-            },
-            {
-              'sequence': '2',
-              'stationName': '대학로',
-              'carNumber': '서울70사5678',
-              'eventDate': '20240301120100',
-              'estimatedTime': 10,
-              'isLastBus': true,
-            },
-          ],
-        }),
-      );
-
-      final result = await repository.getLocationsByPath('/bus/hssc/location');
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-      final locations = (result as Ok<List<MainBusLocation>>).data;
-      expect(locations, hasLength(2));
-      expect(locations[0].stationName, '혜화역');
-      expect(locations[1].isLastBus, true);
-    });
-  });
-
-  group('getStationsByPath', () {
-    test('uses correct path for hsscBus', () async {
-      dioAdapter.onGet(
-        '/bus/hssc/stations',
-        (server) => server.reply(200, {
-          'meta': {
-            'lang': 'ko',
-            'currentTime': '12:00',
-            'totalBuses': 0,
-            'lastStationIndex': 0,
+          'meta': {'lang': 'ko', 'currentTime': '02:30 PM', 'totalBuses': 0},
+          'data': {
+            'groupId': 'hssc',
+            'buses': [],
+            'stationEtas': [],
           },
-          'data': [],
         }),
       );
 
       final result =
-          await repository.getStationsByPath('/bus/hssc/stations');
-      expect(result, isA<Ok>());
+          await repository.getRealtimeData('/bus/realtime/data/hssc');
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.groupId, 'hssc');
+      expect(data.buses, isEmpty);
+      expect(data.stationEtas, isEmpty);
+      expect(data.meta.currentTime, '02:30 PM');
+      expect(data.meta.totalBuses, 0);
     });
 
-    test('uses correct path for jongro07Bus', () async {
+    test('parses buses with stationIndex (0-based)', () async {
       dioAdapter.onGet(
-        '/bus/jongro/stations/07',
+        '/bus/realtime/data/hssc',
         (server) => server.reply(200, {
-          'meta': {
-            'lang': 'ko',
-            'currentTime': '12:00',
-            'totalBuses': 0,
-            'lastStationIndex': 0,
+          'meta': {'lang': 'ko', 'currentTime': '10:00 AM', 'totalBuses': 2},
+          'data': {
+            'groupId': 'hssc',
+            'buses': [
+              {
+                'stationIndex': 0,
+                'carNumber': '0000',
+                'estimatedTime': 30,
+              },
+              {
+                'stationIndex': 5,
+                'carNumber': '1234',
+                'estimatedTime': 100,
+              },
+            ],
+            'stationEtas': [],
           },
-          'data': [],
         }),
       );
 
       final result =
-          await repository.getStationsByPath('/bus/jongro/stations/07');
-      expect(result, isA<Ok>());
+          await repository.getRealtimeData('/bus/realtime/data/hssc');
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.meta.totalBuses, 2);
+      expect(data.buses, hasLength(2));
+      expect(data.buses[0].stationIndex, 0);
+      expect(data.buses[0].carNumber, '0000');
+      expect(data.buses[0].estimatedTime, 30);
+      expect(data.buses[1].stationIndex, 5);
+    });
+
+    test('parses stationEtas for jongro-type buses', () async {
+      dioAdapter.onGet(
+        '/bus/realtime/data/jongro07',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko', 'currentTime': '03:00 PM', 'totalBuses': 1},
+          'data': {
+            'groupId': 'jongro07',
+            'buses': [
+              {
+                'stationIndex': 5,
+                'carNumber': '5537',
+                'estimatedTime': 100,
+              },
+            ],
+            'stationEtas': [
+              {'stationIndex': 0, 'eta': '3분후[1번째 전]'},
+              {'stationIndex': 3, 'eta': '1분후[도착 예정]'},
+            ],
+          },
+        }),
+      );
+
+      final result =
+          await repository.getRealtimeData('/bus/realtime/data/jongro07');
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.stationEtas, hasLength(2));
+      expect(data.stationEtas[0].stationIndex, 0);
+      expect(data.stationEtas[0].eta, '3분후[1번째 전]');
+      expect(data.stationEtas[1].stationIndex, 3);
     });
   });
 
   group('error handling', () {
     test('returns ServerFailure on 500', () async {
       dioAdapter.onGet(
-        '/bus/hssc/location',
+        '/bus/realtime/data/hssc',
         (server) => server.reply(500, 'Server Error'),
       );
 
       final result =
-          await repository.getLocationsByPath('/bus/hssc/location');
+          await repository.getRealtimeData('/bus/realtime/data/hssc');
       expect(result, isA<Err>());
       final failure = (result as Err).failure;
       expect(failure, isA<ServerFailure>());

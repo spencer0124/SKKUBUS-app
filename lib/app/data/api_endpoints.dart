@@ -11,10 +11,6 @@ class ApiEndpoints {
   ApiEndpoints._();
 
   // ── Bus ──────────────────────────────────────────
-  static String busHsscLocation() => '/bus/hssc/location';
-  static String busJongroLocation(String line) => '/bus/jongro/location/$line';
-  static String busHsscStations() => '/bus/hssc/stations';
-  static String busJongroStations(String line) => '/bus/jongro/stations/$line';
 
   // ── Campus shuttle ─────────────────────────────────
   static String campusEta() => '/bus/campus/eta';

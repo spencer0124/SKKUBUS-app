@@ -22,213 +22,65 @@ import 'package:skkumap/app/data/repositories/station_repository.dart';
 import 'package:skkumap/app/data/repositories/ui_repository.dart';
 import 'package:skkumap/app/data/result.dart';
 import 'package:skkumap/app/model/ad_model.dart';
-import 'package:skkumap/app/model/main_bus_location.dart';
-import 'package:skkumap/app/model/main_bus_stationlist.dart';
+import 'package:skkumap/app/model/realtime_data.dart';
 import 'package:skkumap/app/model/mainpage_buslist_model.dart' show BusListItem;
 import 'package:skkumap/app/model/search_option3_model.dart';
 import 'package:skkumap/app/model/station_model.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
-// Real API response snapshots (captured 2026-03-02)
+// Real API response snapshots (captured 2026-03-08)
 // ────────────────────────────────────────────────────────────────────────────
 
-/// GET /bus/hssc/location — no buses running
-const _hsscLocationEmpty = <String, dynamic>{
-  'meta': {'lang': 'ko'},
-  'data': <dynamic>[],
-};
-
-/// GET /bus/jongro/location/02 — one bus at 종각역YMCA
-const _jongroLocationOneBus = <String, dynamic>{
-  'meta': {'lang': 'ko'},
-  'data': [
-    {
-      'sequence': '14',
-      'stationName': '종각역YMCA',
-      'carNumber': '2009',
-      'eventDate': '2026-03-02T10:59:41.751Z',
-      'estimatedTime': 40,
-      'stationId': '100900116',
-      'latitude': '37.570576',
-      'longitude': '126.983166',
-      'recordTime': '2026-03-02T10:59:41.751Z',
-      'isLastBus': false,
-    },
-  ],
-};
-
-/// GET /bus/hssc/stations — full 11-station list
-const _hsscStations = <String, dynamic>{
-  'meta': {
-    'lang': 'ko',
-    'currentTime': '08:00 PM',
-    'totalBuses': 0,
-    'lastStationIndex': 10,
+/// GET /bus/realtime/data/hssc — no buses running
+const _realtimeDataEmpty = <String, dynamic>{
+  'meta': {'lang': 'ko', 'currentTime': '08:00 PM', 'totalBuses': 0},
+  'data': {
+    'groupId': 'hssc',
+    'buses': <dynamic>[],
+    'stationEtas': <dynamic>[],
   },
-  'data': [
-    {
-      'sequence': 1,
-      'stationName': '농구장',
-      'stationNumber': null,
-      'eta': 'Basketball Court (Shuttle Bus Stop)',
-      'isFirstStation': true,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 2,
-      'stationName': '학생회관',
-      'stationNumber': null,
-      'eta': 'Student Center',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 3,
-      'stationName': '정문',
-      'stationNumber': null,
-      'eta': 'Main Gate of SKKU',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 4,
-      'stationName': '올림픽기념국민생활관 [하차전용]',
-      'stationNumber': null,
-      'eta': 'Olympic Hall [Drop-off Only]',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 5,
-      'stationName': '혜화동우체국 [하차전용]',
-      'stationNumber': null,
-      'eta': 'Hyehwa Postoffice [Drop-off Only]',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 6,
-      'stationName': '혜화동로터리 [미정차]',
-      'stationNumber': null,
-      'eta': 'Hyehwa Rotary [Non-stop]',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 7,
-      'stationName': '혜화역 1번출구',
-      'stationNumber': null,
-      'eta': 'Hyehwa Station (Shuttle Bus Stop)',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 8,
-      'stationName': '혜화동로터리 [미정차]',
-      'stationNumber': null,
-      'eta': 'Hyehwa Rotary [Non-stop]',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 9,
-      'stationName': '성균관대입구사거리',
-      'stationNumber': null,
-      'eta': 'SKKU Junction',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 10,
-      'stationName': '정문',
-      'stationNumber': null,
-      'eta': 'Main Gate of SKKU',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-    {
-      'sequence': 11,
-      'stationName': '600주년기념관',
-      'stationNumber': null,
-      'eta': '600th Anniversary Hall',
-      'isFirstStation': false,
-      'isLastStation': true,
-      'isRotationStation': false,
-      'busType': 'BusType.hsscBus',
-    },
-  ],
 };
 
-/// GET /bus/jongro/stations/02 — 26-station list (trimmed to first 3 + last)
-const _jongroStations = <String, dynamic>{
-  'meta': {
-    'lang': 'ko',
-    'currentTime': '08:00 PM',
-    'totalBuses': 1,
-    'lastStationIndex': 25,
+/// GET /bus/realtime/data/hssc — two buses running
+const _realtimeDataWithBuses = <String, dynamic>{
+  'meta': {'lang': 'ko', 'currentTime': '10:30 AM', 'totalBuses': 2},
+  'data': {
+    'groupId': 'hssc',
+    'buses': [
+      {
+        'stationIndex': 0,
+        'carNumber': '0000',
+        'estimatedTime': 30,
+      },
+      {
+        'stationIndex': 7,
+        'carNumber': '1111',
+        'estimatedTime': 15,
+      },
+    ],
+    'stationEtas': <dynamic>[],
   },
-  'data': [
-    {
-      'sequence': '1',
-      'stationName': '성균관대학교',
-      'stationNumber': '01881',
-      'eta': '출발대기',
-      'isFirstStation': true,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.jonro02Bus',
-    },
-    {
-      'sequence': '2',
-      'stationName': '서울성곽.성대후문',
-      'stationNumber': '01515',
-      'eta': '출발대기',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': false,
-      'busType': 'BusType.jonro02Bus',
-    },
-    {
-      'sequence': '13',
-      'stationName': '금강제화',
-      'stationNumber': '01596',
-      'eta': '도착 정보 없음',
-      'isFirstStation': false,
-      'isLastStation': false,
-      'isRotationStation': true,
-      'busType': 'BusType.jonro02Bus',
-    },
-    {
-      'sequence': '26',
-      'stationName': '성대후문.와룡공원',
-      'stationNumber': '01860',
-      'eta': '13분9초후[11번째 전]',
-      'isFirstStation': false,
-      'isLastStation': true,
-      'isRotationStation': false,
-      'busType': 'BusType.jonro02Bus',
-    },
-  ],
+};
+
+/// GET /bus/realtime/data/jongro02 — one bus with stationEtas
+const _realtimeDataJongro = <String, dynamic>{
+  'meta': {'lang': 'ko', 'currentTime': '10:59 AM', 'totalBuses': 1},
+  'data': {
+    'groupId': 'jongro02',
+    'buses': [
+      {
+        'stationIndex': 14,
+        'carNumber': '2009',
+        'estimatedTime': 40,
+        'latitude': 37.570576,
+        'longitude': 126.983166,
+      },
+    ],
+    'stationEtas': [
+      {'stationIndex': 0, 'eta': '3분후[1번째 전]'},
+      {'stationIndex': 5, 'eta': '13분9초후[11번째 전]'},
+    ],
+  },
 };
 
 /// GET /bus/station/01592 — two bus lines at this stop
@@ -455,180 +307,87 @@ void main() {
     client = ApiClient(dio);
   });
 
-  // ── 1. Bus Location (HSSC) — empty array ─────────────────────────────
-  group('GET /bus/hssc/location (empty)', () {
-    test('parses empty bus list from real v2 response', () async {
+  // ── 1. Realtime Data (HSSC) — empty ───────────────────────────────────
+  group('GET /bus/realtime/data/hssc (empty)', () {
+    test('parses empty buses from real v2 response', () async {
       dioAdapter.onGet(
-        ApiEndpoints.busHsscLocation(),
-        (server) => server.reply(200, _hsscLocationEmpty),
+        '/bus/realtime/data/hssc',
+        (server) => server.reply(200, _realtimeDataEmpty),
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocationsByPath(ApiEndpoints.busHsscLocation());
+      final result = await repo.getRealtimeData('/bus/realtime/data/hssc');
 
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-      final locations = (result as Ok<List<MainBusLocation>>).data;
-      expect(locations, isEmpty);
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.groupId, 'hssc');
+      expect(data.buses, isEmpty);
+      expect(data.stationEtas, isEmpty);
+      expect(data.meta.currentTime, '08:00 PM');
+      expect(data.meta.totalBuses, 0);
     });
   });
 
-  // ── 2. Bus Location (Jongro 02) — real bus data ──────────────────────
-  group('GET /bus/jongro/location/02', () {
-    test('parses one bus with all fields', () async {
+  // ── 2. Realtime Data (HSSC) — with buses ──────────────────────────────
+  group('GET /bus/realtime/data/hssc (with buses)', () {
+    test('parses two buses with 0-based stationIndex', () async {
       dioAdapter.onGet(
-        ApiEndpoints.busJongroLocation('02'),
-        (server) => server.reply(200, _jongroLocationOneBus),
+        '/bus/realtime/data/hssc',
+        (server) => server.reply(200, _realtimeDataWithBuses),
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocationsByPath(ApiEndpoints.busJongroLocation('02'));
+      final result = await repo.getRealtimeData('/bus/realtime/data/hssc');
 
-      expect(result, isA<Ok<List<MainBusLocation>>>());
-      final locations = (result as Ok<List<MainBusLocation>>).data;
-      expect(locations, hasLength(1));
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.meta.totalBuses, 2);
+      expect(data.buses, hasLength(2));
 
-      final bus = locations[0];
-      expect(bus.sequence, '14');
-      expect(bus.stationName, '종각역YMCA');
+      final bus1 = data.buses[0];
+      expect(bus1.stationIndex, 0);
+      expect(bus1.carNumber, '0000');
+      expect(bus1.estimatedTime, 30);
+
+      final bus2 = data.buses[1];
+      expect(bus2.stationIndex, 7);
+      expect(bus2.carNumber, '1111');
+      expect(bus2.estimatedTime, 15);
+    });
+  });
+
+  // ── 3. Realtime Data (Jongro) — with stationEtas ──────────────────────
+  group('GET /bus/realtime/data/jongro02', () {
+    test('parses bus with stationEtas', () async {
+      dioAdapter.onGet(
+        '/bus/realtime/data/jongro02',
+        (server) => server.reply(200, _realtimeDataJongro),
+      );
+
+      final repo = BusRepository(client);
+      final result =
+          await repo.getRealtimeData('/bus/realtime/data/jongro02');
+
+      expect(result, isA<Ok<RealtimeData>>());
+      final data = (result as Ok<RealtimeData>).data;
+      expect(data.groupId, 'jongro02');
+      expect(data.meta.totalBuses, 1);
+
+      expect(data.buses, hasLength(1));
+      final bus = data.buses[0];
+      expect(bus.stationIndex, 14);
       expect(bus.carNumber, '2009');
-      expect(bus.eventDate, '2026-03-02T10:59:41.751Z');
       expect(bus.estimatedTime, 40);
-      expect(bus.isLastBus, false);
+
+      expect(data.stationEtas, hasLength(2));
+      expect(data.stationEtas[0].stationIndex, 0);
+      expect(data.stationEtas[0].eta, '3분후[1번째 전]');
+      expect(data.stationEtas[1].stationIndex, 5);
+      expect(data.stationEtas[1].eta, '13분9초후[11번째 전]');
     });
   });
 
-  // ── 3. Bus Stations (HSSC) — full station list ───────────────────────
-  group('GET /bus/hssc/stations', () {
-    test('parses metadata from real v2 response', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busHsscStations(),
-        (server) => server.reply(200, _hsscStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
-
-      expect(result, isA<Ok<MainBusStationList>>());
-      final data = (result as Ok<MainBusStationList>).data;
-
-      // Metadata
-      expect(data.metadata.currentTime, '08:00 PM');
-      expect(data.metadata.totalBuses, 0);
-      expect(data.metadata.lastStationIndex, 10);
-    });
-
-    test('parses all 11 stations', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busHsscStations(),
-        (server) => server.reply(200, _hsscStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
-      final stations = (result as Ok<MainBusStationList>).data.stations;
-      expect(stations, hasLength(11));
-    });
-
-    test('first station has isFirstStation=true', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busHsscStations(),
-        (server) => server.reply(200, _hsscStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
-      final first = (result as Ok<MainBusStationList>).data.stations[0];
-
-      expect(first.stationName, '농구장');
-      expect(first.stationNumber, isNull);
-      expect(first.eta, 'Basketball Court (Shuttle Bus Stop)');
-      expect(first.isFirstStation, true);
-      expect(first.isLastStation, false);
-      expect(first.isRotationStation, false);
-      expect(first.busType, 'BusType.hsscBus');
-    });
-
-    test('last station has isLastStation=true', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busHsscStations(),
-        (server) => server.reply(200, _hsscStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
-      final last = (result as Ok<MainBusStationList>).data.stations[10];
-
-      expect(last.stationName, '600주년기념관');
-      expect(last.isFirstStation, false);
-      expect(last.isLastStation, true);
-    });
-  });
-
-  // ── 4. Bus Stations (Jongro 02) — with stationNumber ────────────────
-  group('GET /bus/jongro/stations/02', () {
-    test('parses metadata with active buses', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busJongroStations('02'),
-        (server) => server.reply(200, _jongroStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
-
-      expect(result, isA<Ok<MainBusStationList>>());
-      final data = (result as Ok<MainBusStationList>).data;
-      expect(data.metadata.totalBuses, 1);
-      expect(data.metadata.lastStationIndex, 25);
-    });
-
-    test('first station has stationNumber and isFirstStation', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busJongroStations('02'),
-        (server) => server.reply(200, _jongroStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
-      final first = (result as Ok<MainBusStationList>).data.stations[0];
-
-      expect(first.stationName, '성균관대학교');
-      expect(first.stationNumber, '01881');
-      expect(first.eta, '출발대기');
-      expect(first.isFirstStation, true);
-    });
-
-    test('rotation station has isRotationStation=true', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busJongroStations('02'),
-        (server) => server.reply(200, _jongroStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
-      final rotation = (result as Ok<MainBusStationList>).data.stations[2];
-
-      expect(rotation.stationName, '금강제화');
-      expect(rotation.isRotationStation, true);
-    });
-
-    test('last station has isLastStation=true', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busJongroStations('02'),
-        (server) => server.reply(200, _jongroStations),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busJongroStations('02'));
-      final last = (result as Ok<MainBusStationList>).data.stations[3];
-
-      expect(last.stationName, '성대후문.와룡공원');
-      expect(last.stationNumber, '01860');
-      expect(last.eta, '13분9초후[11번째 전]');
-      expect(last.isLastStation, true);
-    });
-  });
-
-  // ── 5. Station Arrival — camelCase field parsing ─────────────────────
+  // ── 4. Station Arrival — camelCase field parsing ─────────────────────
   group('GET /bus/station/01592', () {
     test('parses meta with totalCount (no success field)', () async {
       dioAdapter.onGet(
@@ -705,7 +464,7 @@ void main() {
     });
   });
 
-  // ── 6. Home Bus List (SDUI) ──────────────────────────────────────────
+  // ── 5. Home Bus List (SDUI) ──────────────────────────────────────────
   group('GET /ui/home/buslist', () {
     test('parses all 4 bus list items', () async {
       dioAdapter.onGet(
@@ -775,7 +534,7 @@ void main() {
     });
   });
 
-  // ── 7. Ad Placements ─────────────────────────────────────────────────
+  // ── 6. Ad Placements ─────────────────────────────────────────────────
   group('GET /ad/placements', () {
     test('parses placement map from real v2 response', () async {
       dioAdapter.onGet(
@@ -819,7 +578,8 @@ void main() {
 
       final repo = AdRepository(client);
       final result = await repo.getPlacements();
-      final banner = (result as Ok<AdPlacementsResponse>).data['main_banner']!;
+      final banner =
+          (result as Ok<AdPlacementsResponse>).data['main_banner']!;
 
       expect(banner.type, 'text');
       expect(banner.imageUrl, isNull);
@@ -830,7 +590,7 @@ void main() {
     });
   });
 
-  // ── 8. Search Facilities ─────────────────────────────────────────────
+  // ── 7. Search Facilities ─────────────────────────────────────────────
   group('GET /search/facilities/경영', () {
     test('parses meta with facilities counts', () async {
       dioAdapter.onGet(
@@ -908,20 +668,8 @@ void main() {
     });
   });
 
-  // ── 9. Endpoint paths match production ───────────────────────────────
+  // ── 8. Endpoint paths match production ───────────────────────────────
   group('ApiEndpoints paths', () {
-    test('bus location paths', () {
-      expect(ApiEndpoints.busHsscLocation(), '/bus/hssc/location');
-      expect(ApiEndpoints.busJongroLocation('02'), '/bus/jongro/location/02');
-      expect(ApiEndpoints.busJongroLocation('07'), '/bus/jongro/location/07');
-    });
-
-    test('bus station paths', () {
-      expect(ApiEndpoints.busHsscStations(), '/bus/hssc/stations');
-      expect(ApiEndpoints.busJongroStations('02'), '/bus/jongro/stations/02');
-      expect(ApiEndpoints.busJongroStations('07'), '/bus/jongro/stations/07');
-    });
-
     test('station arrival path', () {
       expect(ApiEndpoints.station('01592'), '/bus/station/01592');
     });
@@ -951,47 +699,21 @@ void main() {
     test('app config path', () {
       expect(ApiEndpoints.appConfig(), '/app/config');
     });
-
   });
 
-  // ── 10. Invalid envelope handling ────────────────────────────────────
+  // ── 9. Invalid envelope handling ────────────────────────────────────
   group('invalid v2 envelope', () {
     test('bare list returns ParseFailure', () async {
       dioAdapter.onGet(
-        ApiEndpoints.busHsscLocation(),
+        '/bus/realtime/data/hssc',
         (server) => server.reply(200, []),
       );
 
       final repo = BusRepository(client);
-      final result = await repo.getLocationsByPath(ApiEndpoints.busHsscLocation());
+      final result = await repo.getRealtimeData('/bus/realtime/data/hssc');
 
-      expect(result, isA<Err<List<MainBusLocation>>>());
-      final failure =
-          (result as Err<List<MainBusLocation>>).failure;
-      expect(failure, isA<ParseFailure>());
-      expect(failure.message, 'Invalid v2 envelope');
-    });
-
-    test('v1 response with metaData (missing meta) returns ParseFailure',
-        () async {
-      dioAdapter.onGet(
-        ApiEndpoints.busHsscStations(),
-        (server) => server.reply(200, {
-          'metaData': {
-            'currentTime': '12:00',
-            'totalBuses': 0,
-            'lastStationIndex': 0,
-          },
-          'stations': [],
-        }),
-      );
-
-      final repo = BusRepository(client);
-      final result = await repo.getStationsByPath(ApiEndpoints.busHsscStations());
-
-      expect(result, isA<Err<MainBusStationList>>());
-      final failure =
-          (result as Err<MainBusStationList>).failure;
+      expect(result, isA<Err<RealtimeData>>());
+      final failure = (result as Err<RealtimeData>).failure;
       expect(failure, isA<ParseFailure>());
       expect(failure.message, 'Invalid v2 envelope');
     });
@@ -1008,8 +730,7 @@ void main() {
       final result = await repo.getPlacements();
 
       expect(result, isA<Err<AdPlacementsResponse>>());
-      final failure =
-          (result as Err<AdPlacementsResponse>).failure;
+      final failure = (result as Err<AdPlacementsResponse>).failure;
       expect(failure, isA<ParseFailure>());
     });
   });

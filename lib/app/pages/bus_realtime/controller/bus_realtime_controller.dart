@@ -3,13 +3,12 @@ import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'package:skkumap/admob/ad_helper.dart';
-import 'package:skkumap/app/model/main_bus_stationlist.dart';
-
-import 'package:skkumap/app/model/main_bus_location.dart';
 
 import 'dart:async';
 
 import 'package:skkumap/app/model/bus_group.dart';
+import 'package:skkumap/app/model/realtime_data.dart';
+import 'package:skkumap/app/model/realtime_station.dart';
 import 'package:skkumap/app/data/repositories/bus_repository.dart';
 import 'package:skkumap/app/data/repositories/ad_repository.dart';
 import 'package:skkumap/app/data/result.dart';
@@ -34,8 +33,7 @@ class BusRealtimeLifeCycle extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      controller.localfetchBusLocation();
-      controller.localfetchBusStations();
+      controller.fetchRealtimeData();
       update();
     }
   }
@@ -55,6 +53,14 @@ class BusRealtimeController extends GetxController {
   late BusGroup group;
   bool _configSet = false;
 
+  // Static data from config (set once)
+  late List<RealtimeStation> stations;
+  late int lastStationIndex;
+
+  // Polled data
+  var realtimeData = Rx<RealtimeData?>(null);
+  var loadingdone = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -67,16 +73,17 @@ class BusRealtimeController extends GetxController {
     _configSet = true;
     group = config;
 
-    // Realtime screen data from group.screen
-    final screenData = group.screen;
-    final interval = (screenData['refreshInterval'] as num?)?.toInt() ?? 15;
+    // Parse static stations from config (one-time)
+    stations = group.realtimeStations;
+    lastStationIndex = group.lastStationIndex;
+
+    // Set up single data poll
+    final interval = group.refreshInterval;
     _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: interval), (Timer t) {
-      localfetchBusLocation();
-      localfetchBusStations();
+    _timer = Timer.periodic(Duration(seconds: interval), (_) {
+      fetchRealtimeData();
     });
-    localfetchBusStations();
-    localfetchBusLocation();
+    fetchRealtimeData();
   }
 
   void _initializeBannerAd() {
@@ -99,35 +106,27 @@ class BusRealtimeController extends GetxController {
     )..load();
   }
 
-  var mainBusStationList = Rx<MainBusStationList?>(null);
-
-  var loadingdone = false.obs;
-
-  Future<void> localfetchBusStations() async {
-    final endpoint = group.screen['stationsEndpoint'] as String?;
+  Future<void> fetchRealtimeData() async {
+    final endpoint = group.dataEndpoint;
     if (endpoint == null) return;
-    final result = await _busRepo.getStationsByPath(endpoint);
+    final result = await _busRepo.getRealtimeData(endpoint);
     switch (result) {
       case Ok(:final data):
-        mainBusStationList.value = data;
-        logger.d('BusStations.value: ${mainBusStationList.value}');
+        realtimeData.value = data;
       case Err(:final failure):
-        logger.e("Error fetchMainBusStations: $failure");
+        logger.e("Error fetchRealtimeData: $failure");
     }
     loadingdone.value = true;
   }
 
-  var mainBusLocation = Rx<List<MainBusLocation>>([]);
-  Future<void> localfetchBusLocation() async {
-    final endpoint = group.screen['locationsEndpoint'] as String?;
-    if (endpoint == null) return;
-    final result = await _busRepo.getLocationsByPath(endpoint);
-    switch (result) {
-      case Ok(:final data):
-        mainBusLocation.value = data;
-      case Err(:final failure):
-        logger.e("Error fetchMainBusLocation: $failure");
-    }
+  /// Get ETA text for a given station index, or empty string if none.
+  String etaForStation(int stationIndex) {
+    final etas = realtimeData.value?.stationEtas ?? [];
+    return etas
+            .where((e) => e.stationIndex == stationIndex)
+            .firstOrNull
+            ?.eta ??
+        '';
   }
 
 // 하단 이미지 광고

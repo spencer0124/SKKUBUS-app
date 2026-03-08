@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skkumap/app/utils/color_utils.dart';
+import 'package:skkumap/app/model/realtime_station.dart';
 
 class BusGroup {
   final String id;
@@ -56,7 +57,15 @@ class BusGroup {
       (screen['features'] as List? ?? []).cast<Map<String, dynamic>>();
 
   // --- realtime accessors ---
-  String? get realtimeEndpoint => screen['endpoint'] as String?;
+  String? get dataEndpoint => screen['dataEndpoint'] as String?;
+  int get refreshInterval =>
+      (screen['refreshInterval'] as num?)?.toInt() ?? 15;
+  int get lastStationIndex =>
+      (screen['lastStationIndex'] as num?)?.toInt() ?? 10;
+  List<RealtimeStation> get realtimeStations =>
+      (screen['stations'] as List? ?? [])
+          .map((e) => RealtimeStation.fromJson(e as Map<String, dynamic>))
+          .toList();
 }
 
 class BusGroupVisibility {
