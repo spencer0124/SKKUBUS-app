@@ -19,13 +19,13 @@ Widget buildMap() {
   return NaverMap(
     options: const NaverMapViewOptions(
       zoomGesturesEnable: true,
-      locationButtonEnable: false,
       mapType: NMapType.basic,
       logoAlign: NLogoAlign.rightBottom,
       logoClickEnable: true,
       logoMargin: EdgeInsets.all(1000),
       activeLayerGroups: [NLayerGroup.building, NLayerGroup.transit],
       initialCameraPosition: _fallbackCameraPosition,
+      customStyleId: '91a6fcf5-9d03-4762-99a5-7e58a5674628',
     ),
     onMapReady: (mapcontroller) {
       // Save native controller for later bounds queries
