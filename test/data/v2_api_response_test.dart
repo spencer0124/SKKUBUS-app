@@ -13,19 +13,19 @@ library;
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:skkumap/app/data/api_client.dart';
-import 'package:skkumap/app/data/api_endpoints.dart';
-import 'package:skkumap/app/data/repositories/ad_repository.dart';
-import 'package:skkumap/app/data/repositories/bus_repository.dart';
-import 'package:skkumap/app/data/repositories/search_repository.dart';
-import 'package:skkumap/app/data/repositories/station_repository.dart';
-import 'package:skkumap/app/data/repositories/ui_repository.dart';
-import 'package:skkumap/app/data/result.dart';
-import 'package:skkumap/app/model/ad_model.dart';
-import 'package:skkumap/app/model/realtime_data.dart';
-import 'package:skkumap/app/model/mainpage_buslist_model.dart' show BusListItem;
-import 'package:skkumap/app/model/search_option3_model.dart';
-import 'package:skkumap/app/model/station_model.dart';
+import 'package:skkumap/core/data/api_client.dart';
+import 'package:skkumap/core/data/api_endpoints.dart';
+import 'package:skkumap/core/repositories/ad_repository.dart';
+import 'package:skkumap/features/transit/data/bus_repository.dart';
+import 'package:skkumap/features/search/data/search_repository.dart';
+import 'package:skkumap/features/transit/data/station_repository.dart';
+import 'package:skkumap/core/repositories/ui_repository.dart';
+import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/model/ad_model.dart';
+import 'package:skkumap/features/transit/model/realtime_data.dart';
+import 'package:skkumap/features/transit/model/mainpage_buslist_model.dart' show BusListItem;
+import 'package:skkumap/features/search/model/search_option3_model.dart';
+import 'package:skkumap/features/transit/model/station_model.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Real API response snapshots (captured 2026-03-08)

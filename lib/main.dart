@@ -14,29 +14,29 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'package:skkumap/app/routes/app_routes.dart';
-import 'package:skkumap/app/pages/mainpage/binding/mainpage_binding.dart';
-import 'package:skkumap/app/pages/mainpage/ui/mainpage_screen.dart';
+import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/features/app_shell/binding/app_shell_binding.dart';
+import 'package:skkumap/features/app_shell/ui/app_shell_screen.dart';
 import 'package:skkumap/firebase_options.dart';
 import 'languages.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
-import 'package:skkumap/app/utils/geolocator.dart';
-import 'package:skkumap/app/utils/app_logger.dart';
-import 'package:skkumap/app/utils/analytics_screen_names.dart';
+import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
+import 'package:skkumap/core/utils/geolocator.dart';
+import 'package:skkumap/core/utils/app_logger.dart';
+import 'package:skkumap/core/utils/analytics_screen_names.dart';
 
-import 'package:skkumap/app/data/api_client.dart' as data;
-import 'package:skkumap/app/data/dio_client.dart';
-import 'package:skkumap/app/data/repositories/bus_repository.dart';
-import 'package:skkumap/app/data/repositories/bus_config_repository.dart';
-import 'package:skkumap/app/data/repositories/map_config_repository.dart';
-import 'package:skkumap/app/data/repositories/map_layer_repository.dart';
-import 'package:skkumap/app/data/repositories/station_repository.dart';
-import 'package:skkumap/app/data/repositories/search_repository.dart';
-import 'package:skkumap/app/data/repositories/ad_repository.dart';
-import 'package:skkumap/app/data/repositories/ui_repository.dart';
-import 'package:skkumap/app/data/connectivity_service.dart';
+import 'package:skkumap/core/data/api_client.dart' as data;
+import 'package:skkumap/core/data/dio_client.dart';
+import 'package:skkumap/features/transit/data/bus_repository.dart';
+import 'package:skkumap/features/transit/data/bus_config_repository.dart';
+import 'package:skkumap/features/campus_map/data/map_config_repository.dart';
+import 'package:skkumap/features/campus_map/data/map_layer_repository.dart';
+import 'package:skkumap/features/transit/data/station_repository.dart';
+import 'package:skkumap/features/search/data/search_repository.dart';
+import 'package:skkumap/core/repositories/ad_repository.dart';
+import 'package:skkumap/core/repositories/ui_repository.dart';
+import 'package:skkumap/core/data/connectivity_service.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         unknownRoute: GetPage(
           name: '/not-found',
           page: () => const Mainpage(),
-          binding: MainpageBinding(),
+          binding: AppShellBinding(),
         ),
         translations: Languages(),
         locale: Get.deviceLocale,

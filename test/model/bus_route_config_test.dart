@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skkumap/app/model/bus_group.dart';
-import 'package:skkumap/app/model/week_schedule.dart';
+import 'package:skkumap/features/transit/model/bus_group.dart';
+import 'package:skkumap/features/transit/model/week_schedule.dart';
 
 void main() {
   group('BusGroup.fromJson', () {

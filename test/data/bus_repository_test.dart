@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:skkumap/app/data/api_client.dart';
-import 'package:skkumap/app/data/repositories/bus_repository.dart';
-import 'package:skkumap/app/data/result.dart';
-import 'package:skkumap/app/model/realtime_data.dart';
+import 'package:skkumap/core/data/api_client.dart';
+import 'package:skkumap/features/transit/data/bus_repository.dart';
+import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/features/transit/model/realtime_data.dart';
 
 void main() {
   late Dio dio;

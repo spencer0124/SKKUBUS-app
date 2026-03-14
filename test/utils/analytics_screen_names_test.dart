@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skkumap/app/utils/analytics_screen_names.dart';
+import 'package:skkumap/core/utils/analytics_screen_names.dart';
 
 void main() {
   group('analyticsNameExtractor', () {

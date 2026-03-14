@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skkumap/app/model/map_config.dart';
-import 'package:skkumap/app/model/map_marker.dart';
+import 'package:skkumap/features/campus_map/model/map_config.dart';
+import 'package:skkumap/features/campus_map/model/map_marker.dart';
 
 void main() {
   group('MapConfig.fromJson', () {

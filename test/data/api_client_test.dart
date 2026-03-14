@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
-import 'package:skkumap/app/data/api_client.dart';
-import 'package:skkumap/app/data/result.dart';
+import 'package:skkumap/core/data/api_client.dart';
+import 'package:skkumap/core/data/result.dart';
 
 void main() {
   late Dio dio;

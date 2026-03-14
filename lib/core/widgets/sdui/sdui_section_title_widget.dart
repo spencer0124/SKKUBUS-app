@@ -1,0 +1,23 @@
+import 'package:flutter/material.dart';
+
+import 'package:skkumap/core/model/sdui_section.dart';
+
+class SduiSectionTitleWidget extends StatelessWidget {
+  final SduiSectionTitle section;
+
+  const SduiSectionTitleWidget({super.key, required this.section});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 4),
+      child: Text(
+        section.title,
+        style: const TextStyle(
+          fontFamily: 'WantedSansBold',
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+}
