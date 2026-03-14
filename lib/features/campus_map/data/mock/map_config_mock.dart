@@ -26,7 +26,7 @@ const _mockMapConfigJson = {
         'type': 'marker',
         'label': '건물번호',
         'defaultVisible': true,
-        'endpoint': '/map/markers/campus',
+        'endpoint': '/map/overlays?category=hssc',
       },
       {
         'id': 'bus_route_jongro07',

@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/features/campus_map/controller/map_layer_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/coord_picker.dart';
-import 'package:skkumap/features/campus_map/ui/navermap/building_labels.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 // Fallback before config loads — HSSC is default campus.
@@ -86,7 +85,6 @@ void _reconcileOverlays(
       ...layerCtrl.activeOverlays,
       ...nmapCtrl.markers,
       ...pickerCtrl.markers,
-      ...buildBuildingLabels(),
     });
   } catch (e) {
     logger.d('Overlay reconciliation error: $e');

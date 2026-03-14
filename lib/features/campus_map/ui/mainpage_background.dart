@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/campus_map/widgets/searchbar.dart';
 import 'package:skkumap/features/campus_map/widgets/filter.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/coord_picker.dart';
 import 'package:skkumap/features/campus_map/ui/filter/filter_sheet.dart';
+import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
+import 'package:skkumap/features/campus_map/controller/map_layer_controller.dart';
 
 /*
 snappingsheet의 child로 들어갈 background
@@ -57,13 +60,11 @@ class MainPageBackground extends StatelessWidget {
                               ],
                             ),
                           ),
-                          // scrollableRow 임시 비활성화
-                          // Positioned(
-                          //   left: 0,
-                          //   right: 0,
-                          //   top: (statusBarHeight + 10 + 60),
-                          //   child: const Center(child: ScrollableRow()),
-                          // ),
+                          Positioned(
+                            left: 10,
+                            top: statusBarHeight + 10 + 50,
+                            child: _CampusToggle(),
+                          ),
                           const CoordPickerPanel(),
                           // 현재위치 GPS 버튼 비활성화
                           // Positioned(
@@ -126,6 +127,66 @@ class MainPageBackground extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CampusToggle extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<CampusMapController>();
+    final layerCtrl = Get.find<MapLayerController>();
+
+    return Obx(() {
+      final selected = controller.selectedCampus.value;
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.15),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildItem('인사캠', 0, selected == 0, () {
+              controller.selectedCampus.value = 0;
+              layerCtrl.onCampusChanged();
+            }),
+            _buildItem('자과캠', 1, selected == 1, () {
+              controller.selectedCampus.value = 1;
+              layerCtrl.onCampusChanged();
+            }),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildItem(
+      String label, int index, bool isSelected, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.greenMain : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'WantedSansMedium',
+            fontSize: 12,
+            color: isSelected ? Colors.white : Colors.black87,
+          ),
+        ),
+      ),
     );
   }
 }

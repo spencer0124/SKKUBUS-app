@@ -8,6 +8,7 @@ import 'package:skkumap/features/campus_map/data/map_layer_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/campus_map/model/map_config.dart';
 import 'package:skkumap/features/campus_map/model/map_marker.dart';
+import 'package:skkumap/features/campus_map/model/map_overlay.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
@@ -23,12 +24,16 @@ class LayerState {
   /// Raw server markers — kept so we can re-filter by campus without re-fetch.
   List<ServerMapMarker>? rawMarkers;
 
+  /// Raw overlay data — kept so we can detect overlay layers on campus switch.
+  List<MapOverlay>? rawOverlays;
+
   LayerState({
     required this.visible,
     this.status = LayerLoadStatus.idle,
     this.markers,
     this.overlay,
     this.rawMarkers,
+    this.rawOverlays,
   });
 }
 
@@ -61,6 +66,9 @@ class MapLayerController extends GetxController {
         for (final layer in layers)
           if (layer.defaultVisible) _loadLayerData(layer),
       ]);
+
+      // Move camera to default campus
+      _moveCameraToSelectedCampus();
     } catch (e) {
       logger.e('MapLayerController.initFromConfig error: $e');
     }
@@ -83,33 +91,30 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
   }
 
-  /// Re-filter campus_buildings markers and move camera after campus switch.
+  /// Re-filter/re-fetch layers and move camera after campus switch.
   void onCampusChanged() {
     for (final entry in layerStates.entries) {
       final state = entry.value;
-      if (state.rawMarkers != null) {
-        final def =
-            _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
-        if (def != null) {
-          state.markers = _buildNMarkers(state.rawMarkers!, def);
-        }
+      final def =
+          _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
+      if (def == null) continue;
+
+      if (state.rawOverlays != null) {
+        // Overlay layer — clear cache & re-fetch for new campus.
+        // Keep old markers until fetch succeeds (rollback on failure).
+        final previousMarkers = state.markers;
+        state.status = LayerLoadStatus.loading;
+        final endpoint = _resolveOverlayEndpoint(def.endpoint);
+        _loadOverlayLayer(def, state, endpoint,
+            fallbackMarkers: previousMarkers);
+      } else if (state.rawMarkers != null) {
+        // Standard marker layer — client-side re-filter
+        state.markers = _buildNMarkers(state.rawMarkers!, def);
       }
     }
     layerStates.refresh();
 
-    // Move camera to selected campus center (from server config)
-    try {
-      final campusDef = _configRepo.config?.campus(_selectedCampusKey);
-      if (campusDef != null) {
-        final nmapCtrl = Get.find<UltimateNMapController>();
-        nmapCtrl.cameraPosition.value = NCameraPosition(
-          target: NLatLng(campusDef.centerLat, campusDef.centerLng),
-          zoom: campusDef.defaultZoom,
-          tilt: campusDef.defaultTilt,
-          bearing: campusDef.defaultBearing,
-        );
-      }
-    } catch (_) {}
+    _moveCameraToSelectedCampus();
   }
 
   // ── Computed getters for the map ──────────────────
@@ -144,20 +149,107 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
 
     try {
-      switch (def.type) {
-        case 'marker':
-          await _loadMarkerLayer(def, state);
-        case 'polyline':
-          await _loadPolylineLayer(def, state);
-        default:
-          logger.d('Unknown layer type: ${def.type}');
-          state.status = LayerLoadStatus.error;
+      if (_isOverlayEndpoint(def.endpoint)) {
+        final endpoint = _resolveOverlayEndpoint(def.endpoint);
+        await _loadOverlayLayer(def, state, endpoint);
+      } else {
+        switch (def.type) {
+          case 'marker':
+            await _loadMarkerLayer(def, state);
+          case 'polyline':
+            await _loadPolylineLayer(def, state);
+          default:
+            logger.d('Unknown layer type: ${def.type}');
+            state.status = LayerLoadStatus.error;
+        }
       }
     } catch (e) {
       logger.e('Layer load error (${def.id}): $e');
       state.status = LayerLoadStatus.error;
     }
     layerStates.refresh();
+  }
+
+  bool _isOverlayEndpoint(String endpoint) {
+    return endpoint.contains('/map/overlays') &&
+        Uri.parse(endpoint).queryParameters.containsKey('category');
+  }
+
+  /// Replace the category query parameter with the currently selected campus.
+  String _resolveOverlayEndpoint(String baseEndpoint) {
+    final uri = Uri.parse(baseEndpoint);
+    final params = Map<String, String>.from(uri.queryParameters);
+    params['category'] = _selectedCampusKey;
+    return uri.replace(queryParameters: params).toString();
+  }
+
+  Future<void> _loadOverlayLayer(
+    MapLayerDef def,
+    LayerState state,
+    String endpoint, {
+    List<NMarker>? fallbackMarkers,
+  }) async {
+    // Invalidate cache for this endpoint pattern so we get fresh data.
+    final result = await _layerRepo.getOverlays(endpoint);
+    switch (result) {
+      case Ok(:final data):
+        state.rawOverlays = data.overlays;
+        state.markers = _buildOverlayNMarkers(data.overlays, def);
+        state.status = LayerLoadStatus.loaded;
+      case Err(:final failure):
+        logger.e('Overlay fetch failed (${def.id}): $failure');
+        state.status = LayerLoadStatus.error;
+        // Rollback: keep previous markers if available
+        if (fallbackMarkers != null) {
+          state.markers = fallbackMarkers;
+        }
+    }
+    layerStates.refresh();
+  }
+
+  /// Build NMarker list from overlay data.
+  List<NMarker> _buildOverlayNMarkers(
+      List<MapOverlay> overlays, MapLayerDef def) {
+    final markers = <NMarker>[];
+    for (final o in overlays) {
+      if (o.type != 'marker') {
+        logger.d('Skipping non-marker overlay type: ${o.type}');
+        continue;
+      }
+      if (o.marker == null) continue;
+
+      final m = o.marker!;
+
+      // Name label marker (invisible 1x1 with caption)
+      markers.add(NMarker(
+        id: '_overlay_name_${o.id}',
+        position: NLatLng(o.lat, o.lng),
+        size: const Size(1, 1),
+        caption: NOverlayCaption(
+          text: m.label,
+          textSize: 10,
+          color: Colors.black,
+          haloColor: Colors.white,
+        ),
+      ));
+
+      // Number marker — only when subLabel is present
+      if (m.subLabel != null) {
+        markers.add(NMarker(
+          id: '_overlay_num_${o.id}',
+          position: NLatLng(o.lat, o.lng),
+          size: const Size(25, 25),
+          icon: _markerIcon,
+          captionOffset: -22,
+          caption: NOverlayCaption(
+            textSize: 7,
+            text: m.subLabel!,
+            color: Colors.black,
+          ),
+        ));
+      }
+    }
+    return markers;
   }
 
   Future<void> _loadMarkerLayer(MapLayerDef def, LayerState state) async {
@@ -220,6 +312,21 @@ class MapLayerController extends GetxController {
               ),
             ))
         .toList();
+  }
+
+  void _moveCameraToSelectedCampus() {
+    try {
+      final campusDef = _configRepo.config?.campus(_selectedCampusKey);
+      if (campusDef != null) {
+        final nmapCtrl = Get.find<UltimateNMapController>();
+        nmapCtrl.cameraPosition.value = NCameraPosition(
+          target: NLatLng(campusDef.centerLat, campusDef.centerLng),
+          zoom: campusDef.defaultZoom,
+          tilt: campusDef.defaultTilt,
+          bearing: campusDef.defaultBearing,
+        );
+      }
+    } catch (_) {}
   }
 
   String get _selectedCampusKey {

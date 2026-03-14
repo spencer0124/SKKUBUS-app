@@ -84,7 +84,12 @@ class BusCampusScreen extends StatelessWidget {
                   children: [
                     Container(
                       color: Colors.white,
-                      child: _buildDaySelector(controller),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 6),
+                          _buildDaySelector(controller),
+                        ],
+                      ),
                     ),
                     _buildNotices(controller),
                     Expanded(
@@ -337,115 +342,125 @@ class BusCampusScreen extends StatelessWidget {
         if (s == null || !s.isActive) return const SizedBox.shrink();
         final todayStr = _formatDate(DateTime.now());
 
-        return Row(
-          children: List.generate(s.days.length, (index) {
-            final day = s.days[index];
-            final isSelected = controller.selectedDayIndex.value == index;
-            final isToday = day.date == todayStr;
-            final isHidden = day.isHidden;
-            final isNoService = day.isNoService;
+        // Check if any day has a label — if so, all chips reserve label space.
+        final hasAnyLabel = s.days.any((d) => d.label != null);
 
-            final dateObj = DateTime.parse(day.date);
-            final dateLabel = '${dateObj.month}/${dateObj.day}';
-            final dayName = _shortDayName(day.dayOfWeek);
+        return IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: List.generate(s.days.length, (index) {
+              final day = s.days[index];
+              final isSelected = controller.selectedDayIndex.value == index;
+              final isToday = day.date == todayStr;
+              final isHidden = day.isHidden;
+              final isNoService = day.isNoService;
 
-            return Expanded(
-              child: GestureDetector(
-                onTap: isHidden ? null : () => controller.onDaySelected(index),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? (isNoService ? _grayLight : _heroGreen)
-                        : _grayBg,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        dateLabel,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontFamily: isSelected || isToday
-                              ? 'WantedSansBold'
-                              : 'WantedSansRegular',
-                          fontWeight: isSelected || isToday
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                          color: isHidden
-                              ? _grayLight.withValues(alpha: 0.5)
-                              : isSelected
-                                  ? Colors.white
-                                  : isNoService
-                                      ? _grayLight
-                                      : isToday
-                                          ? _heroGreen
-                                          : _gray,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Text(
-                            dayName,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: isSelected || isToday
-                                  ? 'WantedSansBold'
-                                  : 'WantedSansRegular',
-                              fontWeight: isSelected || isToday
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
-                              color: isHidden
-                                  ? _grayLight.withValues(alpha: 0.5)
-                                  : isSelected
-                                      ? Colors.white
-                                      : isNoService
-                                          ? _grayLight
-                                          : isToday
-                                              ? _heroGreen
-                                              : _gray,
-                            ),
+              final dateObj = DateTime.parse(day.date);
+              final dateLabel = '${dateObj.month}/${dateObj.day}';
+              final dayName = _shortDayName(day.dayOfWeek);
+
+              return Expanded(
+                child: GestureDetector(
+                  onTap:
+                      isHidden ? null : () => controller.onDaySelected(index),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? (isNoService ? _grayLight : _heroGreen)
+                          : _grayBg,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          dateLabel,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontFamily: isSelected || isToday
+                                ? 'WantedSansBold'
+                                : 'WantedSansRegular',
+                            fontWeight: isSelected || isToday
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: isHidden
+                                ? _grayLight.withValues(alpha: 0.5)
+                                : isSelected
+                                    ? Colors.white
+                                    : isNoService
+                                        ? _grayLight
+                                        : isToday
+                                            ? _heroGreen
+                                            : _gray,
                           ),
-                          if (isToday && !isSelected)
-                            Positioned(
-                              bottom: -4,
-                              child: Container(
-                                width: 4,
-                                height: 4,
-                                decoration: const BoxDecoration(
-                                  color: _heroGreen,
-                                  shape: BoxShape.circle,
-                                ),
+                        ),
+                        const SizedBox(height: 2),
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Text(
+                              dayName,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: isSelected || isToday
+                                    ? 'WantedSansBold'
+                                    : 'WantedSansRegular',
+                                fontWeight: isSelected || isToday
+                                    ? FontWeight.w700
+                                    : FontWeight.w400,
+                                color: isHidden
+                                    ? _grayLight.withValues(alpha: 0.5)
+                                    : isSelected
+                                        ? Colors.white
+                                        : isNoService
+                                            ? _grayLight
+                                            : isToday
+                                                ? _heroGreen
+                                                : _gray,
                               ),
                             ),
-                        ],
-                      ),
-                      if (day.label != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          day.label!,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 8,
-                            fontFamily: 'WantedSansRegular',
-                            color: isSelected ? Colors.white70 : _gray,
-                          ),
+                            if (isToday && !isSelected)
+                              Positioned(
+                                bottom: -4,
+                                child: Container(
+                                  width: 4,
+                                  height: 4,
+                                  decoration: const BoxDecoration(
+                                    color: _heroGreen,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
+                        if (hasAnyLabel) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            day.label ?? '',
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 8,
+                              fontFamily: 'WantedSansRegular',
+                              color: day.label != null
+                                  ? (isSelected ? Colors.white70 : _gray)
+                                  : Colors.transparent,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+          ),
         );
       }),
     );
