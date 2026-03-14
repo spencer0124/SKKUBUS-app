@@ -73,7 +73,10 @@ class _LazyIndexedStackState extends State<_LazyIndexedStack> {
     super.initState();
     _activated = List.filled(widget.builders.length, false);
     _children = List.filled(widget.builders.length, null);
-    _activateIndex(widget.index);
+    // Eagerly build all tabs so NaverMap initializes immediately
+    for (int i = 0; i < widget.builders.length; i++) {
+      _activateIndex(i);
+    }
   }
 
   @override
