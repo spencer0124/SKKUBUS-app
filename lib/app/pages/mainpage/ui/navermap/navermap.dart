@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/app/pages/mainpage/controller/map_layer_controller.dart';
+import 'package:skkumap/app/pages/mainpage/ui/navermap/coord_picker.dart';
+import 'package:skkumap/app/pages/mainpage/ui/navermap/building_labels.dart';
 import 'package:skkumap/app/utils/app_logger.dart';
 
 // Fallback before config loads — HSSC is default campus.
@@ -16,6 +18,7 @@ const _fallbackCameraPosition = NCameraPosition(
 
 Widget buildMap() {
   final ultimateNampController = Get.put(UltimateNMapController());
+  final pickerCtrl = Get.put(CoordPickerController());
   return NaverMap(
     options: const NaverMapViewOptions(
       zoomGesturesEnable: true,
@@ -27,6 +30,7 @@ Widget buildMap() {
       initialCameraPosition: _fallbackCameraPosition,
       customStyleId: '91a6fcf5-9d03-4762-99a5-7e58a5674628',
     ),
+    onMapTapped: (point, latLng) => pickerCtrl.addPoint(latLng),
     onMapReady: (mapcontroller) {
       // Save native controller for later bounds queries
       ultimateNampController.mapController.value = mapcontroller;
@@ -44,9 +48,11 @@ Widget buildMap() {
 
       // Unified overlay reconciliation: re-render all active layers + bus markers
       ever(layerCtrl.layerStates,
-          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController));
+          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController, pickerCtrl));
       ever(ultimateNampController.markers,
-          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController));
+          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController, pickerCtrl));
+      ever(pickerCtrl.points,
+          (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController, pickerCtrl));
 
       // Camera updates
       ever<NCameraPosition>(ultimateNampController.cameraPosition, (pos) {
@@ -71,6 +77,7 @@ void _reconcileOverlays(
   NaverMapController mc,
   MapLayerController layerCtrl,
   UltimateNMapController nmapCtrl,
+  CoordPickerController pickerCtrl,
 ) {
   try {
     mc.clearOverlays();
@@ -78,6 +85,8 @@ void _reconcileOverlays(
       ...layerCtrl.activeMarkers,
       ...layerCtrl.activeOverlays,
       ...nmapCtrl.markers,
+      ...pickerCtrl.markers,
+      ...buildBuildingLabels(),
     });
   } catch (e) {
     logger.d('Overlay reconciliation error: $e');

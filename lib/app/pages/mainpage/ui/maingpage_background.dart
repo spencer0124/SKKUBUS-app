@@ -5,6 +5,7 @@ import 'package:skkumap/app/components/mainpage/top_search/filter.dart';
 import 'package:skkumap/app/components/mainpage/top_scrollrow/scrollrow.dart';
 import 'package:skkumap/app/utils/screensize.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap.dart';
+import 'package:skkumap/app/pages/mainpage/ui/navermap/coord_picker.dart';
 import 'package:skkumap/app/pages/mainpage/ui/filter/filter_sheet.dart';
 import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
 
@@ -66,6 +67,7 @@ class MainPageBackground extends StatelessWidget {
                           //   top: (statusBarHeight + 10 + 60),
                           //   child: const Center(child: ScrollableRow()),
                           // ),
+                          const CoordPickerPanel(),
                           // 현재위치 GPS 버튼 비활성화
                           // Positioned(
                           //   top: statusBarHeight + 10 + 100 - 40,
