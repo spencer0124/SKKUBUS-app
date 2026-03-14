@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-
-import 'dart:io' show Platform;
-
-import 'package:url_launcher/url_launcher.dart';
 
 class AdWidgetContainer extends StatelessWidget {
   final BannerAd? bannerAd;

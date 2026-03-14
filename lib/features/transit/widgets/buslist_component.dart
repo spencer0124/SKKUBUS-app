@@ -167,7 +167,7 @@ class BusListComponent extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontFamily: 'WantedSansRegular',
-                            color: Colors.grey.withOpacity(0.3),
+                            color: Colors.grey.withValues(alpha: 0.3),
                           ),
                         ),
                       Text(
@@ -197,7 +197,7 @@ class BusListComponent extends StatelessWidget {
             padding: const EdgeInsets.only(
                 left: BusConstants.busComponentLeftpadding + 15),
             child: Divider(
-              color: Colors.grey.withOpacity(0.4),
+              color: Colors.grey.withValues(alpha: 0.4),
               height: 0,
             ),
           ),

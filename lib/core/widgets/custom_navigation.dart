@@ -112,8 +112,6 @@ class CustomNavigationBar extends StatelessWidget {
         return Icons.info_outline;
       case CustomNavigationBtnType.help:
         return Icons.help;
-      default:
-        return Icons.close;
     }
   }
 }

@@ -115,7 +115,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
               if (infoUrl != null) {
                 Get.toNamed(Routes.webview, arguments: {
                   'title': group.label,
-                  'color': group.card.themeColor.value
+                  'color': group.card.themeColor
+                      .toARGB32()
                       .toRadixString(16)
                       .substring(2),
                   'webviewLink': infoUrl,
@@ -162,7 +163,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                         if (controller.loadingdone.value == false) {
                           return const Center(
                             child: CircularProgressIndicator(
-                              color: AppColors.green_main,
+                              color: AppColors.greenMain,
                             ),
                           );
                         }

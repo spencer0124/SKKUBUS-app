@@ -24,10 +24,10 @@ class FilterInfoComponent extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(13, 8, 13, 8),
         decoration: BoxDecoration(
-          color: selected ? AppColors.green_main : Colors.white,
+          color: selected ? AppColors.greenMain : Colors.white,
           borderRadius: BorderRadius.circular(50),
           border: Border.all(
-            color: selected ? AppColors.green_main : Colors.grey[300]!,
+            color: selected ? AppColors.greenMain : Colors.grey[300]!,
             width: 1,
           ),
         ),

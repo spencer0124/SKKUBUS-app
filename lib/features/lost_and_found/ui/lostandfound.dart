@@ -14,7 +14,6 @@ class LostAndFound extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
 
     return Scaffold(
@@ -23,7 +22,7 @@ class LostAndFound extends StatelessWidget {
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.green_main,
+          backgroundColor: AppColors.greenMain,
           elevation: 0,
         ),
       ),
@@ -31,7 +30,7 @@ class LostAndFound extends StatelessWidget {
         children: [
           CustomNavigationBar(
             title: '분실물'.tr,
-            backgroundColor: AppColors.green_main,
+            backgroundColor: AppColors.greenMain,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: false,
             leftBtnAction: () {
@@ -96,7 +95,7 @@ class LostAndFound extends StatelessWidget {
                     Text(
                       '학생지원팀'.tr,
                       style: const TextStyle(
-                        color: AppColors.green_main,
+                        color: AppColors.greenMain,
                         fontFamily: 'WantedSansBold',
                       ),
                       textAlign: TextAlign.start,
@@ -188,7 +187,7 @@ class LostAndFound extends StatelessWidget {
                           Text(
                             '02-760-1077',
                             style: TextStyle(
-                                color: AppColors.green_main,
+                                color: AppColors.greenMain,
                                 fontFamily: 'WantedSansBold',
                                 fontSize: 13),
                             textAlign: TextAlign.start,
@@ -230,7 +229,7 @@ class LostAndFound extends StatelessWidget {
                           Text(
                             '031-290-5034',
                             style: TextStyle(
-                                color: AppColors.green_main,
+                                color: AppColors.greenMain,
                                 fontFamily: 'WantedSansBold',
                                 fontSize: 13),
                             textAlign: TextAlign.start,
@@ -258,7 +257,7 @@ class LostAndFound extends StatelessWidget {
                   children: [
                     // Icon(
                     //   Icons.location_on,
-                    //   color: AppColors.green_main,
+                    //   color: AppColors.greenMain,
                     // ),
                     const SizedBox(
                       width: 5,
@@ -266,7 +265,7 @@ class LostAndFound extends StatelessWidget {
                     Text(
                       '분실물 게시판'.tr,
                       style: const TextStyle(
-                        color: AppColors.green_main,
+                        color: AppColors.greenMain,
                         fontFamily: 'WantedSansBold',
                       ),
                       textAlign: TextAlign.start,

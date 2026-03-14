@@ -201,7 +201,7 @@ class UltimateNMapController extends GetxController {
     }
     try {
       Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
       );
       cameraPosition.value = NCameraPosition(
         target: NLatLng(position.latitude, position.longitude),

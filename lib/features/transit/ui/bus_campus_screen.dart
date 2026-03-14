@@ -124,7 +124,8 @@ class BusCampusScreen extends StatelessWidget {
             GestureDetector(
               onTap: () => Get.toNamed(Routes.webview, arguments: {
                 'title': group.label,
-                'color': group.card.themeColor.value
+                'color': group.card.themeColor
+                    .toARGB32()
                     .toRadixString(16)
                     .substring(2),
                 'webviewLink': infoFeature['url'],

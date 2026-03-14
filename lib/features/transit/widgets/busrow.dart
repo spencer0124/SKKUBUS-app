@@ -9,7 +9,7 @@ import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/features/transit/data/bus_config_repository.dart';
 
 final double dwidth =
-    MediaQueryData.fromView(WidgetsBinding.instance.window).size.width;
+    MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first).size.width;
 
 class CustomRow1 extends StatelessWidget {
   final String label;

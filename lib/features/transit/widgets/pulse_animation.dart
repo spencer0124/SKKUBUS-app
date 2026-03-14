@@ -9,7 +9,7 @@ class PulseAnimation extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PulseAnimationState createState() => _PulseAnimationState();
+  State<PulseAnimation> createState() => _PulseAnimationState();
 }
 
 class _PulseAnimationState extends State<PulseAnimation>

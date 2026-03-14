@@ -7,7 +7,6 @@ class GrabbingBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
 
     return Container(

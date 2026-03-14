@@ -3,12 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/features/transit/widgets/stationrow.dart';
 import 'package:skkumap/app_theme.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:skkumap/features/search/controller/search_controller.dart';
-
-import 'package:skkumap/core/widgets/custom_navigation.dart';
-import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/features/search/model/search_option3_model.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -31,8 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
-    final double screenWidth = ScreenSize.width(context);
+    final double screenWidth = MediaQuery.of(context).size.width;
 
     final controller = Get.find<PlaceSearchController>();
 
@@ -106,7 +101,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       fontFamily: 'WantedSansMedium',
                     ),
                     cursorHeight: 19,
-                    cursorColor: AppColors.green_main,
+                    cursorColor: AppColors.greenMain,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: "성균관대 공간명/코드 검색".tr,
@@ -176,12 +171,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.fromLTRB(7, 4, 7, 4),
                     decoration: BoxDecoration(
                       color: controller.currentTab.value == SearchTab.all
-                          ? AppColors.green_main
+                          ? AppColors.greenMain
                           : Colors.white,
                       borderRadius: BorderRadius.circular(50),
                       border: Border.all(
                         color: controller.currentTab.value == SearchTab.all
-                            ? AppColors.green_main
+                            ? AppColors.greenMain
                             : Colors.grey[300]!,
                         width: 1,
                       ),
@@ -210,12 +205,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.fromLTRB(7, 4, 7, 4),
                     decoration: BoxDecoration(
                       color: controller.currentTab.value == SearchTab.hssc
-                          ? AppColors.green_main
+                          ? AppColors.greenMain
                           : Colors.white,
                       borderRadius: BorderRadius.circular(50),
                       border: Border.all(
                         color: controller.currentTab.value == SearchTab.hssc
-                            ? AppColors.green_main
+                            ? AppColors.greenMain
                             : Colors.grey[300]!,
                         width: 1,
                       ),
@@ -244,12 +239,12 @@ class _SearchScreenState extends State<SearchScreen> {
                     padding: const EdgeInsets.fromLTRB(7, 4, 7, 4),
                     decoration: BoxDecoration(
                       color: controller.currentTab.value == SearchTab.nsc
-                          ? AppColors.green_main
+                          ? AppColors.greenMain
                           : Colors.white,
                       borderRadius: BorderRadius.circular(50),
                       border: Border.all(
                         color: controller.currentTab.value == SearchTab.nsc
-                            ? AppColors.green_main
+                            ? AppColors.greenMain
                             : Colors.grey[300]!,
                         width: 1,
                       ),
@@ -291,7 +286,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       decoration: BoxDecoration(
                         border: Border(
                           top: BorderSide(
-                            color: Colors.grey.withOpacity(0.3),
+                            color: Colors.grey.withValues(alpha: 0.3),
                             width: 0.5,
                           ),
                         ),

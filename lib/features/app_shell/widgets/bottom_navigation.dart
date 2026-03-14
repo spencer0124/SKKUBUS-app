@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:get/get.dart';
 
@@ -14,16 +13,13 @@ class Bottomnavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
-    final double screenWidth = ScreenSize.width(context);
-
     return Container(
       height: 92,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15), // Shadow color with opacity
+            color: Colors.black.withValues(alpha: 0.15), // Shadow color with opacity
             spreadRadius: 2,
             blurRadius: 10, // Adjust blur radius to control the shadow's spread
             offset: const Offset(0, -1), // Vertical offset for the shadow
@@ -45,13 +41,13 @@ class Bottomnavigation extends StatelessWidget {
                   Image.asset(
                     'assets/images/flaticon_campus.png',
                     width: 22,
-                    color: index == 1 ? AppColors.green_main : Colors.grey,
+                    color: index == 1 ? AppColors.greenMain : Colors.grey,
                   ),
                   const SizedBox(height: 5),
                   Text(
                     '캠퍼스'.tr,
                     style: TextStyle(
-                      color: index == 1 ? AppColors.green_main : Colors.grey,
+                      color: index == 1 ? AppColors.greenMain : Colors.grey,
                     ),
                   ),
                 ],
@@ -68,13 +64,13 @@ class Bottomnavigation extends StatelessWidget {
                   Image.asset(
                     'assets/images/flaticon_bus1.png',
                     width: 22,
-                    color: index == 2 ? AppColors.green_main : Colors.grey,
+                    color: index == 2 ? AppColors.greenMain : Colors.grey,
                   ),
                   const SizedBox(height: 5),
                   Text(
                     '버스'.tr,
                     style: TextStyle(
-                      color: index == 2 ? AppColors.green_main : Colors.grey,
+                      color: index == 2 ? AppColors.greenMain : Colors.grey,
                     ),
                   ),
                 ],

@@ -51,7 +51,7 @@ class LiveActivityBusETA extends StatelessWidget {
                   ? Text(
                       duration,
                       style: const TextStyle(
-                        color: AppColors.green_main,
+                        color: AppColors.greenMain,
                         fontFamily: 'WantedSansBold',
                         fontSize: 18,
                       ),
@@ -59,7 +59,7 @@ class LiveActivityBusETA extends StatelessWidget {
                   : const Text(
                       "운행종료",
                       style: TextStyle(
-                        color: AppColors.green_main,
+                        color: AppColors.greenMain,
                         fontFamily: 'WantedSansBold',
                         fontSize: 18,
                       ),

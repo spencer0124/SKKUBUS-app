@@ -232,7 +232,7 @@ void main() {
     });
 
     test('today() finds matching day', () {
-      final ws = WeekSchedule(
+      const ws = WeekSchedule(
         serviceId: 'test',
         from: '2026-03-09',
         days: [
@@ -252,7 +252,7 @@ void main() {
 
   group('DaySchedule display getters', () {
     test('hasSchedule', () {
-      final day = DaySchedule(
+      const day = DaySchedule(
         date: '2026-03-09',
         dayOfWeek: 1,
         display: 'schedule',
@@ -265,7 +265,7 @@ void main() {
     });
 
     test('isNoService', () {
-      final day = DaySchedule(
+      const day = DaySchedule(
         date: '2026-03-09',
         dayOfWeek: 1,
         display: 'noService',
@@ -276,7 +276,7 @@ void main() {
     });
 
     test('isHidden', () {
-      final day = DaySchedule(
+      const day = DaySchedule(
         date: '2026-03-09',
         dayOfWeek: 1,
         display: 'hidden',

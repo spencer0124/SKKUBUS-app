@@ -6,7 +6,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:skkumap/features/webview/controller/webview_controller.dart';
 
 import 'package:skkumap/core/widgets/custom_navigation.dart';
-import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 class CustomWebViewScreen extends StatelessWidget {
@@ -18,15 +17,12 @@ class CustomWebViewScreen extends StatelessWidget {
     final String pageColor = Get.arguments['color'];
     final String pageWebviewLink = Get.arguments['webviewLink'];
 
-    final double screenHeight = ScreenSize.height(context);
-    final double screenWidth = ScreenSize.width(context);
-
     final controller = Get.find<CustomWebViewController>();
     controller.initializeWebView(pageWebviewLink);
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (bool didPop) {
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
         //didPop == true , 뒤로가기 제스쳐가 감지되면 호출 된다.
         if (didPop) {
           logger.d('didPop호출');

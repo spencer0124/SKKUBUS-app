@@ -15,11 +15,11 @@ class CustomFilter extends StatelessWidget {
         alignment: Alignment.topCenter,
         padding: const EdgeInsets.all(2),
         decoration: BoxDecoration(
-          color: AppColors.green_main,
+          color: AppColors.greenMain,
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
-              color: AppColors.green_main.withOpacity(0.3),
+              color: AppColors.greenMain.withValues(alpha: 0.3),
               spreadRadius: 1,
               blurRadius: 5,
               offset: const Offset(0, 3),

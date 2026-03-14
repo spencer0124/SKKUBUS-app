@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -56,7 +55,7 @@ Future<void> main() async {
   Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
-  await initNaverMapSdk_v2();
+  await initNaverMapSdkV2();
 
   runApp(const MyApp());
 }
@@ -148,7 +147,7 @@ Future<void> initEnvironmentVariables() async {
   await dotenv.load(fileName: ".env");
 }
 
-Future<void> initNaverMapSdk_v2() async {
+Future<void> initNaverMapSdkV2() async {
   await FlutterNaverMap().init(
       clientId: dotenv.env['navernewClientId']!,
       onAuthFailed: (ex) {

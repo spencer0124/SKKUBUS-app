@@ -59,11 +59,11 @@ class FilterSheet extends StatelessWidget {
           const SizedBox(height: 10),
 
           // ── Campus selector ──
-          Padding(
-            padding: const EdgeInsets.only(left: 15),
+          const Padding(
+            padding: EdgeInsets.only(left: 15),
             child: Row(
               children: [
-                const Text(
+                Text(
                   "캠퍼스",
                   style: TextStyle(
                     color: Colors.black,
@@ -71,8 +71,8 @@ class FilterSheet extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 3),
-                const Icon(Icons.info_outline, size: 14, color: Colors.grey),
+                SizedBox(width: 3),
+                Icon(Icons.info_outline, size: 14, color: Colors.grey),
               ],
             ),
           ),
@@ -123,11 +123,11 @@ class FilterSheet extends StatelessWidget {
 
           // ── Layer toggles (config-driven) ──
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.only(left: 15),
+          const Padding(
+            padding: EdgeInsets.only(left: 15),
             child: Row(
               children: [
-                const Text(
+                Text(
                   "지도 레이어",
                   style: TextStyle(
                     color: Colors.black,
@@ -135,8 +135,8 @@ class FilterSheet extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 3),
-                const Icon(Icons.info_outline, size: 14, color: Colors.grey),
+                SizedBox(width: 3),
+                Icon(Icons.info_outline, size: 14, color: Colors.grey),
               ],
             ),
           ),

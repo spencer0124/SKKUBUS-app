@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import 'package:flutter/material.dart';
 import 'package:skkumap/features/search/model/search_option3_model.dart';
 import 'package:skkumap/features/search/data/search_repository.dart';
 import 'package:skkumap/core/data/result.dart';
@@ -25,7 +24,6 @@ class PlaceSearchController extends GetxController {
       case SearchTab.nsc:
         return searchResult.value?.option3Items.nsc ?? [];
       case SearchTab.all:
-      default:
         return [
           ...searchResult.value?.option3Items.hssc ?? [],
           ...searchResult.value?.option3Items.nsc ?? [],

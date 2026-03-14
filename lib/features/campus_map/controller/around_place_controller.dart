@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';

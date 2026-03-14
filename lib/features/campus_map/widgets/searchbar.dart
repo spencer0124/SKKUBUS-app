@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skkumap/core/utils/screensize.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,8 +8,6 @@ class CustomSearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = ScreenSize.width(context);
-
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
       alignment: Alignment.centerLeft,
@@ -28,7 +25,7 @@ class CustomSearchBar extends StatelessWidget {
           //   offset: const Offset(0, 3), // changes position of shadow
           // ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),

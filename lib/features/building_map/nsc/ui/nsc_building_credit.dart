@@ -11,7 +11,6 @@ class NSCBuildingCredit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
 
     return Scaffold(
@@ -20,7 +19,7 @@ class NSCBuildingCredit extends StatelessWidget {
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.green_main,
+          backgroundColor: AppColors.greenMain,
           elevation: 0,
         ),
       ),
@@ -28,7 +27,7 @@ class NSCBuildingCredit extends StatelessWidget {
         children: [
           CustomNavigationBar(
             title: '자과캠 건물지도'.tr,
-            backgroundColor: AppColors.green_main,
+            backgroundColor: AppColors.greenMain,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: false,
             leftBtnAction: () {

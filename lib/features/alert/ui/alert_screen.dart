@@ -33,7 +33,7 @@ class AlertScreen extends StatelessWidget {
               //   width: double.infinity,
               //   height: 50,
               //   alignment: Alignment.topCenter,
-              //   color: AppColors.green_main,
+              //   color: AppColors.greenMain,
               //   // color: Colors.red,
               //   child: Padding(
               //     padding: const EdgeInsets.fromLTRB(10, 8, 10, 0),

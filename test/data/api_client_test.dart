@@ -118,7 +118,7 @@ void main() {
         '/test',
         (json) {
           // Simulate a fromJson that throws
-          throw FormatException('Expected a List but got Map');
+          throw const FormatException('Expected a List but got Map');
         },
       );
 

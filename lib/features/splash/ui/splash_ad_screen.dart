@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 

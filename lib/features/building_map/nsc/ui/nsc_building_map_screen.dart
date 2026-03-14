@@ -25,7 +25,7 @@ class NSCBuildingMap extends StatelessWidget {
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.green_main,
+          backgroundColor: AppColors.greenMain,
           elevation: 0,
         ),
       ),
@@ -33,7 +33,7 @@ class NSCBuildingMap extends StatelessWidget {
         children: [
           CustomNavigationBar(
             title: '자과캠 건물지도'.tr,
-            backgroundColor: AppColors.green_main,
+            backgroundColor: AppColors.greenMain,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: true,
             leftBtnAction: () {

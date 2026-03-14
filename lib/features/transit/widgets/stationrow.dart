@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/transit/widgets/stationrow_component.dart'; // Import the ScrollRowContainer widget
 import 'package:get/get.dart';
@@ -9,7 +8,7 @@ import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/features/transit/data/bus_config_repository.dart';
 
 final double dwidth =
-    MediaQueryData.fromView(WidgetsBinding.instance.window).size.width;
+    MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first).size.width;
 
 class CustomRow2 extends StatelessWidget {
   final IconData iconData;
@@ -155,7 +154,7 @@ class CustomRow2 extends StatelessWidget {
                                         children: [
                                           const StationRowComponent(
                                             containerColor:
-                                                AppColors.green_main,
+                                                AppColors.greenMain,
                                             containerText: '인사캠',
                                           ),
                                           const SizedBox(

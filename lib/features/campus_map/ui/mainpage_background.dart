@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/features/campus_map/widgets/searchbar.dart';
 import 'package:skkumap/features/campus_map/widgets/filter.dart';
-import 'package:skkumap/features/campus_map/widgets/scrollrow.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/coord_picker.dart';
 import 'package:skkumap/features/campus_map/ui/filter/filter_sheet.dart';
-import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 
 /*
 snappingsheet의 child로 들어갈 background
@@ -21,7 +19,6 @@ class MainPageBackground extends StatelessWidget {
     final double screenHeight = ScreenSize.height(context);
     final double screenWidth = ScreenSize.width(context);
     final double statusBarHeight = ScreenSize.statusBarHeight(context);
-    final ultimateController = Get.find<UltimateNMapController>();
 
     return Column(
       children: [
