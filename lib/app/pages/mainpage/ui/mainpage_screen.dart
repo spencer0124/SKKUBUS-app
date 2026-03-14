@@ -3,28 +3,15 @@ import 'package:flutter/services.dart';
 
 import 'package:get/get.dart';
 import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
-import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_campus.dart';
-import 'package:skkumap/app/pages/mainpage/ui/snappingsheet/option_around.dart';
-
-import 'package:snapping_sheet/snapping_sheet.dart';
-
+import 'package:skkumap/app/pages/mainpage/ui/campus_map_tab.dart';
+import 'package:skkumap/app/pages/mainpage/ui/transit_tab.dart';
 import 'package:skkumap/app/components/mainpage/bottom/bottomnavigation.dart';
-
-import '../controller/snappingsheet_controller.dart';
-import 'snappingsheet/option_bus.dart';
-import 'package:skkumap/app/components/mainpage/middle_snappingsheet/grabbing_box.dart';
-import 'package:skkumap/app/pages/mainpage/ui/maingpage_background.dart';
-import 'package:skkumap/app/utils/screensize.dart';
 
 class Mainpage extends GetView<MainpageController> {
   const Mainpage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final double screenHeight = ScreenSize.height(context);
-    final double screenWidth = ScreenSize.width(context);
-    final ScrollController sheetChildScrollController = ScrollController();
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: PreferredSize(
@@ -38,96 +25,78 @@ class Mainpage extends GetView<MainpageController> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          SnappingSheet(
-            controller: snappingSheetController,
-            onSheetMoved: (sheetPosition) {
-              final isExpanded = sheetPosition.pixels > screenHeight * 0.7;
-              controller.snappingSheetIsExpanded.value = isExpanded;
-            },
-            onSnapCompleted: (sheetPosition, snappingPosition) {
-              // checkCurrentPosition(screenHeight, sheetPosition, snappingPosition);
-            },
-            lockOverflowDrag: true,
-            snappingPositions: getSnappingPositions(),
-            grabbingHeight: grabbingHeight,
-            grabbing: const GrabbingBox(),
-            sheetBelow: SnappingSheetContent(
-                childScrollController: sheetChildScrollController,
-                draggable: true,
-                // snappingsheet에 어떤 child가 들어갈지 결정
-                child: Obx(
-                  () {
-                    return _getSnappingSheetContent(
-                        controller.bottomNavigationIndex.value,
-                        sheetChildScrollController,
-                        controller.snappingSheetIsExpanded.value);
-                  },
-                )),
-            child: const MainPageBackground(),
-          ),
+          Obx(() => _LazyIndexedStack(
+                index: controller.bottomNavigationIndex.value - 1,
+                builders: [
+                  () => const CampusMapTab(),
+                  () => const TransitTab(),
+                ],
+              )),
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
             child: Obx(
-              () {
-                return Bottomnavigation(
-                  index: controller.bottomNavigationIndex.value,
-                  onItemTapped: (int index) {
-                    controller.bottomNavigationIndex.value = index;
-                  },
-                );
-              },
+              () => Bottomnavigation(
+                index: controller.bottomNavigationIndex.value,
+                onItemTapped: (int index) {
+                  controller.bottomNavigationIndex.value = index;
+                },
+              ),
             ),
-          )
+          ),
         ],
       ),
     );
   }
 }
 
-Widget _getSnappingSheetContent(
-    int index, ScrollController scrollController, bool scrollEnabled) {
-  final physics = scrollEnabled
-      ? const ClampingScrollPhysics()
-      : const NeverScrollableScrollPhysics();
+class _LazyIndexedStack extends StatefulWidget {
+  final int index;
+  final List<Widget Function()> builders;
 
-  switch (index) {
-    case 0:
-      return SingleChildScrollView(
-        controller: scrollController,
-        physics: physics,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [OptionAround()],
-        ),
-      );
-    case 1:
-      return SingleChildScrollView(
-        controller: scrollController,
-        physics: physics,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [OptionCampus()],
-        ),
-      );
-    case 2:
-      return SingleChildScrollView(
-        controller: scrollController,
-        physics: physics,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [OptionBus()],
-        ),
-      );
-    default:
-      return SingleChildScrollView(
-        controller: scrollController,
-        physics: physics,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [OptionCampus()],
-        ),
-      );
+  const _LazyIndexedStack({
+    required this.index,
+    required this.builders,
+  });
+
+  @override
+  State<_LazyIndexedStack> createState() => _LazyIndexedStackState();
+}
+
+class _LazyIndexedStackState extends State<_LazyIndexedStack> {
+  late final List<bool> _activated;
+  late final List<Widget?> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _activated = List.filled(widget.builders.length, false);
+    _children = List.filled(widget.builders.length, null);
+    _activateIndex(widget.index);
+  }
+
+  @override
+  void didUpdateWidget(covariant _LazyIndexedStack oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _activateIndex(widget.index);
+  }
+
+  void _activateIndex(int index) {
+    if (index >= 0 && index < _activated.length && !_activated[index]) {
+      _activated[index] = true;
+      _children[index] = widget.builders[index]();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: widget.index,
+      children: [
+        for (int i = 0; i < widget.builders.length; i++)
+          _children[i] ?? const SizedBox.shrink(),
+      ],
+    );
   }
 }
