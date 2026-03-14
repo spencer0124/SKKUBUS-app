@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:skkumap/app_theme.dart';
 import 'package:get/get.dart';
 
 class Bottomnavigation extends StatelessWidget {
@@ -13,70 +12,87 @@ class Bottomnavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
     return Container(
-      height: 92,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15), // Shadow color with opacity
-            spreadRadius: 2,
-            blurRadius: 10, // Adjust blur radius to control the shadow's spread
-            offset: const Offset(0, -1), // Vertical offset for the shadow
+        border: Border(
+          top: BorderSide(
+            color: Color(0xFFE5E5E5),
+            width: 0.5,
           ),
-        ],
+        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: 10, left: 40, right: 40),
-        child: Row(
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: SizedBox(
+          height: 56,
+          child: Row(
+            children: [
+              _TabItem(
+                icon: Icons.map_outlined,
+                activeIcon: Icons.map,
+                label: '캠퍼스'.tr,
+                isSelected: index == 1,
+                onTap: () => onItemTapped(1),
+              ),
+              _TabItem(
+                icon: Icons.near_me_outlined,
+                activeIcon: Icons.near_me,
+                label: '이동'.tr,
+                isSelected: index == 2,
+                onTap: () => onItemTapped(2),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TabItem extends StatelessWidget {
+  const _TabItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isSelected ? const Color(0xFF191F28) : const Color(0xFFADB5BD);
+
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Spacer(),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                onItemTapped(1);
-              },
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/images/flaticon_campus.png',
-                    width: 22,
-                    color: index == 1 ? AppColors.greenMain : Colors.grey,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '캠퍼스'.tr,
-                    style: TextStyle(
-                      color: index == 1 ? AppColors.greenMain : Colors.grey,
-                    ),
-                  ),
-                ],
+            Icon(
+              isSelected ? activeIcon : icon,
+              size: 24,
+              color: color,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: color,
+                height: 1.0,
               ),
             ),
-            const Spacer(),
-            GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                onItemTapped(2);
-              },
-              child: Column(
-                children: [
-                  Image.asset(
-                    'assets/images/flaticon_bus1.png',
-                    width: 22,
-                    color: index == 2 ? AppColors.greenMain : Colors.grey,
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    '버스'.tr,
-                    style: TextStyle(
-                      color: index == 2 ? AppColors.greenMain : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Spacer(),
           ],
         ),
       ),
