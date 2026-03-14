@@ -32,7 +32,8 @@ class ConnectivityService extends GetxService {
 
     if (wasOnline && !online) {
       final now = DateTime.now();
-      if (now.difference(_lastSnackbarTime) > _snackbarCooldown) {
+      if (now.difference(_lastSnackbarTime) > _snackbarCooldown &&
+          Get.key.currentState != null) {
         _lastSnackbarTime = now;
         Get.rawSnackbar(
           message: '네트워크 연결이 불안정합니다',
