@@ -5,6 +5,7 @@ import 'package:skkumap/core/data/api_client.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/transit/model/realtime_data.dart';
+import 'package:skkumap/features/transit/model/smart_schedule.dart';
 
 void main() {
   late Dio dio;
@@ -108,6 +109,130 @@ void main() {
       expect(data.stationEtas[0].stationIndex, 0);
       expect(data.stationEtas[0].eta, '3분후[1번째 전]');
       expect(data.stationEtas[1].stationIndex, 3);
+    });
+  });
+
+  group('getSmartSchedule', () {
+    test('parses active smart schedule correctly', () async {
+      dioAdapter.onGet(
+        '/bus/schedule/data/campus-inja/smart',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': {
+            'serviceId': 'campus-inja',
+            'status': 'active',
+            'from': '2026-03-16',
+            'selectedDate': '2026-03-18',
+            'days': [
+              {
+                'date': '2026-03-16',
+                'dayOfWeek': 1,
+                'display': 'schedule',
+                'label': null,
+                'notices': [],
+                'schedule': [
+                  {
+                    'index': 1,
+                    'time': '07:00',
+                    'routeType': 'regular',
+                    'busCount': 1,
+                    'notes': null,
+                  },
+                ],
+              },
+              {
+                'date': '2026-03-17',
+                'dayOfWeek': 2,
+                'display': 'schedule',
+                'label': null,
+                'notices': [],
+                'schedule': [],
+              },
+              {
+                'date': '2026-03-18',
+                'dayOfWeek': 3,
+                'display': 'schedule',
+                'label': null,
+                'notices': [],
+                'schedule': [],
+              },
+            ],
+          },
+        }),
+      );
+
+      final result = await repository
+          .getSmartSchedule('/bus/schedule/data/campus-inja/smart');
+      expect(result, isA<Ok<ConditionalResult<SmartSchedule>>>());
+      final cond = (result as Ok<ConditionalResult<SmartSchedule>>).data;
+      expect(cond.notModified, isFalse);
+      final data = cond.data!;
+      expect(data.serviceId, 'campus-inja');
+      expect(data.status, 'active');
+      expect(data.isActive, isTrue);
+      expect(data.from, '2026-03-16');
+      expect(data.selectedDate, '2026-03-18');
+      expect(data.days, hasLength(3));
+      expect(data.selectedDayIndex, 2);
+    });
+
+    test('parses suspended schedule', () async {
+      dioAdapter.onGet(
+        '/bus/schedule/data/campus-inja/smart',
+        (server) => server.reply(200, {
+          'meta': {'lang': 'ko'},
+          'data': {
+            'serviceId': 'campus-inja',
+            'status': 'suspended',
+            'from': null,
+            'selectedDate': null,
+            'days': [],
+            'resumeDate': '2026-09-01',
+            'message': '방학 기간 운행 중단',
+          },
+        }),
+      );
+
+      final result = await repository
+          .getSmartSchedule('/bus/schedule/data/campus-inja/smart');
+      expect(result, isA<Ok<ConditionalResult<SmartSchedule>>>());
+      final data =
+          (result as Ok<ConditionalResult<SmartSchedule>>).data.data!;
+      expect(data.isSuspended, isTrue);
+      expect(data.resumeDate, '2026-09-01');
+      expect(data.message, '방학 기간 운행 중단');
+      expect(data.days, isEmpty);
+    });
+
+    test('handles 304 Not Modified', () async {
+      dioAdapter.onGet(
+        '/bus/schedule/data/campus-inja/smart',
+        (server) => server.reply(304, null),
+        headers: {'If-None-Match': 'etag-123'},
+      );
+
+      final result = await repository.getSmartSchedule(
+        '/bus/schedule/data/campus-inja/smart',
+        ifNoneMatch: 'etag-123',
+      );
+      expect(result, isA<Ok<ConditionalResult<SmartSchedule>>>());
+      final cond = (result as Ok<ConditionalResult<SmartSchedule>>).data;
+      expect(cond.notModified, isTrue);
+      expect(cond.data, isNull);
+    });
+
+    test('returns ServerFailure on 500', () async {
+      dioAdapter.onGet(
+        '/bus/schedule/data/campus-inja/smart',
+        (server) => server.reply(500, 'Server Error'),
+      );
+
+      final result = await repository
+          .getSmartSchedule('/bus/schedule/data/campus-inja/smart');
+      expect(result, isA<Err>());
+      final failure = (result as Err).failure;
+      expect(failure, isA<ServerFailure>());
+      expect((failure as ServerFailure).statusCode, 500);
     });
   });
 

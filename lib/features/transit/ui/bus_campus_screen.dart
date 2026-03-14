@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:skkumap/features/transit/controller/bus_campus_controller.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/features/transit/model/bus_group.dart';
-import 'package:skkumap/features/transit/model/week_schedule.dart';
+import 'package:skkumap/features/transit/model/smart_schedule.dart';
 import 'package:skkumap/core/utils/color_utils.dart';
 
 // ── Colors ───────────────────────────────────────────────────────
@@ -54,33 +54,44 @@ class BusCampusScreen extends StatelessWidget {
                 children: [
                   _buildTitleBar(group),
                   _buildServiceTabs(controller, services),
-                  _buildWeekHeader(controller),
-                  _buildDaySelector(controller),
                 ],
               ),
             ),
-            // ── Notices ──
-            _buildNotices(controller),
             // ── Content ──
             Expanded(
               child: Obx(() {
                 controller.tick.value; // observe ticker
 
                 if (controller.isLoading.value) {
-                  return const SizedBox.shrink();
+                  return const Center(
+                    child: CircularProgressIndicator(color: _heroGreen),
+                  );
                 }
 
-                final day = controller.selectedDay;
-                if (day == null) return const SizedBox.shrink();
-
-                switch (day.display) {
-                  case 'noService':
-                    return _buildNoServiceCard(controller, day);
-                  case 'hidden':
-                    return const SizedBox.shrink();
-                  default: // 'schedule'
-                    return _buildScheduleContent(controller, group);
+                if (controller.hasError.value &&
+                    controller.schedule.value == null) {
+                  return _buildErrorState(controller);
                 }
+
+                final s = controller.schedule.value;
+                if (s == null) return const SizedBox.shrink();
+
+                if (s.isSuspended) return _buildSuspendedState(s);
+                if (s.isNoData) return _buildNoDataState(s);
+
+                // active — show day selector, notices, schedule
+                return Column(
+                  children: [
+                    Container(
+                      color: Colors.white,
+                      child: _buildDaySelector(controller),
+                    ),
+                    _buildNotices(controller),
+                    Expanded(
+                      child: _buildActiveContent(controller, group),
+                    ),
+                  ],
+                );
               }),
             ),
           ],
@@ -173,52 +184,147 @@ class BusCampusScreen extends StatelessWidget {
     );
   }
 
-  // ── Week Navigation Header ────────────────────────────────────
+  // ── Suspended State ────────────────────────────────────────────
 
-  Widget _buildWeekHeader(BusScheduleController controller) {
-    return Obx(() {
-      final ws = controller.weekSchedule.value;
-      if (ws == null) return const SizedBox.shrink();
-
-      final fromDate = DateTime.parse(ws.from);
-      final weekLabel = '${fromDate.month}/${fromDate.day}${'주'.tr}';
-
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: controller.goToPreviousWeek,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('‹',
-                    style: TextStyle(fontSize: 18, color: _gray)),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              weekLabel,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
-                color: _textColor,
-              ),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: controller.goToNextWeek,
-              child: const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('›',
-                    style: TextStyle(fontSize: 18, color: _gray)),
-              ),
-            ),
-          ],
+  Widget _buildSuspendedState(SmartSchedule s) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.pause_circle_outline,
+                  size: 48, color: _gray),
+              const SizedBox(height: 14),
+              if (s.message != null)
+                Text(
+                  s.message!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'WantedSansBold',
+                    color: _textColor,
+                  ),
+                ),
+              if (s.resumeDate != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  s.resumeDate!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: _gray,
+                    fontFamily: 'WantedSansRegular',
+                    height: 1.6,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  // ── No Data State ──────────────────────────────────────────────
+
+  Widget _buildNoDataState(SmartSchedule s) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.calendar_today_outlined,
+                  size: 48, color: _gray),
+              const SizedBox(height: 14),
+              if (s.message != null)
+                Text(
+                  s.message!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'WantedSansBold',
+                    color: _textColor,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Error State ────────────────────────────────────────────────
+
+  Widget _buildErrorState(BusScheduleController controller) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: _gray),
+              const SizedBox(height: 14),
+              Text(
+                '데이터를 불러올 수 없어요'.tr,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'WantedSansBold',
+                  color: _textColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+              GestureDetector(
+                onTap: controller.retry,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _heroGreen,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '다시 시도'.tr,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'WantedSansMedium',
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   // ── Day Selector (date-based chips) ───────────────────────────
@@ -227,13 +333,13 @@ class BusCampusScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 6, 14, 12),
       child: Obx(() {
-        final ws = controller.weekSchedule.value;
-        if (ws == null) return const SizedBox.shrink();
+        final s = controller.schedule.value;
+        if (s == null || !s.isActive) return const SizedBox.shrink();
         final todayStr = _formatDate(DateTime.now());
 
         return Row(
-          children: List.generate(ws.days.length, (index) {
-            final day = ws.days[index];
+          children: List.generate(s.days.length, (index) {
+            final day = s.days[index];
             final isSelected = controller.selectedDayIndex.value == index;
             final isToday = day.date == todayStr;
             final isHidden = day.isHidden;
@@ -388,6 +494,27 @@ class BusCampusScreen extends StatelessWidget {
           );
         }).toList(),
       );
+    });
+  }
+
+  // ── Active Content ─────────────────────────────────────────────
+
+  Widget _buildActiveContent(
+      BusScheduleController controller, BusGroup group) {
+    return Obx(() {
+      controller.tick.value;
+
+      final day = controller.selectedDay;
+      if (day == null) return const SizedBox.shrink();
+
+      switch (day.display) {
+        case 'noService':
+          return _buildNoServiceCard(controller, day);
+        case 'hidden':
+          return const SizedBox.shrink();
+        default: // 'schedule'
+          return _buildScheduleContent(controller, group);
+      }
     });
   }
 

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/transit/model/bus_group.dart';
-import 'package:skkumap/features/transit/model/week_schedule.dart';
+import 'package:skkumap/features/transit/model/smart_schedule.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 // ── Lifecycle observer ─────────────────────────────────────────────
@@ -28,8 +28,7 @@ class BusScheduleLifeCycle extends GetxController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      controller._resetToToday();
-      controller._fetchCurrentWeek();
+      controller._fetchSchedule();
     }
   }
 }
@@ -46,14 +45,15 @@ class BusScheduleController extends GetxController {
   // Current service (tab)
   late Rx<BusService> currentService;
 
-  // Week schedule data
-  var weekSchedule = Rx<WeekSchedule?>(null);
+  // Smart schedule data
+  var schedule = Rx<SmartSchedule?>(null);
   var selectedDayIndex = 0.obs;
   var isLoading = true.obs;
+  var hasError = false.obs;
 
   // ETag + data cache per serviceId
   final _etagMap = <String, String>{};
-  final _weekCache = <String, WeekSchedule>{};
+  final _scheduleCache = <String, SmartSchedule>{};
 
   // 1-minute ticker for ETA refresh
   Timer? _etaTimer;
@@ -80,7 +80,7 @@ class BusScheduleController extends GetxController {
     if (_dataLoaded) return;
     _dataLoaded = true;
     try {
-      await _fetchCurrentWeek();
+      await _fetchSchedule();
     } finally {
       isLoading.value = false;
     }
@@ -90,99 +90,71 @@ class BusScheduleController extends GetxController {
 
   void switchService(BusService service) {
     currentService.value = service;
-    weekSchedule.value = null;
-    selectedDayIndex.value = 0;
-    isLoading.value = true;
-    _fetchCurrentWeek().then((_) => isLoading.value = false);
+    hasError.value = false;
+    final cached = _scheduleCache[service.serviceId];
+    if (cached != null) {
+      schedule.value = cached;
+      selectedDayIndex.value = cached.selectedDayIndex;
+      _fetchSchedule();
+    } else {
+      schedule.value = null;
+      selectedDayIndex.value = 0;
+      isLoading.value = true;
+      _fetchSchedule().whenComplete(() => isLoading.value = false);
+    }
   }
 
-  // ── Week data fetch ───────────────────────────────────────────────
+  // ── Schedule data fetch ─────────────────────────────────────────
 
-  Future<void> _fetchCurrentWeek({String? from}) async {
+  Future<void> _fetchSchedule() async {
     final svc = currentService.value;
-    final cacheKey = _etagKey(svc.serviceId, from);
-    final etag = _etagMap[cacheKey];
+    final etag = _etagMap[svc.serviceId];
 
-    final result = await _busRepo.getWeekSchedule(
-      svc.weekEndpoint,
-      from: from,
+    final result = await _busRepo.getSmartSchedule(
+      svc.endpoint,
       ifNoneMatch: etag,
     );
 
     switch (result) {
       case Ok(:final data):
+        hasError.value = false;
         if (!data.notModified && data.data != null) {
-          weekSchedule.value = data.data;
-          _weekCache[cacheKey] = data.data!;
-          _etagMap[cacheKey] = data.etag ?? '';
-          _autoSelectToday();
+          schedule.value = data.data;
+          _scheduleCache[svc.serviceId] = data.data!;
+          _etagMap[svc.serviceId] = data.etag ?? '';
+          selectedDayIndex.value = data.data!.selectedDayIndex;
         } else if (data.notModified) {
-          // 304: restore from local cache
-          final cached = _weekCache[cacheKey];
+          final cached = _scheduleCache[svc.serviceId];
           if (cached != null) {
-            weekSchedule.value = cached;
-            _autoSelectToday();
+            schedule.value = cached;
+            selectedDayIndex.value = cached.selectedDayIndex;
           }
         }
       case Err(:final failure):
         logger.e('Schedule fetch failed: $failure');
+        hasError.value = true;
     }
   }
 
-  String _etagKey(String serviceId, String? from) => '$serviceId:${from ?? ''}';
-
-  // ── Week navigation ───────────────────────────────────────────────
-
-  void goToPreviousWeek() {
-    final ws = weekSchedule.value;
-    if (ws == null) return;
-    final current = DateTime.parse(ws.from);
-    final prev = current.subtract(const Duration(days: 7));
-    selectedDayIndex.value = 0;
-    isLoading.value = true;
-    _fetchCurrentWeek(from: _formatDate(prev)).then((_) {
-      isLoading.value = false;
-    });
-  }
-
-  void goToNextWeek() {
-    final ws = weekSchedule.value;
-    if (ws == null) return;
-    final current = DateTime.parse(ws.from);
-    final next = current.add(const Duration(days: 7));
-    selectedDayIndex.value = 0;
-    isLoading.value = true;
-    _fetchCurrentWeek(from: _formatDate(next)).then((_) {
-      isLoading.value = false;
-    });
-  }
+  /// Public retry for UI error state
+  Future<void> retry() => _fetchSchedule();
 
   // ── Day selection ─────────────────────────────────────────────────
 
   void onDaySelected(int index) {
-    final day = weekSchedule.value?.days[index];
+    final day = schedule.value?.days[index];
     if (day == null || day.isHidden) return;
     selectedDayIndex.value = index;
-  }
-
-  void _autoSelectToday() {
-    final ws = weekSchedule.value;
-    if (ws == null) return;
-    final todayStr = _formatDate(DateTime.now());
-    final idx = ws.days.indexWhere((d) => d.date == todayStr);
-    selectedDayIndex.value = idx >= 0 ? idx : 0;
-  }
-
-  void _resetToToday() {
-    _autoSelectToday();
   }
 
   // ── Computed getters ──────────────────────────────────────────────
 
   DaySchedule? get selectedDay {
-    final ws = weekSchedule.value;
-    if (ws == null || selectedDayIndex.value >= ws.days.length) return null;
-    return ws.days[selectedDayIndex.value];
+    final s = schedule.value;
+    if (s == null || !s.isActive || selectedDayIndex.value >= s.days.length) {
+      return null;
+    }
+    return s.days[selectedDayIndex.value];
   }
 
   List<ScheduleEntry> get currentEntries => selectedDay?.schedule ?? [];
@@ -198,6 +170,14 @@ class BusScheduleController extends GetxController {
     if (day == null) return false;
     return day.date == _formatDate(DateTime.now());
   }
+
+  // ── Status getters ────────────────────────────────────────────────
+
+  bool get isActive => schedule.value?.isActive ?? false;
+  bool get isSuspended => schedule.value?.isSuspended ?? false;
+  bool get isNoData => schedule.value?.isNoData ?? false;
+  String? get statusMessage => schedule.value?.message;
+  String? get resumeDate => schedule.value?.resumeDate;
 
   // ── Hero bus ──────────────────────────────────────────────────────
 

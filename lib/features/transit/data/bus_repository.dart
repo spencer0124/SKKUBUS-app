@@ -3,7 +3,7 @@ import 'package:skkumap/core/data/api_client.dart';
 import 'package:skkumap/core/data/api_endpoints.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/transit/model/realtime_data.dart';
-import 'package:skkumap/features/transit/model/week_schedule.dart';
+import 'package:skkumap/features/transit/model/smart_schedule.dart';
 
 class BusRepository {
   final ApiClient _client;
@@ -21,16 +21,14 @@ class BusRepository {
     );
   }
 
-  /// Fetch weekly schedule with ETag caching.
-  Future<Result<ConditionalResult<WeekSchedule>>> getWeekSchedule(
-    String weekEndpoint, {
-    String? from,
+  /// Fetch smart schedule with ETag caching.
+  Future<Result<ConditionalResult<SmartSchedule>>> getSmartSchedule(
+    String endpoint, {
     String? ifNoneMatch,
   }) {
-    return _client.safeGetConditional<WeekSchedule>(
-      weekEndpoint,
-      (json) => WeekSchedule.fromJson(json as Map<String, dynamic>),
-      queryParameters: from != null ? {'from': from} : null,
+    return _client.safeGetConditional<SmartSchedule>(
+      endpoint,
+      (json) => SmartSchedule.fromJson(json as Map<String, dynamic>),
       ifNoneMatch: ifNoneMatch,
     );
   }

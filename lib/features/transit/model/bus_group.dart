@@ -117,19 +117,19 @@ class BusGroupCard {
 class BusService {
   final String serviceId;
   final String label;
-  final String weekEndpoint;
+  final String endpoint;
 
   const BusService({
     required this.serviceId,
     required this.label,
-    required this.weekEndpoint,
+    required this.endpoint,
   });
 
   factory BusService.fromJson(Map<String, dynamic> json) {
     return BusService(
       serviceId: json['serviceId'] as String,
       label: json['label'] as String,
-      weekEndpoint: json['weekEndpoint'] as String,
+      endpoint: json['endpoint'] as String,
     );
   }
 }

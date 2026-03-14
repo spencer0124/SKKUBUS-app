@@ -1,35 +1,46 @@
-class WeekSchedule {
+class SmartSchedule {
   final String serviceId;
-  final String? requestedFrom;
-  final String from;
+  final String status; // "active" | "suspended" | "noData"
+  final String? from;
+  final String? selectedDate;
   final List<DaySchedule> days;
+  final String? resumeDate;
+  final String? message;
 
-  const WeekSchedule({
+  const SmartSchedule({
     required this.serviceId,
-    this.requestedFrom,
-    required this.from,
+    required this.status,
+    this.from,
+    this.selectedDate,
     required this.days,
+    this.resumeDate,
+    this.message,
   });
 
-  factory WeekSchedule.fromJson(Map<String, dynamic> json) {
+  factory SmartSchedule.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>;
-    return WeekSchedule(
+    return SmartSchedule(
       serviceId: data['serviceId'] as String,
-      requestedFrom: data['requestedFrom'] as String?,
-      from: data['from'] as String,
+      status: data['status'] as String,
+      from: data['from'] as String?,
+      selectedDate: data['selectedDate'] as String?,
       days: (data['days'] as List)
           .map((d) => DaySchedule.fromJson(d as Map<String, dynamic>))
           .toList(),
+      resumeDate: data['resumeDate'] as String?,
+      message: data['message'] as String?,
     );
   }
 
-  DaySchedule? today(DateTime now) {
-    final dateStr = _formatDate(now);
-    return days.where((d) => d.date == dateStr).firstOrNull;
-  }
+  bool get isActive => status == 'active';
+  bool get isSuspended => status == 'suspended';
+  bool get isNoData => status == 'noData';
 
-  static String _formatDate(DateTime d) =>
-      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  int get selectedDayIndex {
+    if (selectedDate == null || days.isEmpty) return 0;
+    final idx = days.indexWhere((d) => d.date == selectedDate);
+    return idx >= 0 ? idx : 0;
+  }
 }
 
 class DaySchedule {

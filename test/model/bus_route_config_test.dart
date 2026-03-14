@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skkumap/features/transit/model/bus_group.dart';
-import 'package:skkumap/features/transit/model/week_schedule.dart';
+import 'package:skkumap/features/transit/model/smart_schedule.dart';
 
 void main() {
   group('BusGroup.fromJson', () {
@@ -58,7 +58,7 @@ void main() {
             {
               'serviceId': 'campus-inja',
               'label': 'HSSC → NSC',
-              'weekEndpoint': '/bus/schedule/data/campus-inja/week',
+              'endpoint': '/bus/schedule/data/campus-inja/smart',
             },
           ],
           'heroCard': {
@@ -78,6 +78,8 @@ void main() {
       expect(group.defaultServiceId, 'campus-inja');
       expect(group.services, hasLength(1));
       expect(group.services[0].serviceId, 'campus-inja');
+      expect(group.services[0].endpoint,
+          '/bus/schedule/data/campus-inja/smart');
       expect(group.heroCard!.etaEndpoint, '/bus/campus/eta');
       expect(group.heroCard!.showUntilMinutesBefore, 0);
       expect(group.routeBadges, hasLength(2));
@@ -101,7 +103,7 @@ void main() {
             {
               'serviceId': 'test',
               'label': 'Test',
-              'weekEndpoint': '/test/week',
+              'endpoint': '/test/smart',
             },
           ],
           'heroCard': null,
@@ -162,14 +164,15 @@ void main() {
     });
   });
 
-  group('WeekSchedule.fromJson', () {
-    test('parses week schedule correctly', () {
+  group('SmartSchedule.fromJson', () {
+    test('parses active schedule correctly', () {
       final json = {
         'meta': {'lang': 'ko'},
         'data': {
           'serviceId': 'campus-inja',
-          'requestedFrom': '2026-03-09',
+          'status': 'active',
           'from': '2026-03-09',
+          'selectedDate': '2026-03-09',
           'days': [
             {
               'date': '2026-03-09',
@@ -212,13 +215,17 @@ void main() {
         },
       };
 
-      final ws = WeekSchedule.fromJson(json);
-      expect(ws.serviceId, 'campus-inja');
-      expect(ws.requestedFrom, '2026-03-09');
-      expect(ws.from, '2026-03-09');
-      expect(ws.days, hasLength(2));
+      final s = SmartSchedule.fromJson(json);
+      expect(s.serviceId, 'campus-inja');
+      expect(s.status, 'active');
+      expect(s.isActive, isTrue);
+      expect(s.isSuspended, isFalse);
+      expect(s.isNoData, isFalse);
+      expect(s.from, '2026-03-09');
+      expect(s.selectedDate, '2026-03-09');
+      expect(s.days, hasLength(2));
 
-      final day1 = ws.days[0];
+      final day1 = s.days[0];
       expect(day1.hasSchedule, isTrue);
       expect(day1.isNoService, isFalse);
       expect(day1.notices, hasLength(1));
@@ -226,15 +233,89 @@ void main() {
       expect(day1.schedule[0].time, '07:00');
       expect(day1.schedule[1].notes, 'Special');
 
-      final day2 = ws.days[1];
+      final day2 = s.days[1];
       expect(day2.isNoService, isTrue);
       expect(day2.schedule, isEmpty);
     });
 
-    test('today() finds matching day', () {
-      const ws = WeekSchedule(
+    test('parses suspended schedule correctly', () {
+      final json = {
+        'meta': {'lang': 'ko'},
+        'data': {
+          'serviceId': 'campus-inja',
+          'status': 'suspended',
+          'from': null,
+          'selectedDate': null,
+          'days': <Map<String, dynamic>>[],
+          'resumeDate': '2026-09-01',
+          'message': '방학 기간 운행 중단',
+        },
+      };
+
+      final s = SmartSchedule.fromJson(json);
+      expect(s.isSuspended, isTrue);
+      expect(s.isActive, isFalse);
+      expect(s.resumeDate, '2026-09-01');
+      expect(s.message, '방학 기간 운행 중단');
+      expect(s.days, isEmpty);
+      expect(s.from, isNull);
+      expect(s.selectedDate, isNull);
+    });
+
+    test('parses noData schedule correctly', () {
+      final json = {
+        'meta': {'lang': 'ko'},
+        'data': {
+          'serviceId': 'campus-inja',
+          'status': 'noData',
+          'from': null,
+          'selectedDate': null,
+          'days': <Map<String, dynamic>>[],
+          'message': '시간표 준비 중',
+        },
+      };
+
+      final s = SmartSchedule.fromJson(json);
+      expect(s.isNoData, isTrue);
+      expect(s.isActive, isFalse);
+      expect(s.isSuspended, isFalse);
+      expect(s.message, '시간표 준비 중');
+      expect(s.days, isEmpty);
+      expect(s.resumeDate, isNull);
+    });
+
+    test('selectedDayIndex returns matching index', () {
+      const s = SmartSchedule(
         serviceId: 'test',
+        status: 'active',
         from: '2026-03-09',
+        selectedDate: '2026-03-10',
+        days: [
+          DaySchedule(
+            date: '2026-03-09',
+            dayOfWeek: 1,
+            display: 'schedule',
+            notices: [],
+            schedule: [],
+          ),
+          DaySchedule(
+            date: '2026-03-10',
+            dayOfWeek: 2,
+            display: 'schedule',
+            notices: [],
+            schedule: [],
+          ),
+        ],
+      );
+      expect(s.selectedDayIndex, 1);
+    });
+
+    test('selectedDayIndex falls back to 0 when no match', () {
+      const s = SmartSchedule(
+        serviceId: 'test',
+        status: 'active',
+        from: '2026-03-09',
+        selectedDate: '2026-03-15',
         days: [
           DaySchedule(
             date: '2026-03-09',
@@ -245,8 +326,16 @@ void main() {
           ),
         ],
       );
-      expect(ws.today(DateTime(2026, 3, 9)), isNotNull);
-      expect(ws.today(DateTime(2026, 3, 10)), isNull);
+      expect(s.selectedDayIndex, 0);
+    });
+
+    test('selectedDayIndex returns 0 when selectedDate is null', () {
+      const s = SmartSchedule(
+        serviceId: 'test',
+        status: 'suspended',
+        days: [],
+      );
+      expect(s.selectedDayIndex, 0);
     });
   });
 
