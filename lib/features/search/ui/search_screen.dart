@@ -31,7 +31,7 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _onItemTap(SearchDisplayItem item) {
+  Future<void> _onItemTap(SearchDisplayItem item) async {
     switch (item) {
       case BuildingDisplayItem(:final building):
         Get.back(result: BuildingNavPayload(
@@ -39,21 +39,18 @@ class _SearchScreenState extends State<SearchScreen> {
           lat: building.lat,
           lng: building.lng,
         ));
-      case SpaceDisplayItem(:final group):
-        // Navigate to the building that contains this space.
-        // We don't have lat/lng for individual spaces in search results,
-        // so we need to find the building from the search results or the
-        // building list. For now, use skkuId from the search results.
-        // The search API returns buildings with location data.
+      case SpaceDisplayItem(:final group, :final space):
+        if (group.skkuId == null) return;
+        // Look up building coordinates from cached building list.
         final controller = Get.find<PlaceSearchController>();
-        final matchingBuilding = controller.searchResult.value?.buildings
-            .where((b) => b.buildNo == group.buildNo)
-            .firstOrNull;
-        if (matchingBuilding != null) {
+        final building = await controller.findBuildingById(group.skkuId!);
+        if (building != null) {
           Get.back(result: BuildingNavPayload(
-            skkuId: matchingBuilding.skkuId,
-            lat: matchingBuilding.lat,
-            lng: matchingBuilding.lng,
+            skkuId: group.skkuId!,
+            lat: building.lat,
+            lng: building.lng,
+            highlightFloor: space.floor.ko,
+            highlightSpaceCd: space.spaceCd,
           ));
         }
     }

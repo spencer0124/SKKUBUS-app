@@ -36,12 +36,14 @@ class BuildingSearchResult {
 
 /// A group of spaces within one building from search results.
 class SpaceGroup {
+  final int? skkuId;
   final String buildNo;
   final String? displayNo;
   final LocalizedText buildingName;
   final List<SearchSpaceItem> items;
 
   const SpaceGroup({
+    this.skkuId,
     required this.buildNo,
     this.displayNo,
     required this.buildingName,
@@ -50,6 +52,7 @@ class SpaceGroup {
 
   factory SpaceGroup.fromJson(Map<String, dynamic> json) {
     return SpaceGroup(
+      skkuId: json['skkuId'] as int?,
       buildNo: json['buildNo'] as String? ?? '',
       displayNo: json['displayNo'] as String?,
       buildingName: LocalizedText.fromJson(

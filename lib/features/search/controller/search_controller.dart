@@ -57,6 +57,15 @@ class PlaceSearchController extends GetxController {
     return items;
   }
 
+  /// Look up a building by skkuId from the cached building list.
+  Future<Building?> findBuildingById(int skkuId) async {
+    final result = await _buildingRepo.getBuildings();
+    if (result case Ok(:final data)) {
+      return data.firstWhereOrNull((b) => b.skkuId == skkuId);
+    }
+    return null;
+  }
+
   void updateFilter(SearchTab tab) {
     currentTab.value = tab;
     // Re-search with campus filter

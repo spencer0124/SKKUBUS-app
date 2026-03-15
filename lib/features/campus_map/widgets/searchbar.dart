@@ -11,11 +11,15 @@ class BuildingNavPayload {
   final int skkuId;
   final double lat;
   final double lng;
+  final String? highlightFloor;
+  final String? highlightSpaceCd;
 
   const BuildingNavPayload({
     required this.skkuId,
     required this.lat,
     required this.lng,
+    this.highlightFloor,
+    this.highlightSpaceCd,
   });
 }
 
@@ -51,7 +55,11 @@ class CustomSearchBar extends StatelessWidget {
               zoom: 17.5,
             );
             // Show building detail bottom sheet
-            BuildingDetailSheet.show(result.skkuId);
+            BuildingDetailSheet.show(
+              result.skkuId,
+              highlightFloor: result.highlightFloor,
+              highlightSpaceCd: result.highlightSpaceCd,
+            );
           }
         },
         child: Row(

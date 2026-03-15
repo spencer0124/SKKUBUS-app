@@ -11,9 +11,17 @@ class BuildingDetailSheet extends StatelessWidget {
   const BuildingDetailSheet({super.key, required this.skkuId});
 
   /// Show the building detail bottom sheet.
-  static Future<void> show(int skkuId) {
+  static Future<void> show(
+    int skkuId, {
+    String? highlightFloor,
+    String? highlightSpaceCd,
+  }) {
     final ctrl = Get.find<BuildingDetailController>();
-    ctrl.loadDetail(skkuId);
+    ctrl.loadDetail(
+      skkuId,
+      highlightFloor: highlightFloor,
+      highlightSpaceCd: highlightSpaceCd,
+    );
     return Get.bottomSheet(
       BuildingDetailSheet(skkuId: skkuId),
       isScrollControlled: true,
@@ -86,6 +94,7 @@ class BuildingDetailSheet extends StatelessWidget {
   }
 
   Widget _buildContent(BuildingDetail detail, ScrollController scrollController) {
+    final ctrl = Get.find<BuildingDetailController>();
     final building = detail.building;
     return ListView(
       controller: scrollController,
@@ -197,8 +206,11 @@ class BuildingDetailSheet extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                ...detail.floors
-                    .map((floor) => _buildFloorSection(floor)),
+                ...detail.floors.map((floor) => _buildFloorSection(
+                      floor,
+                      ctrl.highlightFloor,
+                      ctrl.highlightSpaceCd,
+                    )),
               ],
 
               const SizedBox(height: 24),
@@ -241,14 +253,22 @@ class BuildingDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildFloorSection(FloorInfo floor) {
+  Widget _buildFloorSection(
+    FloorInfo floor,
+    String? highlightFloor,
+    String? highlightSpaceCd,
+  ) {
+    final isHighlightedFloor = highlightFloor != null &&
+        floor.floor.ko == highlightFloor;
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
+      initiallyExpanded: isHighlightedFloor,
       title: Text(
         floor.floor.localized,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'WantedSansMedium',
           fontSize: 14,
+          color: isHighlightedFloor ? AppColors.greenMain : null,
         ),
       ),
       trailing: Text(
@@ -260,30 +280,42 @@ class BuildingDetailSheet extends StatelessWidget {
         ),
       ),
       children: floor.spaces
-          .map((space) => Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        space.name.localized,
-                        style: const TextStyle(
-                          fontFamily: 'WantedSansRegular',
-                          fontSize: 13,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      space.spaceCd,
+          .map((space) {
+            final isHighlighted = highlightSpaceCd != null &&
+                space.spaceCd == highlightSpaceCd;
+            return Container(
+              color: isHighlighted
+                  ? AppColors.greenMain.withValues(alpha: 0.1)
+                  : null,
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      space.name.localized,
                       style: TextStyle(
-                        fontFamily: 'WantedSansRegular',
-                        fontSize: 12,
-                        color: Colors.grey[500],
+                        fontFamily: isHighlighted
+                            ? 'WantedSansMedium'
+                            : 'WantedSansRegular',
+                        fontSize: 13,
+                        color: isHighlighted ? AppColors.greenMain : null,
                       ),
                     ),
-                  ],
-                ),
-              ))
+                  ),
+                  Text(
+                    space.spaceCd,
+                    style: TextStyle(
+                      fontFamily: 'WantedSansRegular',
+                      fontSize: 12,
+                      color: isHighlighted
+                          ? AppColors.greenMain
+                          : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          })
           .toList(),
     );
   }

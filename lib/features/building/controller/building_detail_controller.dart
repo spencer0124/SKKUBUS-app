@@ -13,7 +13,17 @@ class BuildingDetailController extends GetxController {
   final isLoading = true.obs;
   final hasError = false.obs;
 
-  Future<void> loadDetail(int skkuId) async {
+  /// Floor/space to highlight (set from search navigation).
+  String? highlightFloor;
+  String? highlightSpaceCd;
+
+  Future<void> loadDetail(
+    int skkuId, {
+    String? highlightFloor,
+    String? highlightSpaceCd,
+  }) async {
+    this.highlightFloor = highlightFloor;
+    this.highlightSpaceCd = highlightSpaceCd;
     detail.value = null;
     isLoading.value = true;
     hasError.value = false;
