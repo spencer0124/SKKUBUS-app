@@ -36,7 +36,7 @@ class BuildingDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.find<BuildingDetailController>();
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.9,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -100,17 +100,31 @@ class BuildingDetailSheet extends StatelessWidget {
       controller: scrollController,
       padding: EdgeInsets.zero,
       children: [
-        // Drag handle
-        Center(
-          child: Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 8),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
+        // Drag handle + close button
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: GestureDetector(
+                onTap: () => Get.back(),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(Icons.close, size: 22, color: Colors.grey[600]),
+                ),
+              ),
+            ),
+          ],
         ),
 
         // Building image
@@ -119,6 +133,7 @@ class BuildingDetailSheet extends StatelessWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: Image.network(
               building.image!.url,
+              headers: const {'Referer': 'https://www.skku.edu/'},
               height: 180,
               width: double.infinity,
               fit: BoxFit.cover,

@@ -80,6 +80,7 @@ class MapLayerDef {
   final String label;
   final bool defaultVisible;
   final String endpoint;
+  final String? markerStyle; // "numberCircle" | "textLabel"
   final MapLayerStyle? style;
 
   const MapLayerDef({
@@ -88,6 +89,7 @@ class MapLayerDef {
     required this.label,
     required this.defaultVisible,
     required this.endpoint,
+    this.markerStyle,
     this.style,
   });
 
@@ -98,6 +100,7 @@ class MapLayerDef {
       label: json['label'] as String,
       defaultVisible: json['defaultVisible'] as bool? ?? false,
       endpoint: json['endpoint'] as String,
+      markerStyle: json['markerStyle'] as String?,
       style: json['style'] != null
           ? MapLayerStyle.fromJson(json['style'] as Map<String, dynamic>)
           : null,

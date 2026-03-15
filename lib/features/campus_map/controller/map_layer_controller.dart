@@ -9,8 +9,6 @@ import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/campus_map/model/map_config.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
-import 'package:skkumap/features/building/data/building_repository.dart';
-import 'package:skkumap/features/building/model/building.dart';
 import 'package:skkumap/features/building/ui/building_detail_sheet.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
@@ -22,15 +20,15 @@ class LayerState {
   List<NMarker>? markers;
   NMultipartPathOverlay? overlay;
 
-  /// Raw building data — kept so we can re-filter by campus without re-fetch.
-  List<Building>? rawBuildings;
+  /// Raw marker JSON — kept so we can re-filter by campus without re-fetch.
+  List<Map<String, dynamic>>? rawMarkers;
 
   LayerState({
     required this.visible,
     this.status = LayerLoadStatus.idle,
     this.markers,
     this.overlay,
-    this.rawBuildings,
+    this.rawMarkers,
   });
 }
 
@@ -40,7 +38,6 @@ const _markerIcon =
 class MapLayerController extends GetxController {
   final _configRepo = Get.find<MapConfigRepository>();
   final _layerRepo = Get.find<MapLayerRepository>();
-  final _buildingRepo = Get.find<BuildingRepository>();
 
   final layerStates = <String, LayerState>{}.obs;
 
@@ -97,9 +94,8 @@ class MapLayerController extends GetxController {
           _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
       if (def == null) continue;
 
-      if (state.rawBuildings != null) {
-        // Building marker layer — client-side re-filter
-        state.markers = _buildBuildingNMarkers(state.rawBuildings!, def);
+      if (state.rawMarkers != null) {
+        state.markers = _buildMarkersFromJson(state.rawMarkers!, def);
       }
     }
     layerStates.refresh();
@@ -139,17 +135,14 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
 
     try {
-      if (_isBuildingEndpoint(def.endpoint)) {
-        // Building layer — use BuildingRepository (unified /building/list)
-        await _loadBuildingLayer(def, state);
-      } else {
-        switch (def.type) {
-          case 'polyline':
-            await _loadPolylineLayer(def, state);
-          default:
-            logger.d('Unknown layer type: ${def.type}');
-            state.status = LayerLoadStatus.error;
-        }
+      switch (def.type) {
+        case 'marker':
+          await _loadMarkerLayer(def, state);
+        case 'polyline':
+          await _loadPolylineLayer(def, state);
+        default:
+          logger.d('Unknown layer type: ${def.type}');
+          state.status = LayerLoadStatus.error;
       }
     } catch (e) {
       logger.e('Layer load error (${def.id}): $e');
@@ -158,62 +151,78 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
   }
 
-  bool _isBuildingEndpoint(String endpoint) {
-    return endpoint.contains('/building/list') ||
-        endpoint.contains('/map/markers/campus');
-  }
-
-  /// Load building data from BuildingRepository (unified /building/list).
-  Future<void> _loadBuildingLayer(MapLayerDef def, LayerState state) async {
-    final result = await _buildingRepo.getBuildings();
+  /// Load marker data from /map/markers/* endpoints.
+  Future<void> _loadMarkerLayer(MapLayerDef def, LayerState state) async {
+    final result = await _layerRepo.getMarkers(def.endpoint);
     switch (result) {
       case Ok(:final data):
-        state.rawBuildings = data;
-        state.markers = _buildBuildingNMarkers(data, def);
+        state.rawMarkers = data;
+        state.markers = _buildMarkersFromJson(data, def);
         state.status = LayerLoadStatus.loaded;
       case Err(:final failure):
-        logger.e('Building fetch failed (${def.id}): $failure');
+        logger.e('Marker fetch failed (${def.id}): $failure');
         state.status = LayerLoadStatus.error;
     }
   }
 
-  /// Build NMarker list from Building data, filtered by selected campus.
-  List<NMarker> _buildBuildingNMarkers(
-      List<Building> buildings, MapLayerDef def) {
+  /// Build NMarker list from raw JSON, filtered by selected campus.
+  /// Rendering depends on [MapLayerDef.markerStyle].
+  List<NMarker> _buildMarkersFromJson(
+      List<Map<String, dynamic>> markers, MapLayerDef def) {
     final selectedCampus = _selectedCampusKey;
     final markerSize = def.style?.size ?? 25;
     final captionSize = def.style?.captionTextSize ?? 7;
-    return buildings
-        .where((b) => b.campus == selectedCampus)
-        .map((b) {
-      final hasNumber = b.displayNo != null;
-      final marker = NMarker(
-        id: 'bldg_${b.skkuId}',
-        position: NLatLng(b.lat, b.lng),
-        size: Size(markerSize, markerSize),
-        icon: _markerIcon,
-        captionOffset: hasNumber ? -22 : 0,
-        caption: hasNumber
-            ? NOverlayCaption(
-                textSize: captionSize,
-                text: b.displayNo!,
-                color: Colors.black,
-              )
-            : NOverlayCaption(
-                textSize: captionSize,
-                text: b.name.localized,
-                color: Colors.black,
-              ),
-        subCaption: hasNumber
-            ? NOverlayCaption(
-                textSize: captionSize,
-                text: b.name.localized,
-                color: Colors.black,
-              )
-            : null,
-      );
+
+    return markers
+        .where((m) => m['campus'] == selectedCampus)
+        .map((m) {
+      final skkuId = m['skkuId'] as int;
+      final lat = (m['lat'] as num).toDouble();
+      final lng = (m['lng'] as num).toDouble();
+
+      final NMarker marker;
+      switch (def.markerStyle) {
+        case 'numberCircle':
+          final displayNo = m['displayNo'] as String;
+          marker = NMarker(
+            id: 'num_$skkuId',
+            position: NLatLng(lat, lng),
+            size: Size(markerSize, markerSize),
+            icon: _markerIcon,
+            captionOffset: -22,
+            caption: NOverlayCaption(
+              textSize: captionSize,
+              text: displayNo,
+              color: Colors.black,
+            ),
+          );
+        case 'textLabel':
+          final text = m['text'] as Map<String, dynamic>;
+          final lang = Get.locale?.languageCode;
+          final label = lang == 'en'
+              ? (text['en'] as String? ?? '')
+              : (text['ko'] as String? ?? '');
+          marker = NMarker(
+            id: 'lbl_$skkuId',
+            position: NLatLng(lat, lng),
+            size: const Size(1, 1),
+            icon: _markerIcon,
+            caption: NOverlayCaption(
+              textSize: captionSize,
+              text: label,
+              color: Colors.black,
+            ),
+          );
+        default:
+          marker = NMarker(
+            id: 'mkr_$skkuId',
+            position: NLatLng(lat, lng),
+            size: Size(markerSize, markerSize),
+            icon: _markerIcon,
+          );
+      }
       marker.setOnTapListener((_) {
-        BuildingDetailSheet.show(b.skkuId);
+        BuildingDetailSheet.show(skkuId);
       });
       return marker;
     }).toList();
