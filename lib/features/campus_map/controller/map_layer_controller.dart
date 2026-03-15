@@ -207,12 +207,14 @@ class MapLayerController extends GetxController {
             position: NLatLng(lat, lng),
             size: const Size(1, 1),
             icon: _markerIcon,
+            isHideCollidedCaptions: true,
             caption: NOverlayCaption(
               textSize: captionSize,
               text: label,
               color: Colors.black,
             ),
           );
+          marker.setGlobalZIndex(100000);
         default:
           marker = NMarker(
             id: 'mkr_$skkuId',
