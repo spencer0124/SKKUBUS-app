@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/features/campus_map/controller/map_layer_controller.dart';
+import 'package:skkumap/features/campus_map/data/map_config_repository.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/coord_picker.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
@@ -18,16 +19,19 @@ const _fallbackCameraPosition = NCameraPosition(
 Widget buildMap() {
   final ultimateNampController = Get.put(UltimateNMapController());
   final pickerCtrl = Get.put(CoordPickerController());
+  final configRepo = Get.find<MapConfigRepository>();
+  final styleId = configRepo.config?.naver.styleId;
+
   return NaverMap(
-    options: const NaverMapViewOptions(
+    options: NaverMapViewOptions(
       zoomGesturesEnable: true,
       mapType: NMapType.basic,
       logoAlign: NLogoAlign.rightBottom,
       logoClickEnable: true,
-      logoMargin: EdgeInsets.all(1000),
-      activeLayerGroups: [NLayerGroup.building, NLayerGroup.transit],
+      logoMargin: const EdgeInsets.all(1000),
+      activeLayerGroups: const [NLayerGroup.building, NLayerGroup.transit],
       initialCameraPosition: _fallbackCameraPosition,
-      customStyleId: '91a6fcf5-9d03-4762-99a5-7e58a5674628',
+      customStyleId: styleId,
     ),
     onMapTapped: (point, latLng) => pickerCtrl.addPoint(latLng),
     onMapReady: (mapcontroller) {

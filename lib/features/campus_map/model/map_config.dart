@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:skkumap/core/utils/color_utils.dart';
 
+class NaverConfig {
+  final String? styleId;
+
+  const NaverConfig({this.styleId});
+
+  factory NaverConfig.fromJson(Map<String, dynamic> json) {
+    return NaverConfig(styleId: json['styleId'] as String?);
+  }
+}
+
 class MapConfig {
+  final NaverConfig naver;
   final List<CampusDef> campuses;
   final List<MapLayerDef> layers;
 
-  const MapConfig({required this.campuses, required this.layers});
+  const MapConfig(
+      {required this.naver, required this.campuses, required this.layers});
 
   factory MapConfig.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>;
     return MapConfig(
+      naver: NaverConfig.fromJson(
+          data['naver'] as Map<String, dynamic>? ?? const {}),
       campuses: (data['campuses'] as List? ?? [])
           .map((e) => CampusDef.fromJson(e as Map<String, dynamic>))
           .toList(),
