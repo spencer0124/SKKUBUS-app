@@ -23,11 +23,10 @@ class ApiEndpoints {
   static String homeScroll() => '/ui/home/scroll';
   static String homeCampus() => '/ui/home/campus';
 
-  // ── Search ───────────────────────────────────────
-  // [query] is passed unencoded — Dio encodes path segments automatically.
-  static String searchBuildings(String query) => '/search/facilities/$query';
-  static String searchDetail(String buildNo, String id) =>
-      '/search/detail/$buildNo/$id';
+  // ── Building ────────────────────────────────────
+  static String buildingList() => '/building/list';
+  static String buildingSearch() => '/building/search';
+  static String buildingDetail(int skkuId) => '/building/$skkuId';
 
   // ── Ads ──────────────────────────────────────────
   static String adPlacements() => '/ad/placements';

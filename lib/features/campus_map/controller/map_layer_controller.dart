@@ -7,10 +7,11 @@ import 'package:skkumap/features/campus_map/data/map_config_repository.dart';
 import 'package:skkumap/features/campus_map/data/map_layer_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/campus_map/model/map_config.dart';
-import 'package:skkumap/features/campus_map/model/map_marker.dart';
-import 'package:skkumap/features/campus_map/model/map_overlay.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
+import 'package:skkumap/features/building/data/building_repository.dart';
+import 'package:skkumap/features/building/model/building.dart';
+import 'package:skkumap/features/building/ui/building_detail_sheet.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 enum LayerLoadStatus { idle, loading, loaded, error }
@@ -21,19 +22,15 @@ class LayerState {
   List<NMarker>? markers;
   NMultipartPathOverlay? overlay;
 
-  /// Raw server markers — kept so we can re-filter by campus without re-fetch.
-  List<ServerMapMarker>? rawMarkers;
-
-  /// Raw overlay data — kept so we can detect overlay layers on campus switch.
-  List<MapOverlay>? rawOverlays;
+  /// Raw building data — kept so we can re-filter by campus without re-fetch.
+  List<Building>? rawBuildings;
 
   LayerState({
     required this.visible,
     this.status = LayerLoadStatus.idle,
     this.markers,
     this.overlay,
-    this.rawMarkers,
-    this.rawOverlays,
+    this.rawBuildings,
   });
 }
 
@@ -43,6 +40,7 @@ const _markerIcon =
 class MapLayerController extends GetxController {
   final _configRepo = Get.find<MapConfigRepository>();
   final _layerRepo = Get.find<MapLayerRepository>();
+  final _buildingRepo = Get.find<BuildingRepository>();
 
   final layerStates = <String, LayerState>{}.obs;
 
@@ -99,17 +97,9 @@ class MapLayerController extends GetxController {
           _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
       if (def == null) continue;
 
-      if (state.rawOverlays != null) {
-        // Overlay layer — clear cache & re-fetch for new campus.
-        // Keep old markers until fetch succeeds (rollback on failure).
-        final previousMarkers = state.markers;
-        state.status = LayerLoadStatus.loading;
-        final endpoint = _resolveOverlayEndpoint(def.endpoint);
-        _loadOverlayLayer(def, state, endpoint,
-            fallbackMarkers: previousMarkers);
-      } else if (state.rawMarkers != null) {
-        // Standard marker layer — client-side re-filter
-        state.markers = _buildNMarkers(state.rawMarkers!, def);
+      if (state.rawBuildings != null) {
+        // Building marker layer — client-side re-filter
+        state.markers = _buildBuildingNMarkers(state.rawBuildings!, def);
       }
     }
     layerStates.refresh();
@@ -149,13 +139,11 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
 
     try {
-      if (_isOverlayEndpoint(def.endpoint)) {
-        final endpoint = _resolveOverlayEndpoint(def.endpoint);
-        await _loadOverlayLayer(def, state, endpoint);
+      if (_isBuildingEndpoint(def.endpoint)) {
+        // Building layer — use BuildingRepository (unified /building/list)
+        await _loadBuildingLayer(def, state);
       } else {
         switch (def.type) {
-          case 'marker':
-            await _loadMarkerLayer(def, state);
           case 'polyline':
             await _loadPolylineLayer(def, state);
           default:
@@ -170,99 +158,65 @@ class MapLayerController extends GetxController {
     layerStates.refresh();
   }
 
-  bool _isOverlayEndpoint(String endpoint) {
-    return endpoint.contains('/map/overlays') &&
-        Uri.parse(endpoint).queryParameters.containsKey('category');
+  bool _isBuildingEndpoint(String endpoint) {
+    return endpoint.contains('/building/list') ||
+        endpoint.contains('/map/markers/campus');
   }
 
-  /// Replace the category query parameter with the currently selected campus.
-  String _resolveOverlayEndpoint(String baseEndpoint) {
-    final uri = Uri.parse(baseEndpoint);
-    final params = Map<String, String>.from(uri.queryParameters);
-    params['category'] = _selectedCampusKey;
-    return uri.replace(queryParameters: params).toString();
-  }
-
-  Future<void> _loadOverlayLayer(
-    MapLayerDef def,
-    LayerState state,
-    String endpoint, {
-    List<NMarker>? fallbackMarkers,
-  }) async {
-    // Invalidate cache for this endpoint pattern so we get fresh data.
-    final result = await _layerRepo.getOverlays(endpoint);
+  /// Load building data from BuildingRepository (unified /building/list).
+  Future<void> _loadBuildingLayer(MapLayerDef def, LayerState state) async {
+    final result = await _buildingRepo.getBuildings();
     switch (result) {
       case Ok(:final data):
-        state.rawOverlays = data.overlays;
-        state.markers = _buildOverlayNMarkers(data.overlays, def);
+        state.rawBuildings = data;
+        state.markers = _buildBuildingNMarkers(data, def);
         state.status = LayerLoadStatus.loaded;
       case Err(:final failure):
-        logger.e('Overlay fetch failed (${def.id}): $failure');
-        state.status = LayerLoadStatus.error;
-        // Rollback: keep previous markers if available
-        if (fallbackMarkers != null) {
-          state.markers = fallbackMarkers;
-        }
-    }
-    layerStates.refresh();
-  }
-
-  /// Build NMarker list from overlay data.
-  List<NMarker> _buildOverlayNMarkers(
-      List<MapOverlay> overlays, MapLayerDef def) {
-    final markers = <NMarker>[];
-    for (final o in overlays) {
-      if (o.type != 'marker') {
-        logger.d('Skipping non-marker overlay type: ${o.type}');
-        continue;
-      }
-      if (o.marker == null) continue;
-
-      final m = o.marker!;
-
-      // Name label marker (invisible 1x1 with caption)
-      markers.add(NMarker(
-        id: '_overlay_name_${o.id}',
-        position: NLatLng(o.lat, o.lng),
-        size: const Size(1, 1),
-        caption: NOverlayCaption(
-          text: m.label,
-          textSize: 10,
-          color: Colors.black,
-          haloColor: Colors.white,
-        ),
-      ));
-
-      // Number marker — only when subLabel is present
-      if (m.subLabel != null) {
-        markers.add(NMarker(
-          id: '_overlay_num_${o.id}',
-          position: NLatLng(o.lat, o.lng),
-          size: const Size(25, 25),
-          icon: _markerIcon,
-          captionOffset: -22,
-          caption: NOverlayCaption(
-            textSize: 7,
-            text: m.subLabel!,
-            color: Colors.black,
-          ),
-        ));
-      }
-    }
-    return markers;
-  }
-
-  Future<void> _loadMarkerLayer(MapLayerDef def, LayerState state) async {
-    final result = await _layerRepo.getMarkers(def.endpoint);
-    switch (result) {
-      case Ok(:final data):
-        state.rawMarkers = data;
-        state.markers = _buildNMarkers(data, def);
-        state.status = LayerLoadStatus.loaded;
-      case Err(:final failure):
-        logger.e('Marker fetch failed (${def.id}): $failure');
+        logger.e('Building fetch failed (${def.id}): $failure');
         state.status = LayerLoadStatus.error;
     }
+  }
+
+  /// Build NMarker list from Building data, filtered by selected campus.
+  List<NMarker> _buildBuildingNMarkers(
+      List<Building> buildings, MapLayerDef def) {
+    final selectedCampus = _selectedCampusKey;
+    final markerSize = def.style?.size ?? 25;
+    final captionSize = def.style?.captionTextSize ?? 7;
+    return buildings
+        .where((b) => b.campus == selectedCampus)
+        .map((b) {
+      final hasNumber = b.displayNo != null;
+      final marker = NMarker(
+        id: 'bldg_${b.skkuId}',
+        position: NLatLng(b.lat, b.lng),
+        size: Size(markerSize, markerSize),
+        icon: _markerIcon,
+        captionOffset: hasNumber ? -22 : 0,
+        caption: hasNumber
+            ? NOverlayCaption(
+                textSize: captionSize,
+                text: b.displayNo!,
+                color: Colors.black,
+              )
+            : NOverlayCaption(
+                textSize: captionSize,
+                text: b.name.localized,
+                color: Colors.black,
+              ),
+        subCaption: hasNumber
+            ? NOverlayCaption(
+                textSize: captionSize,
+                text: b.name.localized,
+                color: Colors.black,
+              )
+            : null,
+      );
+      marker.setOnTapListener((_) {
+        BuildingDetailSheet.show(b.skkuId);
+      });
+      return marker;
+    }).toList();
   }
 
   Future<void> _loadPolylineLayer(MapLayerDef def, LayerState state) async {
@@ -289,29 +243,6 @@ class MapLayerController extends GetxController {
         logger.e('Polyline fetch failed (${def.id}): $failure');
         state.status = LayerLoadStatus.error;
     }
-  }
-
-  /// Build NMarker list from server markers, filtered by selected campus.
-  List<NMarker> _buildNMarkers(
-      List<ServerMapMarker> serverMarkers, MapLayerDef def) {
-    final selectedCampus = _selectedCampusKey;
-    final markerSize = def.style?.size ?? 25;
-    final captionSize = def.style?.captionTextSize ?? 7;
-    return serverMarkers
-        .where((m) => m.campus == selectedCampus)
-        .map((m) => NMarker(
-              id: m.id,
-              position: NLatLng(m.lat, m.lng),
-              size: Size(markerSize, markerSize),
-              icon: _markerIcon,
-              captionOffset: -22,
-              caption: NOverlayCaption(
-                textSize: captionSize,
-                text: m.code ?? m.name,
-                color: Colors.black,
-              ),
-            ))
-        .toList();
   }
 
   void _moveCameraToSelectedCampus() {

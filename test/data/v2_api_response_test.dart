@@ -17,14 +17,14 @@ import 'package:skkumap/core/data/api_client.dart';
 import 'package:skkumap/core/data/api_endpoints.dart';
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
-import 'package:skkumap/features/search/data/search_repository.dart';
+import 'package:skkumap/features/building/data/building_repository.dart';
 import 'package:skkumap/features/transit/data/station_repository.dart';
 import 'package:skkumap/core/repositories/ui_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/core/model/ad_model.dart';
 import 'package:skkumap/features/transit/model/realtime_data.dart';
 import 'package:skkumap/features/transit/model/mainpage_buslist_model.dart' show BusListItem;
-import 'package:skkumap/features/search/model/search_option3_model.dart';
+import 'package:skkumap/features/building/model/building_search_result.dart';
 import 'package:skkumap/features/transit/model/station_model.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -228,65 +228,39 @@ const _adPlacements = <String, dynamic>{
 };
 
 /// GET /search/facilities/경영 — 35 results across hssc + nsc (trimmed)
-const _searchFacilities = <String, dynamic>{
+const _buildingSearch = <String, dynamic>{
   'meta': {
     'lang': 'ko',
     'keyword': '경영',
-    'facilitiesTotalCount': 35,
-    'facilitiesHsscCount': 24,
-    'facilitiesNscCount': 11,
+    'buildingCount': 2,
+    'spaceCount': 3,
   },
   'data': {
-    'hssc': [
+    'buildings': [
       {
-        'buildingInfo': {
-          'buildNm_kr': '법학관',
-          'buildNm_en': 'Law Building',
-          'buildNo': '102',
-          'latitude': 37.587441,
-          'longtitude': 126.990506,
+        '_id': 33,
+        'buildNo': '133',
+        'name': {'ko': '경영관', 'en': 'Business Building'},
+        'campus': 'hssc',
+        'type': 'building',
+        'location': {
+          'type': 'Point',
+          'coordinates': [126.992666, 37.588572],
         },
-        'spaceInfo': {
-          'floorNm_kr': '5층',
-          'floorNm_en': '5F',
-          'spaceNm_kr': '정경영교수연구실',
-          'spaceNm_en': 'Prof. Jung, Gyung Young',
-          'spaceCd': '20523',
-        },
-      },
-      {
-        'buildingInfo': {
-          'buildNm_kr': '경영관',
-          'buildNm_en': 'Business Building',
-          'buildNo': '133',
-          'latitude': 37.588572,
-          'longtitude': 126.992666,
-        },
-        'spaceInfo': {
-          'floorNm_kr': '1층',
-          'floorNm_en': '1F',
-          'spaceNm_kr': '경영대학 스터디홀',
-          'spaceNm_en': 'Business School Study Hall',
-          'spaceCd': '33106A',
-        },
+        'image': {'url': 'https://example.com/133.jpg', 'filename': '133.jpg'},
       },
     ],
-    'nsc': [
+    'spaces': [
       {
-        'buildingInfo': {
-          'buildNm_kr': '수성관',
-          'buildNm_en': 'Suseonggwan',
-          'buildNo': '205',
-          'latitude': 37.293219,
-          'longtitude': 126.972004,
-        },
-        'spaceInfo': {
-          'floorNm_kr': '1층',
-          'floorNm_en': '1F',
-          'spaceNm_kr': '스포츠경영데이터분석실',
-          'spaceNm_en': 'Sport Business Data Analysis Lab.',
-          'spaceCd': '05129',
-        },
+        'buildNo': '133',
+        'buildingName': {'ko': '경영관', 'en': 'Business Building'},
+        'items': [
+          {
+            'spaceCd': '33106A',
+            'name': {'ko': '경영대학 스터디홀', 'en': 'Business School Study Hall'},
+            'floor': {'ko': '1층', 'en': '1F'},
+          },
+        ],
       },
     ],
   },
@@ -590,81 +564,70 @@ void main() {
     });
   });
 
-  // ── 7. Search Facilities ─────────────────────────────────────────────
-  group('GET /search/facilities/경영', () {
-    test('parses meta with facilities counts', () async {
+  // ── 7. Building Search ──────────────────────────────────────────────
+  group('GET /building/search?q=경영', () {
+    test('parses meta with building/space counts', () async {
       dioAdapter.onGet(
-        ApiEndpoints.searchBuildings('경영'),
-        (server) => server.reply(200, _searchFacilities),
+        ApiEndpoints.buildingSearch(),
+        (server) => server.reply(200, _buildingSearch),
+        queryParameters: {'q': '경영'},
       );
 
-      final repo = SearchRepository(client);
-      final result = await repo.searchBuildings('경영');
+      final repo = BuildingRepository(client);
+      final result = await repo.search('경영');
 
-      expect(result, isA<Ok<SearchOption3Model>>());
-      final data = (result as Ok<SearchOption3Model>).data;
+      expect(result, isA<Ok<BuildingSearchResult>>());
+      final data = (result as Ok<BuildingSearchResult>).data;
 
-      expect(data.metaData.keyword, '경영');
-      expect(data.metaData.option3TotalCount, 35);
-      expect(data.metaData.option3HsscCount, 24);
-      expect(data.metaData.option3NscCount, 11);
+      expect(data.keyword, '경영');
+      expect(data.buildingCount, 2);
+      expect(data.spaceCount, 3);
     });
 
-    test('parses hssc items with buildingInfo + spaceInfo', () async {
+    test('parses building results', () async {
       dioAdapter.onGet(
-        ApiEndpoints.searchBuildings('경영'),
-        (server) => server.reply(200, _searchFacilities),
+        ApiEndpoints.buildingSearch(),
+        (server) => server.reply(200, _buildingSearch),
+        queryParameters: {'q': '경영'},
       );
 
-      final repo = SearchRepository(client);
-      final result = await repo.searchBuildings('경영');
-      final hssc = (result as Ok<SearchOption3Model>).data.option3Items.hssc!;
-      expect(hssc, hasLength(2));
+      final repo = BuildingRepository(client);
+      final result = await repo.search('경영');
+      final buildings = (result as Ok<BuildingSearchResult>).data.buildings;
+      expect(buildings, hasLength(1));
 
-      // First item: 법학관 5층
-      final item1 = hssc[0];
-      expect(item1.buildingInfo, isNotNull);
-      expect(item1.buildingInfo!.buildNmKr, '법학관');
-      expect(item1.buildingInfo!.buildNmEn, 'Law Building');
-      expect(item1.buildingInfo!.buildNo, '102');
-      expect(item1.buildingInfo!.latitude, 37.587441);
-      expect(item1.buildingInfo!.longtitude, 126.990506);
-      expect(item1.spaceInfo, isNotNull);
-      expect(item1.spaceInfo!.floorNmKr, '5층');
-      expect(item1.spaceInfo!.floorNmEn, '5F');
-      expect(item1.spaceInfo!.spaceNmKr, '정경영교수연구실');
-      expect(item1.spaceInfo!.spaceNmEn, 'Prof. Jung, Gyung Young');
-      expect(item1.spaceInfo!.spaceCd, '20523');
-
-      // Second item: 경영관 1층
-      final item2 = hssc[1];
-      expect(item2.buildingInfo!.buildNmKr, '경영관');
-      expect(item2.buildingInfo!.buildNmEn, 'Business Building');
-      expect(item2.buildingInfo!.buildNo, '133');
-      expect(item2.spaceInfo!.spaceNmKr, '경영대학 스터디홀');
-      expect(item2.spaceInfo!.spaceCd, '33106A');
+      final b = buildings[0];
+      expect(b.skkuId, 33);
+      expect(b.buildNo, '133');
+      expect(b.name.ko, '경영관');
+      expect(b.name.en, 'Business Building');
+      expect(b.campus, 'hssc');
+      // GeoJSON [lng, lat] → lat, lng
+      expect(b.lat, 37.588572);
+      expect(b.lng, 126.992666);
     });
 
-    test('parses nsc items', () async {
+    test('parses grouped space results', () async {
       dioAdapter.onGet(
-        ApiEndpoints.searchBuildings('경영'),
-        (server) => server.reply(200, _searchFacilities),
+        ApiEndpoints.buildingSearch(),
+        (server) => server.reply(200, _buildingSearch),
+        queryParameters: {'q': '경영'},
       );
 
-      final repo = SearchRepository(client);
-      final result = await repo.searchBuildings('경영');
-      final nsc = (result as Ok<SearchOption3Model>).data.option3Items.nsc!;
-      expect(nsc, hasLength(1));
+      final repo = BuildingRepository(client);
+      final result = await repo.search('경영');
+      final spaces = (result as Ok<BuildingSearchResult>).data.spaces;
+      expect(spaces, hasLength(1));
 
-      final item = nsc[0];
-      expect(item.buildingInfo!.buildNmKr, '수성관');
-      expect(item.buildingInfo!.buildNmEn, 'Suseonggwan');
-      expect(item.buildingInfo!.buildNo, '205');
-      expect(item.buildingInfo!.latitude, 37.293219);
-      expect(item.buildingInfo!.longtitude, 126.972004);
-      expect(item.spaceInfo!.spaceNmKr, '스포츠경영데이터분석실');
-      expect(item.spaceInfo!.spaceNmEn, 'Sport Business Data Analysis Lab.');
-      expect(item.spaceInfo!.spaceCd, '05129');
+      final group = spaces[0];
+      expect(group.buildNo, '133');
+      expect(group.buildingName.ko, '경영관');
+      expect(group.items, hasLength(1));
+
+      final space = group.items[0];
+      expect(space.spaceCd, '33106A');
+      expect(space.name.ko, '경영대학 스터디홀');
+      expect(space.floor.ko, '1층');
     });
   });
 
@@ -679,11 +642,16 @@ void main() {
       expect(ApiEndpoints.homeScroll(), '/ui/home/scroll');
     });
 
-    test('search path uses /facilities/ not /buildings/', () {
-      expect(
-        ApiEndpoints.searchBuildings('경영'),
-        '/search/facilities/경영',
-      );
+    test('building search endpoint', () {
+      expect(ApiEndpoints.buildingSearch(), '/building/search');
+    });
+
+    test('building detail endpoint', () {
+      expect(ApiEndpoints.buildingDetail(27), '/building/27');
+    });
+
+    test('building list endpoint', () {
+      expect(ApiEndpoints.buildingList(), '/building/list');
     });
 
     test('ad paths', () {

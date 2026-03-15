@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:skkumap/features/campus_map/model/map_config.dart';
-import 'package:skkumap/features/campus_map/model/map_marker.dart';
+import 'package:skkumap/features/building/model/building.dart';
 
 void main() {
   group('MapConfig.fromJson', () {
@@ -254,49 +254,45 @@ void main() {
     });
   });
 
-  group('ServerMapMarker.fromJson', () {
-    test('parses full marker', () {
+  group('Building.fromJson', () {
+    test('parses full building with GeoJSON coordinate swap', () {
       final json = {
-        'id': 'hssc_33',
-        'code': '33',
-        'name': '경영대학',
-        'campus': 'hssc',
-        'lat': 37.588572,
-        'lng': 126.992666,
-      };
-      final marker = ServerMapMarker.fromJson(json);
-      expect(marker.id, 'hssc_33');
-      expect(marker.code, '33');
-      expect(marker.name, '경영대학');
-      expect(marker.campus, 'hssc');
-      expect(marker.lat, 37.588572);
-      expect(marker.lng, 126.992666);
-    });
-
-    test('handles null code', () {
-      final json = {
-        'id': 'nsc_1',
-        'name': '자연과학캠퍼스',
+        '_id': 27,
+        'buildNo': '248',
+        'type': 'building',
         'campus': 'nsc',
-        'lat': 37.2936,
-        'lng': 126.9749,
+        'name': {'ko': '삼성학술정보관', 'en': 'Samsung Library'},
+        'location': {
+          'type': 'Point',
+          'coordinates': [126.974906, 37.293885], // [lng, lat]
+        },
       };
-      final marker = ServerMapMarker.fromJson(json);
-      expect(marker.code, isNull);
-      expect(marker.campus, 'nsc');
+      final building = Building.fromJson(json);
+      expect(building.skkuId, 27);
+      expect(building.buildNo, '248');
+      expect(building.type, 'building');
+      expect(building.campus, 'nsc');
+      expect(building.name.ko, '삼성학술정보관');
+      // Verify GeoJSON [lng, lat] → lat, lng swap
+      expect(building.lat, 37.293885);
+      expect(building.lng, 126.974906);
     });
 
-    test('handles integer lat/lng', () {
+    test('handles facility with null buildNo', () {
       final json = {
-        'id': 'test_1',
-        'name': 'Test',
+        '_id': 50,
+        'type': 'facility',
         'campus': 'hssc',
-        'lat': 37,
-        'lng': 127,
+        'name': {'ko': '정문', 'en': 'Main Gate'},
+        'location': {
+          'type': 'Point',
+          'coordinates': [126.993, 37.587],
+        },
       };
-      final marker = ServerMapMarker.fromJson(json);
-      expect(marker.lat, 37.0);
-      expect(marker.lng, 127.0);
+      final building = Building.fromJson(json);
+      expect(building.buildNo, isNull);
+      expect(building.isFacility, true);
+      expect(building.isBuilding, false);
     });
   });
 }
