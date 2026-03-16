@@ -16,6 +16,7 @@ class CustomRow1 extends StatelessWidget {
   final String themeColor;
   final String iconType;
   final String busTypeText;
+  final String? subtitle;
   final String actionRoute;
   final String groupId;
 
@@ -25,6 +26,7 @@ class CustomRow1 extends StatelessWidget {
     required this.themeColor,
     required this.iconType,
     required this.busTypeText,
+    this.subtitle,
     required this.actionRoute,
     required this.groupId,
   }) : super(key: key);
@@ -64,66 +66,87 @@ class CustomRow1 extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            label,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'WantedSansMedium',
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                          const Text(
-                            '  ',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontFamily: 'WantedSansBold',
-                              fontSize: 15,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                          Container(
-                            height: 18,
-                            padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: Color(int.parse("0xFF$themeColor")),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              busTypeText,
-                              style: TextStyle(
-                                height: 1.4.h,
-                                color: Colors.white,
-                                fontFamily: 'WantedSansMedium',
-                                fontSize: 10.sp,
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                          const Spacer(),
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '상세정보'.tr,
-                                style: TextStyle(
-                                  color: Colors.grey[900],
+                                label,
+                                style: const TextStyle(
+                                  color: Colors.black,
                                   fontFamily: 'WantedSansMedium',
-                                  fontSize: 12.5,
+                                  fontSize: 15,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                              const Text(
+                                '  ',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: 'WantedSansBold',
+                                  fontSize: 15,
+                                ),
+                                textAlign: TextAlign.start,
+                              ),
+                              Container(
+                                height: 18,
+                                padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Color(int.parse("0xFF$themeColor")),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  busTypeText,
+                                  style: TextStyle(
+                                    height: 1.4.h,
+                                    color: Colors.white,
+                                    fontFamily: 'WantedSansMedium',
+                                    fontSize: 10.sp,
+                                  ),
+                                  textAlign: TextAlign.start,
                                 ),
                               ),
-                              const SizedBox(width: 2),
-                              const Icon(
-                                CupertinoIcons.right_chevron,
-                                size: 12,
-                                color: Colors.black,
+                              const Spacer(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '상세정보'.tr,
+                                    style: TextStyle(
+                                      color: Colors.grey[900],
+                                      fontFamily: 'WantedSansMedium',
+                                      fontSize: 12.5,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 2),
+                                  const Icon(
+                                    CupertinoIcons.right_chevron,
+                                    size: 12,
+                                    color: Colors.black,
+                                  ),
+                                ],
                               ),
+                              const SizedBox(width: 10),
                             ],
                           ),
-                          const SizedBox(width: 10),
+                          if (subtitle != null) ...[
+                            const SizedBox(height: 2),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: Text(
+                                subtitle!,
+                                style: TextStyle(
+                                  color: Colors.grey[500],
+                                  fontFamily: 'WantedSansRegular',
+                                  fontSize: 12,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

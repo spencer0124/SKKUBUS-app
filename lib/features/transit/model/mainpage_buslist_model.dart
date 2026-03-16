@@ -23,12 +23,14 @@ class BusListCard {
   final String themeColor;
   final String iconType;
   final String busTypeText;
+  final String? subtitle;
 
   const BusListCard({
     required this.label,
     required this.themeColor,
     required this.iconType,
     required this.busTypeText,
+    this.subtitle,
   });
 
   factory BusListCard.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class BusListCard {
       themeColor: json['themeColor'] as String,
       iconType: json['iconType'] as String,
       busTypeText: json['busTypeText'] as String,
+      subtitle: json['subtitle'] as String?,
     );
   }
 }

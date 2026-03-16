@@ -35,6 +35,7 @@ class TransitTab extends StatelessWidget {
             themeColor: item.card.themeColor,
             iconType: item.card.iconType,
             busTypeText: item.card.busTypeText,
+            subtitle: item.card.subtitle,
             actionRoute: item.action.route,
             groupId: item.action.groupId,
           );
