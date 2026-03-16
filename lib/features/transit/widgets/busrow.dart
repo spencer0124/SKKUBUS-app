@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/features/transit/data/bus_config_repository.dart';
-
-final double dwidth =
-    MediaQueryData.fromView(WidgetsBinding.instance.platformDispatcher.views.first).size.width;
 
 class CustomRow1 extends StatelessWidget {
   final String label;
@@ -33,6 +29,8 @@ class CustomRow1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final badgeColor = Color(int.parse("0xFF$themeColor"));
+
     return GestureDetector(
       onTap: () async {
         final configRepo = Get.find<BusConfigRepository>();
@@ -47,122 +45,87 @@ class CustomRow1 extends StatelessWidget {
           }
         }
       },
-      child: Column(
-        children: [
-          Container(
-            width: dwidth,
-            padding: const EdgeInsets.fromLTRB(0, 11, 0, 0),
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(width: 5),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 0, 10, 7),
-                      child: _buildIcon(),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                label,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'WantedSansMedium',
-                                  fontSize: 15,
-                                ),
-                                textAlign: TextAlign.start,
+      child: Container(
+        color: Colors.white,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              child: Row(
+                children: [
+                  _buildIcon(),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              label,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontFamily: 'WantedSansBold',
+                                fontSize: 15,
                               ),
-                              const Text(
-                                '  ',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontFamily: 'WantedSansBold',
-                                  fontSize: 15,
-                                ),
-                                textAlign: TextAlign.start,
-                              ),
-                              Container(
-                                height: 18,
-                                padding: const EdgeInsets.fromLTRB(7, 2, 7, 2),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Color(int.parse("0xFF$themeColor")),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  busTypeText,
-                                  style: TextStyle(
-                                    height: 1.4.h,
-                                    color: Colors.white,
-                                    fontFamily: 'WantedSansMedium',
-                                    fontSize: 10.sp,
-                                  ),
-                                  textAlign: TextAlign.start,
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: badgeColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(
+                                  color: badgeColor.withValues(alpha: 0.3),
+                                  width: 0.5,
                                 ),
                               ),
-                              const Spacer(),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '상세정보'.tr,
-                                    style: TextStyle(
-                                      color: Colors.grey[900],
-                                      fontFamily: 'WantedSansMedium',
-                                      fontSize: 12.5,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  const Icon(
-                                    CupertinoIcons.right_chevron,
-                                    size: 12,
-                                    color: Colors.black,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 10),
-                            ],
-                          ),
-                          if (subtitle != null) ...[
-                            const SizedBox(height: 2),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10),
                               child: Text(
-                                subtitle!,
+                                busTypeText,
                                 style: TextStyle(
-                                  color: Colors.grey[500],
-                                  fontFamily: 'WantedSansRegular',
-                                  fontSize: 12,
+                                  color: badgeColor,
+                                  fontFamily: 'WantedSansMedium',
+                                  fontSize: 11,
+                                  height: 1.3,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 3),
+                          Text(
+                            subtitle!,
+                            style: const TextStyle(
+                              color: AppColors.textTertiary,
+                              fontFamily: 'WantedSansRegular',
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: AppColors.textDisabled,
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 5),
-          Divider(
-            color: Colors.grey[300],
-            thickness: 0.7,
-            endIndent: 0,
-            indent: dwidth * 0.145,
-          ),
-        ],
+            const Divider(
+              color: AppColors.divider,
+              thickness: 0.5,
+              height: 0.5,
+              indent: 20,
+              endIndent: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -171,21 +134,21 @@ class CustomRow1 extends StatelessWidget {
     return switch (iconType) {
       'shuttle' => SvgPicture.asset(
           'assets/tossface/toss_bus_skkubus.svg',
-          width: 23,
+          width: 28,
         ),
       'village' => SvgPicture.asset(
           'assets/tossface/toss_bus_citybus.svg',
-          width: 23,
+          width: 28,
         ),
       _ => SizedBox(
-          width: 23,
+          width: 28,
           child: Image.network(
             iconType,
             fit: BoxFit.fitWidth,
             errorBuilder: (context, error, stackTrace) {
               return SvgPicture.asset(
                 'assets/tossface/toss_bus_skkubus.svg',
-                width: 23,
+                width: 28,
               );
             },
           ),

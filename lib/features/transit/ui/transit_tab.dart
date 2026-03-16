@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/app_shell/controller/app_shell_controller.dart';
 import 'package:skkumap/features/transit/controller/transit_controller.dart';
 import 'package:skkumap/features/transit/widgets/busrow.dart';
-import 'package:skkumap/core/utils/screensize.dart';
+import 'package:skkumap/core/utils/screensize.dart' show ScreenSize;
 
 class TransitTab extends StatelessWidget {
   const TransitTab({Key? key}) : super(key: key);
@@ -17,7 +17,6 @@ class TransitTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final transitCtrl = Get.find<TransitController>();
     final adCtrl = Get.find<AppShellController>();
-    final double screenWidth = ScreenSize.width(context);
     final double statusBarHeight = ScreenSize.statusBarHeight(context);
 
     return Container(
@@ -45,100 +44,86 @@ class TransitTab extends StatelessWidget {
           physics: const ClampingScrollPhysics(),
           child: Column(
             children: [
-              SizedBox(height: statusBarHeight + 10),
+              SizedBox(height: statusBarHeight + 16),
               // Notice banner
               Obx(() {
                 if (adCtrl.showmainpageNoticeText.value != true) {
                   return const SizedBox.shrink();
                 }
-                return Column(
-                  children: [
-                    Divider(
-                      color: Colors.grey[300],
-                      height: 0,
-                      thickness: 0.7,
-                      endIndent: 0,
-                      indent: screenWidth * 0.145,
-                    ),
-                    const SizedBox(height: 7),
-                    GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () async {
-                        if (adCtrl.mainpageNoticeLink.value != '') {
-                          if (await canLaunchUrl(
-                              Uri.parse(adCtrl.mainpageNoticeLink.value))) {
-                            await launchUrl(
-                                Uri.parse(adCtrl.mainpageNoticeLink.value));
-                          } else {
-                            Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
-                          }
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () async {
+                      if (adCtrl.mainpageNoticeLink.value != '') {
+                        if (await canLaunchUrl(
+                            Uri.parse(adCtrl.mainpageNoticeLink.value))) {
+                          await launchUrl(
+                              Uri.parse(adCtrl.mainpageNoticeLink.value));
                         } else {
-                          Get.snackbar('오류2', '해당 링크를 열 수 없습니다.');
+                          Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
                         }
-                      },
-                      child: Container(
-                        width: screenWidth * 0.95,
-                        height: 33,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const SizedBox(width: 14),
-                            Image.asset(
-                              'assets/images/flaticon_megaphone.png',
-                              width: 18,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 19),
-                            Obx(() =>
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: AppColors.bgGrey,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/flaticon_megaphone.png',
+                            width: 16,
+                            color: AppColors.textTertiary,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Obx(() =>
                                 adCtrl.mainpageNoticeText.value == ''
                                     ? Shimmer.fromColors(
-                                        baseColor: Colors.grey[100]!,
+                                        baseColor: Colors.grey[200]!,
                                         highlightColor: Colors.white,
                                         child: Container(
-                                          width: screenWidth * 0.75,
-                                          height: 20,
-                                          color: Colors.grey,
+                                          height: 14,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
                                         ),
                                       )
                                     : Text(
                                         adCtrl.mainpageNoticeText.value,
                                         style: const TextStyle(
-                                          color: Colors.black,
+                                          color: AppColors.textSecondary,
                                           fontFamily: 'WantedSansMedium',
-                                          fontSize: 12.5,
+                                          fontSize: 13,
                                         ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       )),
-                            const Spacer(),
-                            Obx(() => adCtrl.mainpageAdText.value == ''
-                                ? const SizedBox(width: 1, height: 1)
-                                : const Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      SizedBox(width: 2),
-                                      Icon(
-                                        CupertinoIcons.right_chevron,
-                                        size: 12,
-                                        color: Colors.black,
-                                      ),
-                                    ],
-                                  )),
-                          ],
-                        ),
+                          ),
+                          Obx(() => adCtrl.mainpageNoticeLink.value != ''
+                              ? const Icon(
+                                  Icons.chevron_right,
+                                  size: 16,
+                                  color: AppColors.textDisabled,
+                                )
+                              : const SizedBox.shrink()),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 );
               }),
-              Container(color: Colors.white, height: 10),
+              const SizedBox(height: 8),
               ...busWidgets,
-              const SizedBox(height: 5),
               // Bottom padding for nav bar clearance
-              const SizedBox(height: 92),
+              const SizedBox(height: 80),
             ],
           ),
         );
