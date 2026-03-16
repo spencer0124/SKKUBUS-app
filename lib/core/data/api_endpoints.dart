@@ -19,7 +19,7 @@ class ApiEndpoints {
   static String station(String stationId) => '/bus/station/$stationId';
 
   // ── UI (Server-Driven) ───────────────────────────
-  static String homeBusList() => '/ui/home/buslist';
+  static String homeTransitList() => '/ui/home/transitlist';
   static String homeScroll() => '/ui/home/scroll';
   static String homeCampus() => '/ui/home/campus';
 

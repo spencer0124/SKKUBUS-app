@@ -13,7 +13,7 @@ class UiRepository {
     CancelToken? cancelToken,
   }) {
     return _client.safeGet(
-      ApiEndpoints.homeBusList(),
+      ApiEndpoints.homeTransitList(),
       (json) {
         final envelope = json as Map<String, dynamic>;
         final data = envelope['data'] as List;
