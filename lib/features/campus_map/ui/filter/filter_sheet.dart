@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/campus_map/ui/snappingsheet/grabbing_box.dart';
 import 'package:skkumap/features/campus_map/ui/filter/filter_campus_component.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
@@ -23,27 +24,27 @@ class FilterSheet extends StatelessWidget {
           topRight: Radius.circular(20),
         ),
       ),
-      height: 500,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           const GrabbingBox(),
           Padding(
-            padding: const EdgeInsets.only(left: 15, right: 10),
+            padding: const EdgeInsets.only(left: 20, right: 10),
             child: Row(
               children: [
                 const Text(
                   "필터",
                   style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'WantedSansMedium',
-                    fontSize: 16,
+                    color: AppColors.textPrimary,
+                    fontFamily: 'WantedSansBold',
+                    fontSize: 17,
                   ),
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close,
+                      color: AppColors.textTertiary, size: 20),
                   onPressed: () {
                     Get.back();
                   },
@@ -51,47 +52,41 @@ class FilterSheet extends StatelessWidget {
               ],
             ),
           ),
-          Divider(
-            color: Colors.grey[300],
-            thickness: 0.7,
-            endIndent: 0,
+          const Divider(
+            color: AppColors.divider,
+            thickness: 0.5,
+            height: 0.5,
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 20),
 
           // ── Campus selector ──
           const Padding(
-            padding: EdgeInsets.only(left: 15),
-            child: Row(
-              children: [
-                Text(
-                  "캠퍼스",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'WantedSansMedium',
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(width: 3),
-                Icon(Icons.info_outline, size: 14, color: Colors.grey),
-              ],
+            padding: EdgeInsets.only(left: 20),
+            child: Text(
+              "캠퍼스",
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontFamily: 'WantedSansBold',
+                fontSize: 14,
+              ),
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           const Padding(
-            padding: EdgeInsets.only(left: 15),
+            padding: EdgeInsets.only(left: 20),
             child: Text(
               "지도에 표시할 캠퍼스를 선택하세요",
               style: TextStyle(
-                color: Colors.grey,
-                fontFamily: 'WantedSansMedium',
+                color: AppColors.textTertiary,
+                fontFamily: 'WantedSansRegular',
                 fontSize: 12,
                 height: 1.3,
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.only(left: 15),
+            padding: const EdgeInsets.only(left: 20),
             child: Obx(
               () {
                 return Row(
@@ -105,7 +100,7 @@ class FilterSheet extends StatelessWidget {
                         layerCtrl.onCampusChanged();
                       },
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 8),
                     FilterCampusComponent(
                       selected: controller.selectedCampus.value == 1,
                       index: 1,
@@ -122,45 +117,39 @@ class FilterSheet extends StatelessWidget {
           ),
 
           // ── Layer toggles (config-driven) ──
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           const Padding(
-            padding: EdgeInsets.only(left: 15),
-            child: Row(
-              children: [
-                Text(
-                  "지도 레이어",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontFamily: 'WantedSansMedium',
-                    fontSize: 14,
-                  ),
-                ),
-                SizedBox(width: 3),
-                Icon(Icons.info_outline, size: 14, color: Colors.grey),
-              ],
+            padding: EdgeInsets.only(left: 20),
+            child: Text(
+              "지도 레이어",
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontFamily: 'WantedSansBold',
+                fontSize: 14,
+              ),
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           const Padding(
-            padding: EdgeInsets.only(left: 15),
+            padding: EdgeInsets.only(left: 20),
             child: Text(
               "지도에 표시할 정보를 선택하세요",
               style: TextStyle(
-                color: Colors.grey,
-                fontFamily: 'WantedSansMedium',
+                color: AppColors.textTertiary,
+                fontFamily: 'WantedSansRegular',
                 fontSize: 12,
                 height: 1.3,
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.only(left: 15, right: 15),
+            padding: const EdgeInsets.only(left: 20, right: 20),
             child: Obx(() {
               final layers = Get.find<MapConfigRepository>().layers;
               return Wrap(
-                spacing: 5,
-                runSpacing: 7,
+                spacing: 8,
+                runSpacing: 10,
                 children: layers.asMap().entries.map((entry) {
                   final idx = entry.key;
                   final layer = entry.value;
@@ -176,6 +165,7 @@ class FilterSheet extends StatelessWidget {
               );
             }),
           ),
+          const SizedBox(height: 40),
         ],
       ),
     );

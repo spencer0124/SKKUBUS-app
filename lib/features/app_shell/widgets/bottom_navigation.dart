@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app_theme.dart';
 
 class Bottomnavigation extends StatelessWidget {
   const Bottomnavigation({
@@ -19,7 +20,7 @@ class Bottomnavigation extends StatelessWidget {
         color: Colors.white,
         border: Border(
           top: BorderSide(
-            color: Color(0xFFE5E5E5),
+            color: AppColors.border,
             width: 0.5,
           ),
         ),
@@ -27,7 +28,7 @@ class Bottomnavigation extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(bottom: bottomPadding),
         child: SizedBox(
-          height: 56,
+          height: 52,
           child: Row(
             children: [
               _TabItem(
@@ -69,7 +70,7 @@ class _TabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected ? const Color(0xFF191F28) : const Color(0xFFADB5BD);
+    final color = isSelected ? AppColors.textPrimary : AppColors.textDisabled;
 
     return Expanded(
       child: GestureDetector(
@@ -80,15 +81,16 @@ class _TabItem extends StatelessWidget {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              size: 24,
+              size: 22,
               color: color,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                fontSize: 10,
+                fontFamily:
+                    isSelected ? 'WantedSansMedium' : 'WantedSansRegular',
                 color: color,
                 height: 1.0,
               ),

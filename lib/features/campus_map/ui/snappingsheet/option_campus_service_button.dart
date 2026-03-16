@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skkumap/app_theme.dart';
 
 class CustomServiceBtn extends StatelessWidget {
   final String title;
@@ -25,9 +26,9 @@ class CustomServiceBtn extends StatelessWidget {
         height: size,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.grey[300]!, width: 1),
+          color: AppColors.bgGrey,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.border, width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

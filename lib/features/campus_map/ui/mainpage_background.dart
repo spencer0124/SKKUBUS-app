@@ -47,13 +47,13 @@ class MainPageBackground extends StatelessWidget {
                             child: buildMap(),
                           ),
                           Positioned(
-                            left: 10,
-                            right: 10,
-                            top: statusBarHeight + 10,
+                            left: 20,
+                            right: 20,
+                            top: statusBarHeight + 16,
                             child: Row(
                               children: [
                                 const Expanded(child: CustomSearchBar()),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: 10),
                                 CustomFilter(onFilterTap: () {
                                   Get.bottomSheet(const FilterSheet());
                                 }),
@@ -61,62 +61,11 @@ class MainPageBackground extends StatelessWidget {
                             ),
                           ),
                           Positioned(
-                            left: 10,
-                            top: statusBarHeight + 10 + 50,
+                            left: 20,
+                            top: statusBarHeight + 16 + 56,
                             child: _CampusToggle(),
                           ),
                           const CoordPickerPanel(),
-                          // 현재위치 GPS 버튼 비활성화
-                          // Positioned(
-                          //   top: statusBarHeight + 10 + 100 - 40,
-                          //   right: 10,
-                          //   child: GestureDetector(
-                          //     behavior: HitTestBehavior.translucent,
-                          //     onTap: () {
-                          //       ultimateController.moveToCurrentLocation();
-                          //     },
-                          //     child: Container(
-                          //       padding: const EdgeInsets.all(10),
-                          //       decoration: BoxDecoration(
-                          //         color: Colors.white,
-                          //         borderRadius: BorderRadius.circular(10),
-                          //         boxShadow: [
-                          //           BoxShadow(
-                          //             color: Colors.black.withOpacity(0.2),
-                          //             blurRadius: 4,
-                          //             offset: const Offset(0, 2),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       child: const Icon(Icons.my_location),
-                          //     ),
-                          //   ),
-                          // ),
-                          // Positioned(
-                          //   top: statusBarHeight + 10 + 150,
-                          //   right: 10,
-                          //   child: GestureDetector(
-                          //     behavior: HitTestBehavior.translucent,
-                          //     onTap: () {
-                          //       ultimateController.moveToCurrentLocation();
-                          //     },
-                          //     child: Container(
-                          //       padding: const EdgeInsets.all(10),
-                          //       decoration: BoxDecoration(
-                          //         color: Colors.white,
-                          //         borderRadius: BorderRadius.circular(10),
-                          //         boxShadow: [
-                          //           BoxShadow(
-                          //             color: Colors.black.withOpacity(0.2),
-                          //             blurRadius: 4,
-                          //             offset: const Offset(0, 2),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       child: const Icon(Icons.my_location),
-                          //     ),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ],
@@ -142,11 +91,11 @@ class _CampusToggle extends StatelessWidget {
       return Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
-              blurRadius: 4,
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
@@ -173,17 +122,17 @@ class _CampusToggle extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.greenMain : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? AppColors.brand : Colors.white,
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontFamily: 'WantedSansMedium',
-            fontSize: 12,
-            color: isSelected ? Colors.white : Colors.black87,
+            fontSize: 13,
+            color: isSelected ? Colors.white : AppColors.textSecondary,
           ),
         ),
       ),

@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/model/sdui_section.dart';
 import 'package:skkumap/core/utils/sdui_action_handler.dart';
 
@@ -17,11 +17,11 @@ class SduiNoticeWidget extends StatelessWidget {
         actionValue: section.actionValue,
       ),
       child: Container(
-        margin: const EdgeInsets.fromLTRB(18, 0, 18, 8),
+        margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.amber[50],
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Row(
           children: [
@@ -36,10 +36,12 @@ class SduiNoticeWidget extends StatelessWidget {
                 style: const TextStyle(
                   fontFamily: 'WantedSansMedium',
                   fontSize: 13,
+                  color: AppColors.textSecondary,
                 ),
               ),
             ),
-            const Icon(CupertinoIcons.right_chevron, size: 12),
+            const Icon(Icons.chevron_right,
+                size: 16, color: AppColors.textDisabled),
           ],
         ),
       ),

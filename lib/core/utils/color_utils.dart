@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:skkumap/app_theme.dart';
 
-const _fallbackColor = Color(0xFF003626);
+const _fallbackColor = AppColors.brand;
 
 /// Parse a 6-digit hex string (without '#') into a [Color].
 /// Returns [_fallbackColor] on null, empty, or malformed input.

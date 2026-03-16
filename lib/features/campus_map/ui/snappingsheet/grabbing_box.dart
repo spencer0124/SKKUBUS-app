@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/campus_map/controller/snappingsheet_controller.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 
@@ -13,14 +14,6 @@ class GrabbingBox extends StatelessWidget {
       height: grabbingHeight,
       width: screenWidth,
       decoration: const BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 2,
-              spreadRadius: 2,
-              color: Colors.white,
-              offset: Offset(0, 10),
-            ),
-          ],
           color: Colors.white,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
@@ -29,14 +22,12 @@ class GrabbingBox extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 10,
-          ),
+          const SizedBox(height: 10),
           Container(
-            height: 5,
-            width: 50,
+            height: 4,
+            width: 36,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: AppColors.border,
               borderRadius: BorderRadius.circular(10),
             ),
           ),

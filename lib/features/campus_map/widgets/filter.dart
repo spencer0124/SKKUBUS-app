@@ -12,39 +12,25 @@ class CustomFilter extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onFilterTap,
       child: Container(
-        alignment: Alignment.topCenter,
-        padding: const EdgeInsets.all(2),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.greenMain,
-          borderRadius: BorderRadius.circular(5),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.greenMain.withValues(alpha: 0.3),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.border, width: 1),
         ),
-        width: 49,
-        height: 49,
-        child: const Column(
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Spacer(),
-            Icon(
-              Icons.filter_alt,
-              color: Colors.white,
-              size: 18,
-            ),
+            Icon(Icons.tune, size: 16, color: AppColors.textSecondary),
+            SizedBox(width: 4),
             Text(
               '필터',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textSecondary,
                 fontFamily: 'WantedSansMedium',
-                fontSize: 8,
+                fontSize: 13,
               ),
             ),
-            Spacer(),
           ],
         ),
       ),

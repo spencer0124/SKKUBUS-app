@@ -171,11 +171,11 @@ class _SearchScreenState extends State<SearchScreen> {
     return Obx(() {
       return Row(
         children: [
-          const SizedBox(width: 15),
+          const SizedBox(width: 20),
           _buildTabChip(controller, SearchTab.all, '전체'.tr),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           _buildTabChip(controller, SearchTab.hssc, '인사캠'.tr),
-          const SizedBox(width: 7),
+          const SizedBox(width: 8),
           _buildTabChip(controller, SearchTab.nsc, '자과캠'.tr),
         ],
       );
@@ -189,20 +189,20 @@ class _SearchScreenState extends State<SearchScreen> {
       behavior: HitTestBehavior.translucent,
       onTap: () => controller.updateFilter(tab),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(7, 4, 7, 4),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.greenMain : Colors.white,
-          borderRadius: BorderRadius.circular(50),
+          color: isSelected ? AppColors.brandLight : Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
-            color: isSelected ? AppColors.greenMain : Colors.grey[300]!,
-            width: 1,
+            color: isSelected ? AppColors.brand : AppColors.border,
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontFamily: 'WantedSansMedium',
+            color: isSelected ? AppColors.brand : AppColors.textSecondary,
+            fontFamily: isSelected ? 'WantedSansMedium' : 'WantedSansRegular',
             fontSize: 13,
           ),
         ),

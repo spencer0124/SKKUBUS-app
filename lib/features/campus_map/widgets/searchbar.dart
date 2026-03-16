@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:skkumap/features/building/ui/building_detail_sheet.dart';
@@ -29,19 +30,13 @@ class CustomSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       alignment: Alignment.centerLeft,
-      height: 49,
+      height: 48,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.border, width: 1),
       ),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -68,11 +63,11 @@ class CustomSearchBar extends StatelessWidget {
               'assets/tossface/toss_search_left.svg',
               width: 20,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Text(
               '성균관대 건물/공간 검색'.tr,
-              style: TextStyle(
-                color: Colors.grey[400],
+              style: const TextStyle(
+                color: AppColors.textTertiary,
                 fontFamily: 'WantedSansMedium',
                 fontSize: 15,
               ),

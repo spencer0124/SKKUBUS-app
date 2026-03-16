@@ -22,20 +22,20 @@ class FilterInfoComponent extends StatelessWidget {
         onInfoItemTapped(index);
       },
       child: Container(
-        padding: const EdgeInsets.fromLTRB(13, 8, 13, 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? AppColors.greenMain : Colors.white,
-          borderRadius: BorderRadius.circular(50),
+          color: selected ? AppColors.brandLight : Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
-            color: selected ? AppColors.greenMain : Colors.grey[300]!,
-            width: 1,
+            color: selected ? AppColors.brand : AppColors.border,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: selected ? Colors.white : Colors.black,
-            fontFamily: 'WantedSansMedium',
+            color: selected ? AppColors.brand : AppColors.textSecondary,
+            fontFamily: selected ? 'WantedSansMedium' : 'WantedSansRegular',
             fontSize: 13,
           ),
         ),

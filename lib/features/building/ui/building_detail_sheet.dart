@@ -36,7 +36,7 @@ class BuildingDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.find<BuildingDetailController>();
     return DraggableScrollableSheet(
-      initialChildSize: 0.9,
+      initialChildSize: 0.6,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -50,7 +50,7 @@ class BuildingDetailSheet extends StatelessWidget {
           }
           final detail = ctrl.detail.value;
           if (detail == null) return const SizedBox.shrink();
-          return _buildContent(detail, scrollController);
+          return _buildContent(detail, ctrl, scrollController);
         });
       },
     );
@@ -60,7 +60,7 @@ class BuildingDetailSheet extends StatelessWidget {
     return const Center(
       child: Padding(
         padding: EdgeInsets.all(40),
-        child: CircularProgressIndicator(color: AppColors.greenMain),
+        child: CircularProgressIndicator(color: AppColors.brand),
       ),
     );
   }
@@ -77,6 +77,7 @@ class BuildingDetailSheet extends StatelessWidget {
               style: const TextStyle(
                 fontFamily: 'WantedSansMedium',
                 fontSize: 15,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -84,7 +85,7 @@ class BuildingDetailSheet extends StatelessWidget {
               onPressed: () => ctrl.loadDetail(skkuId),
               child: Text(
                 '다시 시도'.tr,
-                style: const TextStyle(color: AppColors.greenMain),
+                style: const TextStyle(color: AppColors.brand),
               ),
             ),
           ],
@@ -93,142 +94,178 @@ class BuildingDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildingDetail detail, ScrollController scrollController) {
-    final ctrl = Get.find<BuildingDetailController>();
+  Widget _buildContent(
+    BuildingDetail detail,
+    BuildingDetailController ctrl,
+    ScrollController scrollController,
+  ) {
     final building = detail.building;
-    return ListView(
-      controller: scrollController,
-      padding: EdgeInsets.zero,
-      children: [
-        // Drag handle + close button
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Positioned(
-              top: 4,
-              right: 4,
-              child: GestureDetector(
-                onTap: () => Get.back(),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(Icons.close, size: 22, color: Colors.grey[600]),
-                ),
-              ),
-            ),
-          ],
-        ),
+    final hasDescription = (building.description != null &&
+            building.description!.localized.isNotEmpty) ||
+        (building.accessibility != null && building.accessibility!.hasAny);
 
-        // Building image
-        if (building.image != null)
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              building.image!.url,
-              headers: const {'Referer': 'https://www.skku.edu/'},
-              height: 180,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    return Column(
+      children: [
+        // Drag handle
+        Center(
+          child: Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 4),
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.border,
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
+        ),
 
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        // Scrollable content
+        Expanded(
+          child: ListView(
+            controller: scrollController,
+            padding: EdgeInsets.zero,
             children: [
-              // Building name
-              Text(
-                building.name.localized,
-                style: const TextStyle(
-                  fontFamily: 'WantedSansBold',
-                  fontSize: 20,
+              // ══ Section 1: Image + Header ══
+              if (building.image != null)
+                Image.network(
+                  building.image!.url,
+                  headers: const {'Referer': 'https://www.skku.edu/'},
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
-              ),
-              const SizedBox(height: 4),
 
-              // displayNo + campus badge
-              Row(
-                children: [
-                  if (building.displayNo != null) ...[
-                    Text(
-                      building.displayNo!,
-                      style: TextStyle(
-                        fontFamily: 'WantedSansMedium',
-                        fontSize: 14,
-                        color: Colors.grey[600],
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 8, 14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            building.name.localized,
+                            style: const TextStyle(
+                              fontFamily: 'WantedSansMedium',
+                              fontSize: 18,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              if (building.displayNo != null) ...[
+                                Text(
+                                  building.displayNo!,
+                                  style: const TextStyle(
+                                    fontFamily: 'WantedSansMedium',
+                                    fontSize: 13,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                              ],
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.bgGrey,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  building.campus == 'hssc'
+                                      ? '인사캠'.tr
+                                      : '자과캠'.tr,
+                                  style: const TextStyle(
+                                    fontFamily: 'WantedSansMedium',
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close,
+                          size: 20, color: AppColors.textTertiary),
+                      padding: const EdgeInsets.all(8),
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.greenMain.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      building.campus == 'hssc' ? '인사캠'.tr : '자과캠'.tr,
-                      style: const TextStyle(
-                        fontFamily: 'WantedSansMedium',
-                        fontSize: 12,
-                        color: AppColors.greenMain,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
 
-              // Accessibility
-              if (building.accessibility != null &&
-                  building.accessibility!.hasAny) ...[
-                const SizedBox(height: 12),
-                _buildAccessibilityRow(building.accessibility!),
-              ],
-
-              // Description
-              if (building.description != null &&
-                  building.description!.localized.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                Text(
-                  building.description!.localized,
-                  style: TextStyle(
-                    fontFamily: 'WantedSansRegular',
-                    fontSize: 13,
-                    color: Colors.grey[700],
+              // ══ Section 2: Description (if exists) ══
+              if (hasDescription) ...[
+                const Divider(
+                    height: 0.5, thickness: 0.5, color: AppColors.divider),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (building.accessibility != null &&
+                          building.accessibility!.hasAny) ...[
+                        _buildAccessibilityRow(building.accessibility!),
+                        if (building.description != null &&
+                            building.description!.localized.isNotEmpty)
+                          const SizedBox(height: 8),
+                      ],
+                      if (building.description != null &&
+                          building.description!.localized.isNotEmpty)
+                        Text(
+                          building.description!.localized,
+                          style: const TextStyle(
+                            fontFamily: 'WantedSansRegular',
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.55,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],
 
-              // Floors section
+              // ══ 6px thick divider ══
+              if (detail.hasFloors)
+                Container(height: 6, color: AppColors.bgGrey),
+
+              // ══ Section 3: Floors ══
               if (detail.hasFloors) ...[
-                const SizedBox(height: 20),
-                Text(
-                  '층별 정보'.tr,
-                  style: const TextStyle(
-                    fontFamily: 'WantedSansBold',
-                    fontSize: 16,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                  child: Text(
+                    '층별 정보'.tr,
+                    style: const TextStyle(
+                      fontFamily: 'WantedSansMedium',
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                ...detail.floors.map((floor) => _buildFloorSection(
-                      floor,
-                      ctrl.highlightFloor,
-                      ctrl.highlightSpaceCd,
-                    )),
+                ...detail.floors.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final floor = entry.value;
+                  final isLast = index == detail.floors.length - 1;
+                  return _FloorTile(
+                    floor: floor,
+                    index: index,
+                    isLast: isLast,
+                    ctrl: ctrl,
+                  );
+                }),
               ],
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -240,98 +277,215 @@ class BuildingDetailSheet extends StatelessWidget {
     return Row(
       children: [
         if (accessibility.elevator) ...[
-          Icon(Icons.elevator, size: 18, color: Colors.grey[600]),
+          const Icon(Icons.elevator, size: 16, color: AppColors.textTertiary),
           const SizedBox(width: 4),
           Text(
             '엘리베이터'.tr,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'WantedSansRegular',
               fontSize: 12,
-              color: Colors.grey[600],
+              color: AppColors.textTertiary,
             ),
           ),
           const SizedBox(width: 12),
         ],
         if (accessibility.toilet) ...[
-          Icon(Icons.accessible, size: 18, color: Colors.grey[600]),
+          const Icon(Icons.accessible, size: 16, color: AppColors.textTertiary),
           const SizedBox(width: 4),
           Text(
             '장애인 화장실'.tr,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'WantedSansRegular',
               fontSize: 12,
-              color: Colors.grey[600],
+              color: AppColors.textTertiary,
             ),
           ),
         ],
       ],
     );
   }
+}
 
-  Widget _buildFloorSection(
-    FloorInfo floor,
-    String? highlightFloor,
-    String? highlightSpaceCd,
-  ) {
-    final isHighlightedFloor = highlightFloor != null &&
-        floor.floor.ko == highlightFloor;
-    return ExpansionTile(
-      tilePadding: EdgeInsets.zero,
-      initiallyExpanded: isHighlightedFloor,
-      title: Text(
-        floor.floor.localized,
-        style: TextStyle(
-          fontFamily: 'WantedSansMedium',
-          fontSize: 14,
-          color: isHighlightedFloor ? AppColors.greenMain : null,
-        ),
-      ),
-      trailing: Text(
-        '${floor.spaces.length}',
-        style: TextStyle(
-          fontFamily: 'WantedSansRegular',
-          fontSize: 13,
-          color: Colors.grey[500],
-        ),
-      ),
-      children: floor.spaces
-          .map((space) {
-            final isHighlighted = highlightSpaceCd != null &&
-                space.spaceCd == highlightSpaceCd;
-            return Container(
-              color: isHighlighted
-                  ? AppColors.greenMain.withValues(alpha: 0.1)
-                  : null,
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+// ─── Floor Tile (header + expandable space list) ───
+
+class _FloorTile extends StatelessWidget {
+  final FloorInfo floor;
+  final int index;
+  final bool isLast;
+  final BuildingDetailController ctrl;
+
+  const _FloorTile({
+    required this.floor,
+    required this.index,
+    required this.isLast,
+    required this.ctrl,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final isExpanded = ctrl.expandedFloorIndex.value == index;
+
+      return Column(
+        children: [
+          // Floor header row
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => ctrl.toggleFloor(index),
+            child: Container(
+              color: isExpanded ? AppColors.bgGrey : Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
               child: Row(
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: 44,
                     child: Text(
-                      space.name.localized,
+                      floor.floor.localized,
                       style: TextStyle(
-                        fontFamily: isHighlighted
-                            ? 'WantedSansMedium'
-                            : 'WantedSansRegular',
-                        fontSize: 13,
-                        color: isHighlighted ? AppColors.greenMain : null,
+                        fontFamily: 'WantedSansMedium',
+                        fontSize: 14,
+                        color: isExpanded
+                            ? AppColors.brand
+                            : AppColors.textPrimary,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
-                    space.spaceCd,
-                    style: TextStyle(
+                    '${'호실'.tr} ${floor.spaces.length}${'개'.tr}',
+                    style: const TextStyle(
                       fontFamily: 'WantedSansRegular',
                       fontSize: 12,
-                      color: isHighlighted
-                          ? AppColors.greenMain
-                          : Colors.grey[500],
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const Spacer(),
+                  AnimatedRotation(
+                    turns: isExpanded ? 0.25 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
+                      Icons.chevron_right,
+                      size: 16,
+                      color: isExpanded
+                          ? AppColors.brand
+                          : AppColors.textDisabled,
                     ),
                   ),
                 ],
               ),
-            );
-          })
-          .toList(),
-    );
+            ),
+          ),
+
+          // Expanded space list
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: isExpanded
+                ? _buildSpaceList()
+                : const SizedBox.shrink(),
+          ),
+
+          // Bottom border (except last item when collapsed)
+          if (!isLast || isExpanded)
+            const Divider(
+              height: 0.5,
+              thickness: 0.5,
+              color: AppColors.divider,
+              indent: 0,
+              endIndent: 0,
+            ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildSpaceList() {
+    return Obx(() {
+      final showAll = ctrl.showAllSpaces[index] == true;
+      final spaces = floor.spaces;
+      const maxVisible = 5;
+      final visibleSpaces =
+          showAll ? spaces : spaces.take(maxVisible).toList();
+      final remaining = spaces.length - maxVisible;
+
+      return Container(
+        color: Colors.white,
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+        child: Column(
+          children: [
+            ...visibleSpaces.asMap().entries.map((entry) {
+              final spaceIdx = entry.key;
+              final space = entry.value;
+              final isHighlighted = ctrl.highlightSpaceCd != null &&
+                  space.spaceCd == ctrl.highlightSpaceCd;
+              final isLastVisible = spaceIdx == visibleSpaces.length - 1 &&
+                  (showAll || remaining <= 0);
+
+              return Container(
+                decoration: BoxDecoration(
+                  color: isHighlighted ? AppColors.brandLight : null,
+                  border: !isLastVisible
+                      ? const Border(
+                          bottom: BorderSide(
+                            color: AppColors.divider,
+                            width: 0.5,
+                          ),
+                        )
+                      : null,
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        space.name.localized,
+                        style: TextStyle(
+                          fontFamily: isHighlighted
+                              ? 'WantedSansMedium'
+                              : 'WantedSansRegular',
+                          fontSize: 13,
+                          color: isHighlighted
+                              ? AppColors.brand
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      space.spaceCd,
+                      style: TextStyle(
+                        fontFamily: 'monospace',
+                        fontSize: 12,
+                        color: isHighlighted
+                            ? AppColors.brand
+                            : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+
+            // "+ N개 더보기" button
+            if (!showAll && remaining > 0)
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => ctrl.showAllSpacesFor(index),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Text(
+                    '+ $remaining${'개 더보기'.tr}',
+                    style: const TextStyle(
+                      fontFamily: 'WantedSansRegular',
+                      fontSize: 12,
+                      color: AppColors.textTertiary,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    });
   }
 }

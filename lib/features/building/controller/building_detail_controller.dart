@@ -17,6 +17,24 @@ class BuildingDetailController extends GetxController {
   String? highlightFloor;
   String? highlightSpaceCd;
 
+  /// Which floor index is currently expanded (null = all collapsed).
+  final expandedFloorIndex = RxnInt(null);
+
+  /// Per-floor "show all spaces" toggle (floor index → bool).
+  final showAllSpaces = <int, bool>{}.obs;
+
+  void toggleFloor(int index) {
+    if (expandedFloorIndex.value == index) {
+      expandedFloorIndex.value = null;
+    } else {
+      expandedFloorIndex.value = index;
+    }
+  }
+
+  void showAllSpacesFor(int floorIndex) {
+    showAllSpaces[floorIndex] = true;
+  }
+
   Future<void> loadDetail(
     int skkuId, {
     String? highlightFloor,
@@ -27,11 +45,23 @@ class BuildingDetailController extends GetxController {
     detail.value = null;
     isLoading.value = true;
     hasError.value = false;
+    expandedFloorIndex.value = null;
+    showAllSpaces.clear();
 
     final result = await _buildingRepo.getDetail(skkuId);
     switch (result) {
       case Ok(:final data):
         detail.value = data;
+        // Auto-expand highlighted floor
+        if (highlightFloor != null) {
+          for (var i = 0; i < data.floors.length; i++) {
+            if (data.floors[i].floor.ko == highlightFloor) {
+              expandedFloorIndex.value = i;
+              showAllSpaces[i] = true; // show all when navigated from search
+              break;
+            }
+          }
+        }
       case Err(:final failure):
         logger.e('BuildingDetail error: $failure');
         hasError.value = true;
