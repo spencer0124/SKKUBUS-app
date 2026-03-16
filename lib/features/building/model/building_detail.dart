@@ -5,10 +5,16 @@ import 'package:skkumap/features/building/model/building_models.dart';
 class BuildingDetail {
   final Building building;
   final List<FloorInfo> floors;
+  final List<BuildingConnection> connections;
 
-  const BuildingDetail({required this.building, required this.floors});
+  const BuildingDetail({
+    required this.building,
+    required this.floors,
+    required this.connections,
+  });
 
   bool get hasFloors => floors.isNotEmpty;
+  bool get hasConnections => connections.isNotEmpty;
 
   factory BuildingDetail.fromJson(Map<String, dynamic> json) {
     final data = json['data'] as Map<String, dynamic>;
@@ -18,6 +24,43 @@ class BuildingDetail {
       floors: (data['floors'] as List? ?? [])
           .map((e) => FloorInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
+      connections: (data['connections'] as List? ?? [])
+          .map((e) =>
+              BuildingConnection.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// A connection passage to another building.
+class BuildingConnection {
+  final int targetSkkuId;
+  final String? targetBuildNo;
+  final String? targetDisplayNo;
+  final LocalizedText targetName;
+  final LocalizedText fromFloor;
+  final LocalizedText toFloor;
+
+  const BuildingConnection({
+    required this.targetSkkuId,
+    this.targetBuildNo,
+    this.targetDisplayNo,
+    required this.targetName,
+    required this.fromFloor,
+    required this.toFloor,
+  });
+
+  factory BuildingConnection.fromJson(Map<String, dynamic> json) {
+    return BuildingConnection(
+      targetSkkuId: json['targetSkkuId'] as int,
+      targetBuildNo: json['targetBuildNo'] as String?,
+      targetDisplayNo: json['targetDisplayNo'] as String?,
+      targetName:
+          LocalizedText.fromJson(json['targetName'] as Map<String, dynamic>),
+      fromFloor:
+          LocalizedText.fromJson(json['fromFloor'] as Map<String, dynamic>),
+      toFloor:
+          LocalizedText.fromJson(json['toFloor'] as Map<String, dynamic>),
     );
   }
 }

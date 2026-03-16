@@ -4,6 +4,7 @@ import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/building/controller/building_detail_controller.dart';
 import 'package:skkumap/features/building/model/building_detail.dart';
 import 'package:skkumap/features/building/model/building_models.dart';
+import 'package:skkumap/core/routes/app_routes.dart';
 
 class BuildingDetailSheet extends StatelessWidget {
   final int skkuId;
@@ -261,12 +262,211 @@ class BuildingDetailSheet extends StatelessWidget {
                     index: index,
                     isLast: isLast,
                     ctrl: ctrl,
+                    connections: detail.connections,
                   );
                 }),
               ],
 
+              // ══ Section 4: Connections ══
+              if (detail.hasConnections) ...[
+                Container(height: 6, color: AppColors.bgGrey),
+                _buildConnectionsSection(detail),
+              ],
+
               const SizedBox(height: 40),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildConnectionsSection(BuildingDetail detail) {
+    // Group connections by targetSkkuId
+    final grouped = <int, List<BuildingConnection>>{};
+    for (final c in detail.connections) {
+      grouped.putIfAbsent(c.targetSkkuId, () => []).add(c);
+    }
+    final groups = grouped.entries.toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: Text(
+            '연결 건물'.tr,
+            style: const TextStyle(
+              fontFamily: 'WantedSansMedium',
+              fontSize: 13,
+              color: AppColors.textSecondary,
+            ),
+          ),
+        ),
+
+        // CTA card — "건물 연결지도 보기"
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => Get.toNamed(Routes.mapHssc),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColors.bgGrey,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.brandLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.hub_outlined,
+                      size: 20,
+                      color: AppColors.brand,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '건물 연결지도 보기'.tr,
+                          style: const TextStyle(
+                            fontFamily: 'WantedSansMedium',
+                            fontSize: 15,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${detail.building.name.localized} ${'위치가 표시돼요'.tr}',
+                          style: const TextStyle(
+                            fontFamily: 'WantedSansRegular',
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: AppColors.textDisabled,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Connection list
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: AppColors.divider, width: 0.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: groups.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final group = entry.value.value;
+                final first = group.first;
+                final isLast = idx == groups.length - 1;
+
+                // Floor text: "2층↔3층, 5층↔5층"
+                final floorText = group
+                    .map((c) =>
+                        '${c.fromFloor.localized}↔${c.toFloor.localized}')
+                    .join(', ');
+
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    Get.back();
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      BuildingDetailSheet.show(first.targetSkkuId);
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      border: !isLast
+                          ? const Border(
+                              bottom: BorderSide(
+                                  color: AppColors.divider, width: 0.5))
+                          : null,
+                    ),
+                    child: Row(
+                      children: [
+                        // Display number badge
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppColors.bgGrey,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            first.targetDisplayNo ?? '',
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Name + floor connections
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                first.targetName.localized,
+                                style: const TextStyle(
+                                  fontFamily: 'WantedSansMedium',
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                floorText,
+                                style: const TextStyle(
+                                  fontFamily: 'WantedSansRegular',
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 16,
+                          color: AppColors.textDisabled,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ],
@@ -313,12 +513,14 @@ class _FloorTile extends StatelessWidget {
   final int index;
   final bool isLast;
   final BuildingDetailController ctrl;
+  final List<BuildingConnection> connections;
 
   const _FloorTile({
     required this.floor,
     required this.index,
     required this.isLast,
     required this.ctrl,
+    required this.connections,
   });
 
   @override
@@ -360,6 +562,30 @@ class _FloorTile extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  // Connection badges for this floor
+                  ...connections
+                      .where((c) => c.fromFloor.ko == floor.floor.ko)
+                      .map((c) => c.targetName.localized)
+                      .toSet()
+                      .map((name) => Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.bgGrey,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                              child: Text(
+                                '→ $name',
+                                style: const TextStyle(
+                                  fontFamily: 'WantedSansRegular',
+                                  fontSize: 10,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          )),
                   AnimatedRotation(
                     turns: isExpanded ? 0.25 : 0,
                     duration: const Duration(milliseconds: 200),
