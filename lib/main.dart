@@ -1,13 +1,8 @@
-// relase 브랜치
-
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,55 +13,51 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'package:skkumap/app/pages/KingoLogin/controller/KingoLogin_controller.dart';
-import 'package:skkumap/app/pages/bus_inja_detail/controller/bus_inja_detail_controller.dart';
-import 'package:skkumap/app/pages/bus_inja_main/controller/bus_inja_main_controller.dart';
-import 'package:skkumap/app/pages/hssc_building_map/controller/hssc_building_map_controller.dart';
-import 'package:skkumap/app/pages/bus_main_detail/controller/bus_seoul_detail_controller.dart';
-import 'package:skkumap/app/pages/bus_main_main/controller/bus_seoul_main_controller.dart';
-import 'package:skkumap/app/pages/mainpage/controller/mainpage_controller.dart';
-import 'package:skkumap/app/pages/webview/controller/webview_controller.dart';
-import 'package:skkumap/app/routes/app_routes.dart';
+import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/features/app_shell/binding/app_shell_binding.dart';
+import 'package:skkumap/features/app_shell/ui/app_shell_screen.dart';
 import 'package:skkumap/firebase_options.dart';
 import 'languages.dart';
-import 'package:skkumap/app/pages/nsc_building_map/controller/nsc_building_map_controller.dart';
-import 'package:skkumap/app/pages/search_list/controller/search_list_controller.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-// import 'package:timezone/timezone.dart' as tz;
-// import 'package:timezone/data/latest.dart' as tzData;
-import 'package:intl/date_symbol_data_local.dart';
 
-import 'package:skkumap/app/pages/mainpage/ui/navermap/navermap_controller.dart';
-import 'package:skkumap/app/utils/geolocator.dart';
+import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
+import 'package:skkumap/core/utils/geolocator.dart';
+import 'package:skkumap/core/utils/app_logger.dart';
+import 'package:skkumap/core/utils/analytics_screen_names.dart';
+
+import 'package:skkumap/core/data/api_client.dart' as data;
+import 'package:skkumap/core/data/dio_client.dart';
+import 'package:skkumap/features/transit/data/bus_repository.dart';
+import 'package:skkumap/features/transit/data/bus_config_repository.dart';
+import 'package:skkumap/features/campus_map/data/map_config_repository.dart';
+import 'package:skkumap/features/campus_map/data/map_layer_repository.dart';
+import 'package:skkumap/features/transit/data/station_repository.dart';
+import 'package:skkumap/features/building/data/building_repository.dart';
+import 'package:skkumap/features/building/controller/building_detail_controller.dart';
+import 'package:skkumap/core/repositories/ad_repository.dart';
+import 'package:skkumap/core/repositories/ui_repository.dart';
+import 'package:skkumap/core/data/connectivity_service.dart';
 
 const storage = FlutterSecureStorage();
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
     overlays: SystemUiOverlay.values,
   );
-  // await initializeDateFormatting('ko_KR');
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  // try {
-  //   await FirebaseMessaging.instance.subscribeToTopic("necessaryupdate");
-  // } catch (e) {
-  //   print(e);
-  // }
 
   await initEnvironmentVariables();
-  registerDependencies();
   await initFirebase();
+  registerDependencies();
+  await Get.find<data.ApiClient>().ensureAuth();
+  Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
+  Get.put(ConnectivityService());
   await initMobileAds();
-  await initNaverMapSdk_v2();
+  await initNaverMapSdkV2();
 
-  WidgetsFlutterBinding.ensureInitialized();
-
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const MyApp());
 }
 
@@ -82,6 +73,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      Get.find<MapConfigRepository>().checkForUpdates();
+    }
   }
 
   @override
@@ -90,11 +95,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       designSize: const Size(390, 844),
       builder: (context, child) => GetMaterialApp(
         navigatorObservers: [
-          FirebaseAnalyticsObserver(analytics: analytics),
+          if (!kDebugMode)
+            FirebaseAnalyticsObserver(
+              analytics: analytics,
+              nameExtractor: (settings) =>
+                  analyticsNameExtractor(settings) ?? settings.name,
+            ),
         ],
         debugShowCheckedModeBanner: false,
         getPages: AppRoutes.routes,
-        initialRoute: '/',
+        initialRoute: Routes.splash,
+        unknownRoute: GetPage(
+          name: '/not-found',
+          page: () => const Mainpage(),
+          binding: AppShellBinding(),
+        ),
         translations: Languages(),
         locale: Get.deviceLocale,
         fallbackLocale: const Locale('en', 'US'),
@@ -110,7 +125,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
 Future<void> initFirebase() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  if (!kDebugMode) {
+  if (kDebugMode) {
+    // Disable Analytics & Crashlytics in debug to keep production data clean
+    await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(false);
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  } else {
     FlutterError.onError = (errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
@@ -129,64 +148,40 @@ Future<void> initEnvironmentVariables() async {
   await dotenv.load(fileName: ".env");
 }
 
-// Future<void> initNaverMapSdk() async {
-//   await NaverMapSdk.instance
-//       .initialize(clientId: dotenv.env['navernewClientId']!);
-// }
-
-// deprecated된 initNaverMapSdk() 대체
-Future<void> initNaverMapSdk_v2() async {
+Future<void> initNaverMapSdkV2() async {
   await FlutterNaverMap().init(
       clientId: dotenv.env['navernewClientId']!,
       onAuthFailed: (ex) {
         switch (ex) {
           case NQuotaExceededException(:final message):
-            print("사용량 초과 (message: $message)");
+            logger.w("사용량 초과 (message: $message)");
             break;
           case NUnauthorizedClientException() ||
                 NClientUnspecifiedException() ||
                 NAnotherAuthFailedException():
-            print("인증 실패: $ex");
+            logger.e("인증 실패: $ex");
             break;
         }
       });
 }
 
 void registerDependencies() {
-  Get.lazyPut(() => BusDataController());
-  Get.lazyPut(() => SeoulMainLifeCycle());
+  // ── API infrastructure (fenix: true — survives controller dispose) ──
+  final dio = createDioClient();
+  final apiClient = data.ApiClient(dio);
+  Get.put<data.ApiClient>(apiClient);
 
-  Get.lazyPut(() => SeoulDetailController());
-  Get.lazyPut(() => SeoulDetailLifeCycle());
+  Get.lazyPut(() => BusRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.put(BusConfigRepository(Get.find<data.ApiClient>()));
+  Get.lazyPut(() => StationRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => BuildingRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.lazyPut(() => UiRepository(Get.find<data.ApiClient>()), fenix: true);
+  Get.put(MapConfigRepository(Get.find<data.ApiClient>()));
+  Get.lazyPut(() => MapLayerRepository(Get.find<data.ApiClient>()), fenix: true);
 
-  Get.lazyPut(() => InjaMainController());
-
-  // Get.put(InjaMainController());
-
-  Get.lazyPut(() => InjaMainLifeCycle());
-  // Get.put(InjaMainLifeCycle());
-
-  Get.put(InjaDetailController());
-  // Get.lazyPut(() => InjaDetailController());
-  Get.put(InjaDetailLifeCycle());
-  // Get.lazyPut(() => InjaDetailLifeCycle());
-
-  // Get.put(MainpageController());
-  // Get.put(MainpageLifeCycle());
-
-  Get.lazyPut(() => MainpageController());
-  Get.lazyPut(() => MainpageLifeCycle());
-
-  Get.lazyPut(() => KingoLoginController());
-  Get.lazyPut(() => KingoLoginLifeCycle());
-
-  Get.put(HSSCBuildingMapController());
-  Get.put(CustomWebViewController());
-
-  Get.put(NSCBuildingMapController());
-
-  Get.put(SearchListController());
-
+  // ── App-global controllers (needed across all pages) ──
   Get.lazyPut(() => UltimateNMapController());
   Get.lazyPut(() => LocationController());
+  Get.lazyPut(() => BuildingDetailController(), fenix: true);
 }

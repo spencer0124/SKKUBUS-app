@@ -1,48 +1,97 @@
-# SKKUBUS-flutter
+# SKKUBUS
 
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.22.2-02569B?logo=flutter&logoColor=white)](https://flutter.dev) [![Dart Version](https://img.shields.io/badge/Dart-3.4.3-0175C2?logo=dart&logoColor=white)](https://dart.dev) [![GetX](https://img.shields.io/badge/GetX-4.6.5-33A0FF?logo=get&logoColor=white)](https://pub.dev/packages/get)
+<div align="center">
 
-> **성균관대학교 버스 앱 ‘스꾸버스’** <br>
-> Flutter 기반으로 Android와 iOS를 단일 코드로 지원합니다.
+**Real-time campus transit and utilities for Sungkyunkwan University — solo-built with Flutter.**
 
 <br>
 
-## Table of Contents
+![DAU](https://img.shields.io/badge/DAU-500+-4CAF50?style=for-the-badge)
+![Campus Penetration](https://img.shields.io/badge/Campus_Penetration-50%25-FF6F00?style=for-the-badge)
+![iOS Users](https://img.shields.io/badge/iOS_Users-80%25-000000?style=for-the-badge&logo=apple&logoColor=white)
 
-- [Architecture](#architecture)
-- [Resources](#resources)
-- [Download](#download)
-- [About](#about)
-- [Contribution Guide](#contribution-guide)
+<br>
 
-## Architecture
+[![App Store](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://shorturl.ac/skkubus_ios)
+[![Google Play](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://shorturl.ac/skkubus_and)
 
-GetX를 활용하여 상태 관리, 라우팅, 의존성 주입을 일원화했습니다.
+<br>
 
-```plaintext
-- android: 안드로이드 설정 및 네이티브 코드
-- ios    : iOS 설정 및 네이티브 코드
-- assets : 폰트, 이미지, Lottie 등
-- lib    : Dart 소스코드
-    ├─ admob
-    ├─ app
-    └─ notification
-```
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)](https://flutter.dev/)
+[![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)](https://dart.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![GetX](https://img.shields.io/badge/GetX-8A2BE2?style=flat)](https://pub.dev/packages/get)
 
-## Resources
+</div>
 
-- 스꾸버스 웹뷰: https://github.com/spencer0124/SKKUBUS_webview
-- 스꾸버스 서버: https://github.com/spencer0124/SKKUBUS-server-express
-- 스꾸버스 지도 데이터: https://github.com/spencer0124/SKKUBUS-data
-
-## Download
-
-[![Play Store](https://img.shields.io/badge/Google%20Play-Visit-green?logo=google-play&logoColor=white)](https://shorturl.ac/skkubus_and) [![App Store](https://img.shields.io/badge/App%20Store-Visit-blue?logo=app-store&logoColor=white)](https://shorturl.ac/skkubus_ios)
+---
 
 ## About
 
-성균웹진 '성대생은 지금' 최신호에서 [인터뷰](https://webzine.skku.edu/skkuzine/section/people01.do?articleNo=109617&pager.offset=0&pagerLimit=10)를 진행했습니다.
+SKKUBUS is an all-in-one campus app used daily by 500+ students at Sungkyunkwan University. It provides real-time shuttle bus tracking, interactive campus maps, building directories, and campus utilities — all from a single Flutter codebase shipping to both iOS and Android. Solo-developed end-to-end: planning, design, development, marketing, and operations.
 
-## Contribution Guide
+---
 
-추가 예정
+## Features
+
+- **Live Shuttle Tracking** — real-time GPS positions and ETAs for Seoul campus shuttles
+- **Suwon Campus Bus** — station shuttle and campus loop schedules
+- **Campus Map** — interactive Naver Map with detailed building markers
+- **Building Directory** — room-level info for HSSC (Seoul) and NSC (Suwon)
+- **Search** — unified lookup across buildings, classrooms, and facilities
+- **Lost & Found** — report and browse items on campus
+- **Announcements** — university notices in real time
+
+---
+
+## Tech Stack
+
+| | |
+| :--- | :--- |
+| **Frontend** | Flutter 3.x, Dart, GetX |
+| **Map** | Naver Map SDK |
+| **Backend** | Express.js, Swagger |
+| **Cloud** | Firebase (Auth, Firestore, Messaging, Analytics, Crashlytics) |
+| **OTA** | Shorebird Code Push |
+| **Libraries** | Dio, Geolocator, WebView Flutter, Lottie |
+
+---
+
+## Architecture
+
+- **Server-Driven UI** — update content and layouts without app store releases
+- **OTA Code Push** — deploy Dart patches in under 10 minutes, no store review
+- **WebView JS Bridge** — bidirectional Flutter-WebView communication for building maps
+- **Hybrid Updates** — OTA for Dart, SDUI for content, WebView for complex changes, store for native
+
+---
+
+## Getting Started
+
+```bash
+# 1. Clone
+git clone https://github.com/spencer0124/SKKUBUS.git && cd SKKUBUS
+
+# 2. Install dependencies
+flutter pub get
+
+# 3. Add environment variables
+#    Create .env in project root with API keys (e.g. Naver Map client ID)
+
+# 4. Run
+flutter run
+```
+
+---
+
+## Media
+
+> Featured in **SKKU Official Webzine** — 18K+ views
+>
+> [Read the interview](https://webzine.skku.edu/skkuzine/section/people01.do?articleNo=109617&pager.offset=0&pagerLimit=10)
+
+---
+
+<div align="center">
+<sub>Copyright &copy; 2024 SKKUBUS. All rights reserved.</sub>
+</div>
