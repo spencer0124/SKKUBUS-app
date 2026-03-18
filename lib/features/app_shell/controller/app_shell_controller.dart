@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/data/result.dart';
@@ -34,12 +35,31 @@ class AppShellLifeCycle extends GetxController with WidgetsBindingObserver {
 }
 
 class AppShellController extends GetxController {
+  static const _tabKey = 'last_tab_index';
   final _adRepo = Get.find<AdRepository>();
 
   Timer? _timer;
 
-  // BottomNavigation 현재 선택된 index 저장
-  var bottomNavigationIndex = 2.obs;
+  // BottomNavigation 현재 선택된 index 저장 (기본값: 캠퍼스)
+  var bottomNavigationIndex = 1.obs;
+
+  void setTab(int index) {
+    bottomNavigationIndex.value = index;
+    _saveTabIndex(index);
+  }
+
+  Future<void> _saveTabIndex(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_tabKey, index);
+  }
+
+  Future<void> _loadTabIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getInt(_tabKey);
+    if (saved != null && (saved == 1 || saved == 2)) {
+      bottomNavigationIndex.value = saved;
+    }
+  }
 
   var _hasTrackedAdView = false;
 
@@ -88,6 +108,7 @@ class AppShellController extends GetxController {
 
   Future<void> _initialize() async {
     try {
+      await _loadTabIndex();
       fetchMainpageAd();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         _timer = Timer.periodic(const Duration(seconds: 15), (Timer t) {

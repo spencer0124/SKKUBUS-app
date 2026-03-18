@@ -40,7 +40,7 @@ class Mainpage extends GetView<AppShellController> {
               () => Bottomnavigation(
                 index: controller.bottomNavigationIndex.value,
                 onItemTapped: (int index) {
-                  controller.bottomNavigationIndex.value = index;
+                  controller.setTab(index);
                 },
               ),
             ),
