@@ -1,0 +1,69 @@
+# .github/workflows/dev_pipeline.yml
+
+name: Dev CI/CD Pipeline
+
+# 1. 트리거 조건 수정
+on:
+  # 'dev' 브랜치로 Pull Request가 생성/업데이트 될 때
+  pull_request:
+    branches:
+      - dev
+  # GitHub Actions 탭에서 수동으로 실행 가능
+  workflow_dispatch:
+
+jobs:
+  main-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 2. 코드 가져오기
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+     # 3. Flutter 설정 (오류 수정)
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0' # 사용하려는 버전
+          channel: 'stable'
+          cache: true
+      
+
+      # 4. 비밀 파일 생성
+      - name: Create Secret Files
+        run: |
+          # 사용하는 파일의 주석만 해제해서 사용하세요.
+          echo "${{ secrets.PROJECT_ENV }}" > .env
+          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+          echo "${{ secrets.FIREBASE_SERVICES_JSON }}" > android/app/google-services.json
+          echo "${{ secrets.FIREBASE_SERVICE_INFO_PLIST }}" > ios/Runner/GoogleService-Info.plist
+        # if: 항상 실행되도록 if 조건 없음
+
+      # 5. Flutter 코드 정적 분석 (요청대로 수정)
+      - name: Run Flutter Analyze
+        run: flutter analyze
+        # --fatal-infos 플래그를 제거하여 error 등급에서만 워크플로우가 중단됩니다.
+
+      # 6. Flutter 단위/위젯 테스트 실행
+      # - name: Run Flutter Tests
+      #   run: flutter test
+
+      # 7. Firebase CLI 설치 (배포 시에만 실행)
+      - name: Install Firebase CLI
+        if: github.event_name == 'workflow_dispatch' # 수동 실행 시에만 동작
+        run: npm install -g firebase-tools
+
+      # 8. 안드로이드 앱 빌드 (배포 시에만 실행)
+      - name: Build Android APK
+        if: github.event_name == 'workflow_dispatch' # 수동 실행 시에만 동작
+        run: flutter build apk --release
+
+      # 9. Firebase App Distribution 배포 (배포 시에만 실행)
+      - name: Deploy to Firebase App Distribution
+        if: github.event_name == 'workflow_dispatch' # 수동 실행 시에만 동작
+        run: |
+          firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
+            --app "${{ secrets.FIREBASE_APP_ID_ANDRIOD }}" \
+            --token "${{ secrets.FIREBASE_TOKEN }}" \
+            --groups "qa-team" \
+            --release-notes "Manual deploy from commit: ${{ github.sha }}"
