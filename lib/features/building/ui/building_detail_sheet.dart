@@ -383,12 +383,6 @@ class BuildingDetailSheet extends StatelessWidget {
                 final first = group.first;
                 final isLast = idx == groups.length - 1;
 
-                // Floor text: "2층↔3층, 5층↔5층"
-                final floorText = group
-                    .map((c) =>
-                        '${c.fromFloor.localized}↔${c.toFloor.localized}')
-                    .join(', ');
-
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
@@ -429,31 +423,14 @@ class BuildingDetailSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        // Name + floor connections
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                first.targetName.localized,
-                                style: const TextStyle(
-                                  fontFamily: 'WantedSansMedium',
-                                  fontSize: 14,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                floorText,
-                                style: const TextStyle(
-                                  fontFamily: 'WantedSansRegular',
-                                  fontSize: 12,
-                                  color: AppColors.textSecondary,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                          child: Text(
+                            first.targetName.localized,
+                            style: const TextStyle(
+                              fontFamily: 'WantedSansMedium',
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                         ),
                         const Icon(
