@@ -517,7 +517,7 @@ class _FloorTile extends StatelessWidget {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 44,
+                    width: 56,
                     child: Text(
                       floor.floor.localized,
                       style: TextStyle(

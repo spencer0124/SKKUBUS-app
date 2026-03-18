@@ -51,15 +51,17 @@ class MainPageBackground extends StatelessWidget {
                             left: 20,
                             right: 20,
                             top: statusBarHeight + 16,
-                            child: Row(
-                              children: [
-                                const Expanded(child: CustomSearchBar()),
-                                const SizedBox(width: 10),
-                                CustomFilter(onFilterTap: () {
-                                  Get.bottomSheet(const FilterSheet());
-                                }),
-                              ],
-                            ),
+                            // TODO: 다음 버전에서 필터 기능 완성 후 복원
+                            // child: Row(
+                            //   children: [
+                            //     const Expanded(child: CustomSearchBar()),
+                            //     const SizedBox(width: 10),
+                            //     CustomFilter(onFilterTap: () {
+                            //       Get.bottomSheet(const FilterSheet());
+                            //     }),
+                            //   ],
+                            // ),
+                            child: const CustomSearchBar(),
                           ),
                           Positioned(
                             left: 20,
