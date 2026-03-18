@@ -1,37 +1,35 @@
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:skkumap/core/data/api_client.dart';
+import 'package:skkumap/core/data/api_endpoints.dart';
+import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/utils/app_logger.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/features/campus_map/model/campusmarker_model.dart';
-import 'package:skkumap/core/data/api_config.dart';
-import 'package:skkumap/core/utils/app_logger.dart';
 
 class AroundPlaceController extends GetxController {
-  // 현재 카메라 지도 영역에 대한 정보를 가져오는 메서드
-  // getContentBounds abstract method
-  // https://pub.dev/documentation/flutter_naver_map/latest/flutter_naver_map/NaverMapController/getContentBounds.html
+  final ApiClient _api = Get.find<ApiClient>();
 
   Future<void> fetchAroundPlaceData(NLatLngBounds bounds) async {
-    // 영역 좌표값 예시
-    //  NLatLngBounds: {southWest: {lat: 37.58343008457714, lng: 126.99205729542365}, northEast: {lat: 37.59129170783923, lng: 126.99690070457643}}
     final swLat = bounds.southWest.latitude;
     final swLon = bounds.southWest.longitude;
     final neLat = bounds.northEast.latitude;
     final neLon = bounds.northEast.longitude;
 
-    // [1] 해당 영역에 속하고
-    // [2] 적용한 필터 값이 일치하는 장소 데이터 가져오기
-    final uri = Uri.parse('${ApiConfig.baseUrl}/map/v1/getaroundplacedata?'
-        'southWestlat=$swLat&southWestlon=$swLon&'
-        'northEastlat=$neLat&northEastlon=$neLon');
-    try {
-      final response = await http.get(uri);
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        logger.d('decoded: $decoded');
-        final list = decoded['result'] as List?;
+    final result = await _api.safeGetRaw(
+      ApiEndpoints.aroundPlace(),
+      queryParameters: {
+        'southWestlat': swLat,
+        'southWestlon': swLon,
+        'northEastlat': neLat,
+        'northEastlon': neLon,
+      },
+    );
+
+    switch (result) {
+      case Ok(:final data):
+        final list = data['result'] as List?;
         if (list == null || list.isEmpty) {
           await FlutterPlatformAlert.showCustomAlert(
             windowTitle: '검색 결과 없음!',
@@ -41,7 +39,6 @@ class AroundPlaceController extends GetxController {
           return;
         }
         final ultimateCtrl = Get.find<UltimateNMapController>();
-        // convert API results into CampusMarker list and update via controller
         final campusMarkers = list.map((item) {
           final dataMeta = item['data_metadata'] as Map<String, dynamic>;
           final placeMeta = item['place_metadata'] as Map<String, dynamic>;
@@ -53,14 +50,12 @@ class AroundPlaceController extends GetxController {
             idNumber: dataMeta['uniqueid'] as String,
             position: NLatLng(lat, lon),
             name: placeMeta['place_nm'] as String,
-            // todo: has_rank로 api 바꾸고 여기서도 바꾸기.
             hasrank: interactionmeta['hasrank'] as bool,
           );
         }).toList();
         ultimateCtrl.updateMarkers(campusMarkers);
-      }
-    } catch (e) {
-      logger.e('Error fetching place data: $e');
+      case Err(:final failure):
+        logger.e('Error fetching place data: $failure');
     }
   }
 }

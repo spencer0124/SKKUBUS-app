@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app_theme.dart';
@@ -65,7 +66,7 @@ class MainPageBackground extends StatelessWidget {
                             top: statusBarHeight + 16 + 56,
                             child: _CampusToggle(),
                           ),
-                          const CoordPickerPanel(),
+                          if (kDebugMode) const CoordPickerPanel(),
                         ],
                       ),
                     ],

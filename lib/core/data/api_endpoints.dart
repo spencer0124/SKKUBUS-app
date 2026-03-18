@@ -36,8 +36,9 @@ class ApiEndpoints {
   static String busConfig() => '/bus/config';
   static String busConfigGroup(String groupId) => '/bus/config/$groupId';
 
-  // ── Map config ──────────────────────────────────
+  // ── Map ────────────────────────────────────────
   static String mapConfig() => '/map/config';
+  static String aroundPlace() => '/map/v1/getaroundplacedata';
 
   // ── App config ─────────────────────────────────
   static String appConfig() => '/app/config';

@@ -45,13 +45,3 @@ void snaptoInitPosition() {
     const SnappingPosition.factor(positionFactor: 0.5),
   );
 }
-
-// void checkCurrentPosition(double screenHeight, SheetPositionData sheetPosition, SnappingPosition snappingPosition) {
-//   double totalMovableHeight = screenHeight - grabbingHeight;
-//   double positionFactor = sheetPosition.pixels / totalMovableHeight;
-//   double closest = positionFactor.reduce((a, b) =>
-//       (positionFactor - a).abs() < (positionFactor - b).abs() ? a : b);
-
-//   print("Closest predefined position to current: $closest");
-//   print("Current position factor: $positionFactor");
-// }

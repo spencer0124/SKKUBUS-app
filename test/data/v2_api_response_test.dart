@@ -442,7 +442,7 @@ void main() {
   group('GET /ui/home/buslist', () {
     test('parses all 4 bus list items', () async {
       dioAdapter.onGet(
-        ApiEndpoints.homeBusList(),
+        ApiEndpoints.homeTransitList(),
         (server) => server.reply(200, _homeBusList),
       );
 
@@ -456,7 +456,7 @@ void main() {
 
     test('first item: hssc shuttle with card and action', () async {
       dioAdapter.onGet(
-        ApiEndpoints.homeBusList(),
+        ApiEndpoints.homeTransitList(),
         (server) => server.reply(200, _homeBusList),
       );
 
@@ -475,7 +475,7 @@ void main() {
 
     test('second item: campus schedule', () async {
       dioAdapter.onGet(
-        ApiEndpoints.homeBusList(),
+        ApiEndpoints.homeTransitList(),
         (server) => server.reply(200, _homeBusList),
       );
 
@@ -491,7 +491,7 @@ void main() {
 
     test('third item: jongro02 village bus', () async {
       dioAdapter.onGet(
-        ApiEndpoints.homeBusList(),
+        ApiEndpoints.homeTransitList(),
         (server) => server.reply(200, _homeBusList),
       );
 
@@ -638,7 +638,7 @@ void main() {
     });
 
     test('UI paths', () {
-      expect(ApiEndpoints.homeBusList(), '/ui/home/buslist');
+      expect(ApiEndpoints.homeTransitList(), '/ui/home/transitlist');
       expect(ApiEndpoints.homeScroll(), '/ui/home/scroll');
     });
 

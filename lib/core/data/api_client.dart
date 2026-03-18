@@ -103,7 +103,7 @@ class ApiClient {
         final etag = response.headers.value('etag');
         return Result.ok(ConditionalResult(data: parser(raw), etag: etag));
       } else {
-        return Result.error(const ParseFailure('Invalid v2 envelope'));
+        return const Result.error(ParseFailure('Invalid v2 envelope'));
       }
     } on DioException catch (e) {
       return Result.error(_mapDioError(e));
@@ -149,6 +149,33 @@ class ApiClient {
       await _dio.post(path, data: data);
     } catch (e) {
       logger.d('[api] firePost $path failed: $e');
+    }
+  }
+
+  /// Raw GET for v1 endpoints that don't use the v2 `{ meta, data }` envelope.
+  ///
+  /// Returns the decoded JSON as-is. Prefer [safeGet] for v2 endpoints.
+  Future<Result<Map<String, dynamic>>> safeGetRaw(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      final raw = response.data;
+      if (raw is Map<String, dynamic>) {
+        return Result.ok(raw);
+      } else {
+        return const Result.error(ParseFailure('Expected JSON object'));
+      }
+    } on DioException catch (e) {
+      return Result.error(_mapDioError(e));
+    } catch (e) {
+      return Result.error(ParseFailure('Parse error: $e'));
     }
   }
 

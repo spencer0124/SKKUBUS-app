@@ -1,2 +1,0 @@
-/Users/zoyoong/project/skkumap/android/app/.cxx/Debug/1taj705v/x86/CMakeFiles/edit_cache.dir
-/Users/zoyoong/project/skkumap/android/app/.cxx/Debug/1taj705v/x86/CMakeFiles/rebuild_cache.dir

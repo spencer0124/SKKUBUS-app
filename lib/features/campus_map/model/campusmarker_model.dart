@@ -5,10 +5,6 @@ class CampusMarker {
   final NLatLng position;
   final bool hasrank;
   final int? rank;
-  final bool? hasStaticLogo;
-  final bool? hasDynamicLogo;
-  final String? staticLogoLink;
-  final String? dynamicLogoUrl;
   final String? name;
 
   CampusMarker({
@@ -16,10 +12,6 @@ class CampusMarker {
     required this.position,
     required this.hasrank,
     this.rank,
-    this.hasStaticLogo,
-    this.hasDynamicLogo,
-    this.staticLogoLink,
-    this.dynamicLogoUrl,
     this.name,
   });
 }

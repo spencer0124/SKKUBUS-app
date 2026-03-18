@@ -71,61 +71,6 @@ class UltimateNMapController extends GetxController {
                     ),
                   ),
                 ),
-              if (!m.hasrank)
-                // todo: asset logo 넣기 & preload
-                if (m.hasStaticLogo == true)
-                  const Positioned(
-                    top: 3,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Text(
-                        "static logo",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 7,
-                          fontFamily: 'WantedSansBold',
-                        ),
-                      ),
-                    ),
-                  )
-                // todo: networkimage & preload
-                else if (m.hasDynamicLogo == true)
-                  const Positioned(
-                    top: 3,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Text(
-                        "dynamic logo",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 7,
-                          fontFamily: 'WantedSansBold',
-                        ),
-                      ),
-                    ),
-                  )
-                // rank, staticLogo, dynamicLogo 모두 없는 경우
-                else
-                  const Positioned(
-                    top: 3,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Text(
-                        "else1",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 7,
-                          fontFamily: 'WantedSansBold',
-                        ),
-                      ),
-                    ),
-                  ),
             ],
           ),
         ),
@@ -151,37 +96,6 @@ class UltimateNMapController extends GetxController {
     } else {
       markers.addAll(newMarkers);
     }
-  }
-
-// 예시구현
-  Future<void> fetchMarkersFromServer() async {
-    // TODO: 서버에서 CampusMarker 데이터 가져오기
-    // 예시
-    final fetchedMarkers = <CampusMarker>[
-      CampusMarker(
-        idNumber: "1",
-        position: const NLatLng(37.587361, 126.994479),
-        hasrank: false,
-      ),
-      CampusMarker(
-        idNumber: "10",
-        position: const NLatLng(37.59, 126.99),
-        hasrank: false,
-      ),
-    ];
-    updateMarkers(fetchedMarkers);
-  }
-
-// 예시구현
-  Future<void> fetchCameraPositionFromServer() async {
-    // 예시 위치: 중앙도서관 근처
-    const newPosition = NCameraPosition(
-      target: NLatLng(37.5885, 126.9935),
-      zoom: 17.5,
-      bearing: 0,
-      tilt: 0,
-    );
-    cameraPosition.value = newPosition;
   }
 
   Future<void> moveToCurrentLocation() async {
@@ -214,56 +128,10 @@ class UltimateNMapController extends GetxController {
     }
   }
 
-  /// Create markers with custom widget icon (image + text)
-  // Future<void> updateMarkersWithWidgetIcon(
-  //     BuildContext context, List<CampusMarker> campusMarkers,
-  //     {bool clearBefore = true}) async {
-  //   const size = Size(25, 25);
-  //   final iconImage = await NOverlayImage.fromWidget(
-  //     size: size,
-  //     context: context,
-  //     widget: SizedBox(
-  //       width: size.width,
-  //       height: size.height,
-  //       child: Stack(
-  //         children: [
-  //           Image.asset('assets/images/line_blank.png',
-  //               width: size.width, height: size.height),
-  //           // replace with m.idNumber inside loop if needed
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  //   final newMarkers = campusMarkers.map((m) {
-  //     return NMarker(
-  //       id: 'line${m.idNumber}',
-  //       position: m.position,
-  //       size: size,
-  //       icon: iconImage,
-  //       captionOffset: 0,
-  //       caption:
-  //           NOverlayCaption(textSize: 7, text: m.idNumber, color: Colors.black),
-  //     );
-  //   }).toList();
-  //   if (clearBefore) {
-  //     markers.value = newMarkers;
-  //   } else {
-  //     markers.addAll(newMarkers);
-  //   }
-  // }
-
-  // void updateOverlay(List<NLatLng> coords, String id) {
-  //   overlays.value = [
-  //     NMultipartPathOverlay(
-  //       id: id,
-  //       paths: [
-  //         NMultipartPath(
-  //           coords: coords,
-  //           color: Colors.green,
-  //           outlineColor: Colors.white,
-  //         )
-  //       ],
-  //     ),
-  //   ];
-  // }
+  @override
+  void onClose() {
+    markers.clear();
+    overlays.clear();
+    super.onClose();
+  }
 }

@@ -34,7 +34,7 @@ final defaultCampusSections = <SduiSection>[
         title: '문의하기',
         emoji: '\u{1F4AC}',
         actionType: ActionType.external,
-        actionValue: 'http://pf.kakao.com/_cjxexdG/chat',
+        actionValue: 'https://pf.kakao.com/_cjxexdG/chat',
       ),
     ],
   ),
