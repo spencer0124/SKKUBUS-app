@@ -97,7 +97,9 @@ class FilterSheet extends StatelessWidget {
                       text: "인사캠",
                       onCampusItemTapped: (int index) {
                         controller.selectedCampus.value = index;
-                        layerCtrl.onCampusChanged();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          layerCtrl.onCampusChanged();
+                        });
                       },
                     ),
                     const SizedBox(width: 8),
@@ -107,7 +109,9 @@ class FilterSheet extends StatelessWidget {
                       text: "자과캠",
                       onCampusItemTapped: (int index) {
                         controller.selectedCampus.value = index;
-                        layerCtrl.onCampusChanged();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          layerCtrl.onCampusChanged();
+                        });
                       },
                     ),
                   ],
