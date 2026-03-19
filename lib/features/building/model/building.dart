@@ -10,6 +10,7 @@ class Building {
   final String? displayNo;
   final String type; // "building" | "facility"
   final String campus; // "hssc" | "nsc"
+  final String campusLabel; // server i18n: "인사캠" / "HSSC" / "人文校区"
   final LocalizedText name;
   final LocalizedText? description;
   final double lat;
@@ -25,6 +26,7 @@ class Building {
     this.displayNo,
     required this.type,
     required this.campus,
+    required this.campusLabel,
     required this.name,
     this.description,
     required this.lat,
@@ -51,6 +53,7 @@ class Building {
       displayNo: json['displayNo'] as String?,
       type: json['type'] as String? ?? 'building',
       campus: json['campus'] as String? ?? 'hssc',
+      campusLabel: json['campusLabel'] as String? ?? '',
       name: LocalizedText.fromJson(json['name'] as Map<String, dynamic>),
       description: json['description'] != null
           ? LocalizedText.fromJson(json['description'] as Map<String, dynamic>)
