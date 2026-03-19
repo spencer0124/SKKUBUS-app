@@ -272,7 +272,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 Row(
                   children: [
                     Text(
-                      building.campus == 'hssc' ? '인사캠'.tr : '자과캠'.tr,
+                      building.campusLabel,
                       style: TextStyle(
                         fontFamily: 'WantedSansRegular',
                         fontSize: 12,
@@ -335,26 +335,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                   const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Text(
-                        group.buildingName.localized,
-                        style: TextStyle(
-                          fontFamily: 'WantedSansRegular',
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        space.floor.localized,
-                        style: TextStyle(
-                          fontFamily: 'WantedSansRegular',
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                  Text(
+                    '[${group.campusLabel}] ${group.buildingName.localized} ${space.floor.localized}',
+                    style: TextStyle(
+                      fontFamily: 'WantedSansRegular',
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

@@ -39,6 +39,8 @@ class SpaceGroup {
   final int? skkuId;
   final String buildNo;
   final String? displayNo;
+  final String campus;
+  final String campusLabel;
   final LocalizedText buildingName;
   final List<SearchSpaceItem> items;
 
@@ -46,6 +48,8 @@ class SpaceGroup {
     this.skkuId,
     required this.buildNo,
     this.displayNo,
+    required this.campus,
+    required this.campusLabel,
     required this.buildingName,
     required this.items,
   });
@@ -55,6 +59,8 @@ class SpaceGroup {
       skkuId: json['skkuId'] as int?,
       buildNo: json['buildNo'] as String? ?? '',
       displayNo: json['displayNo'] as String?,
+      campus: json['campus'] as String? ?? '',
+      campusLabel: json['campusLabel'] as String? ?? '',
       buildingName: LocalizedText.fromJson(
           json['buildingName'] as Map<String, dynamic>),
       items: (json['items'] as List? ?? [])

@@ -177,9 +177,7 @@ class BuildingDetailSheet extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  building.campus == 'hssc'
-                                      ? '인사캠'.tr
-                                      : '자과캠'.tr,
+                                  building.campusLabel,
                                   style: const TextStyle(
                                     fontFamily: 'WantedSansMedium',
                                     fontSize: 11,
