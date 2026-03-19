@@ -88,19 +88,23 @@ class MapLayerController extends GetxController {
 
   /// Re-filter/re-fetch layers and move camera after campus switch.
   void onCampusChanged() {
-    for (final entry in layerStates.entries) {
-      final state = entry.value;
-      final def =
-          _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
-      if (def == null) continue;
-
-      if (state.rawMarkers != null) {
-        state.markers = _buildMarkersFromJson(state.rawMarkers!, def);
-      }
-    }
-    layerStates.refresh();
-
+    // 카메라 먼저 이동 — 사용자에게 즉각적인 피드백
     _moveCameraToSelectedCampus();
+
+    // 마커 재필터링은 다음 프레임 이후 실행 (카메라 이동 렌더링 완료 후)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (final entry in layerStates.entries) {
+        final state = entry.value;
+        final def =
+            _configRepo.layers.firstWhereOrNull((l) => l.id == entry.key);
+        if (def == null) continue;
+
+        if (state.rawMarkers != null) {
+          state.markers = _buildMarkersFromJson(state.rawMarkers!, def);
+        }
+      }
+      layerStates.refresh();
+    });
   }
 
   // ── Computed getters for the map ──────────────────

@@ -59,14 +59,17 @@ Widget buildMap() {
 
       // Camera updates
       ever<NCameraPosition>(ultimateNampController.cameraPosition, (pos) {
-        mapcontroller.updateCamera(
-          NCameraUpdate.withParams(
-            target: pos.target,
-            zoom: pos.zoom,
-            tilt: pos.tilt,
-            bearing: pos.bearing,
-          ),
+        final update = NCameraUpdate.withParams(
+          target: pos.target,
+          zoom: pos.zoom,
+          tilt: pos.tilt,
+          bearing: pos.bearing,
         );
+        update.setAnimation(
+          animation: NCameraAnimation.none,
+          duration: Duration.zero,
+        );
+        mapcontroller.updateCamera(update);
       });
     },
   );
