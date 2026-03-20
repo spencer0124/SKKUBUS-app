@@ -20,16 +20,7 @@ class CustomWebViewScreen extends StatelessWidget {
     final controller = Get.find<CustomWebViewController>();
     controller.initializeWebView(pageWebviewLink);
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        //didPop == true , 뒤로가기 제스쳐가 감지되면 호출 된다.
-        if (didPop) {
-          logger.d('didPop호출');
-          return;
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.white,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(0.0),
@@ -59,7 +50,6 @@ class CustomWebViewScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
