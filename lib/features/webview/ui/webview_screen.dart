@@ -6,7 +6,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:skkumap/features/webview/controller/webview_controller.dart';
 
 import 'package:skkumap/core/widgets/custom_navigation.dart';
-import 'package:skkumap/core/utils/app_logger.dart';
 
 class CustomWebViewScreen extends StatelessWidget {
   const CustomWebViewScreen({Key? key}) : super(key: key);
@@ -14,7 +13,6 @@ class CustomWebViewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String pageTitle = Get.arguments['title'];
-    final String pageColor = Get.arguments['color'];
     final String pageWebviewLink = Get.arguments['webviewLink'];
 
     final controller = Get.find<CustomWebViewController>();
@@ -25,8 +23,8 @@ class CustomWebViewScreen extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(0.0),
           child: AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle.light,
-            backgroundColor: Color(int.parse("0xFF$pageColor")),
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
+            backgroundColor: Colors.white,
             elevation: 0,
           ),
         ),
@@ -34,7 +32,6 @@ class CustomWebViewScreen extends StatelessWidget {
           children: [
             CustomNavigationBar(
               title: pageTitle,
-              backgroundColor: Color(int.parse("0xFF$pageColor")),
               isDisplayLeftBtn: true,
               isDisplayRightBtn: false,
               leftBtnAction: () {

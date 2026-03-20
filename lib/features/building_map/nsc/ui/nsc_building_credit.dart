@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:skkumap/core/utils/screensize.dart';
-import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/widgets/custom_navigation.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,8 +17,8 @@ class NSCBuildingCredit extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.greenMain,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
       ),
@@ -27,7 +26,6 @@ class NSCBuildingCredit extends StatelessWidget {
         children: [
           CustomNavigationBar(
             title: '자과캠 건물지도'.tr,
-            backgroundColor: AppColors.greenMain,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: false,
             leftBtnAction: () {

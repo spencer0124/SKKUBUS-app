@@ -21,8 +21,8 @@ class LostAndFound extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.greenMain,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
       ),
@@ -30,7 +30,6 @@ class LostAndFound extends StatelessWidget {
         children: [
           CustomNavigationBar(
             title: '분실물'.tr,
-            backgroundColor: AppColors.greenMain,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: false,
             leftBtnAction: () {
