@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 import 'package:skkumap/features/building/data/building_repository.dart';
 import 'package:skkumap/features/building/model/building_detail.dart';
@@ -28,18 +29,36 @@ class BuildingDetailController extends GetxController {
       expandedFloorIndex.value = null;
     } else {
       expandedFloorIndex.value = index;
+      final floor = detail.value?.floors[index];
+      if (floor != null && detail.value != null) {
+        Get.find<AnalyticsService>().logFloorExpand(
+          skkuId: detail.value!.building.skkuId,
+          floorName: floor.floor.ko,
+        );
+      }
     }
   }
 
   void showAllSpacesFor(int floorIndex) {
     showAllSpaces[floorIndex] = true;
+    final floor = detail.value?.floors[floorIndex];
+    if (floor != null && detail.value != null) {
+      Get.find<AnalyticsService>().logSpaceShowAll(
+        skkuId: detail.value!.building.skkuId,
+        floorName: floor.floor.ko,
+      );
+    }
   }
+
+  String? _currentSource;
 
   Future<void> loadDetail(
     int skkuId, {
     String? highlightFloor,
     String? highlightSpaceCd,
+    String? source,
   }) async {
+    _currentSource = source;
     this.highlightFloor = highlightFloor;
     this.highlightSpaceCd = highlightSpaceCd;
     detail.value = null;
@@ -52,6 +71,12 @@ class BuildingDetailController extends GetxController {
     switch (result) {
       case Ok(:final data):
         detail.value = data;
+        Get.find<AnalyticsService>().logBuildingView(
+          skkuId: data.building.skkuId,
+          buildingName: data.building.name.ko,
+          campus: data.building.campus,
+          source: _currentSource ?? 'direct',
+        );
         // Auto-expand highlighted floor
         if (highlightFloor != null) {
           for (var i = 0; i < data.floors.length; i++) {

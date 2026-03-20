@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/campus_map/widgets/searchbar.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/features/search/controller/search_controller.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -32,15 +33,29 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _onItemTap(SearchDisplayItem item) async {
+    final analytics = Get.find<AnalyticsService>();
     switch (item) {
       case BuildingDisplayItem(:final building):
+        analytics.logSearchResultTap(
+          resultType: 'building',
+          resultName: building.name.ko,
+          campus: building.campus,
+          skkuId: building.skkuId,
+        );
         Get.back(result: BuildingNavPayload(
           skkuId: building.skkuId,
           lat: building.lat,
           lng: building.lng,
+          campus: building.campus,
         ));
       case SpaceDisplayItem(:final group, :final space):
         if (group.skkuId == null) return;
+        analytics.logSearchResultTap(
+          resultType: 'space',
+          resultName: space.name.ko,
+          campus: group.campus,
+          skkuId: group.skkuId,
+        );
         // Look up building coordinates from cached building list.
         final controller = Get.find<PlaceSearchController>();
         final building = await controller.findBuildingById(group.skkuId!);
@@ -49,6 +64,7 @@ class _SearchScreenState extends State<SearchScreen> {
             skkuId: group.skkuId!,
             lat: building.lat,
             lng: building.lng,
+            campus: group.campus,
             highlightFloor: space.floor.ko,
             highlightSpaceCd: space.spaceCd,
           ));

@@ -5,6 +5,8 @@ import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:skkumap/features/building/ui/building_detail_sheet.dart';
+import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
+import 'package:skkumap/features/campus_map/controller/map_layer_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 
 /// Payload returned from the search screen when a result is tapped.
@@ -12,6 +14,7 @@ class BuildingNavPayload {
   final int skkuId;
   final double lat;
   final double lng;
+  final String campus;
   final String? highlightFloor;
   final String? highlightSpaceCd;
 
@@ -19,6 +22,7 @@ class BuildingNavPayload {
     required this.skkuId,
     required this.lat,
     required this.lng,
+    required this.campus,
     this.highlightFloor,
     this.highlightSpaceCd,
   });
@@ -43,6 +47,16 @@ class CustomSearchBar extends StatelessWidget {
         onTap: () async {
           final result = await Get.toNamed(Routes.search);
           if (result is BuildingNavPayload) {
+            // Switch campus if the result belongs to a different one
+            final campusCtrl = Get.find<CampusMapController>();
+            final currentKey =
+                campusCtrl.selectedCampus.value == 0 ? 'hssc' : 'nsc';
+            if (result.campus != currentKey) {
+              campusCtrl.selectedCampus.value =
+                  result.campus == 'hssc' ? 0 : 1;
+              Get.find<MapLayerController>()
+                  .onCampusChanged(skipCamera: true);
+            }
             // Move camera to building location
             final nmapCtrl = Get.find<UltimateNMapController>();
             nmapCtrl.cameraPosition.value = NCameraPosition(
@@ -54,6 +68,7 @@ class CustomSearchBar extends StatelessWidget {
               result.skkuId,
               highlightFloor: result.highlightFloor,
               highlightSpaceCd: result.highlightSpaceCd,
+              source: 'search',
             );
           }
         },

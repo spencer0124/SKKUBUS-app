@@ -107,13 +107,13 @@ class _CampusToggle extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildItem('인사캠', 0, selected == 0, () {
-              controller.selectedCampus.value = 0;
+              controller.switchCampus(0);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 layerCtrl.onCampusChanged();
               });
             }),
             _buildItem('자과캠', 1, selected == 1, () {
-              controller.selectedCampus.value = 1;
+              controller.switchCampus(1);
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 layerCtrl.onCampusChanged();
               });

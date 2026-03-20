@@ -10,6 +10,7 @@ import 'package:skkumap/features/campus_map/model/map_config.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap_controller.dart';
 import 'package:skkumap/features/building/ui/building_detail_sheet.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 enum LayerLoadStatus { idle, loading, loaded, error }
@@ -74,6 +75,10 @@ class MapLayerController extends GetxController {
     if (state == null) return;
 
     state.visible = !state.visible;
+    Get.find<AnalyticsService>().logLayerToggle(
+      layerId: layerId,
+      visible: state.visible,
+    );
 
     if (state.visible && state.status == LayerLoadStatus.idle) {
       final def = _configRepo.layers.firstWhereOrNull((l) => l.id == layerId);
@@ -87,9 +92,12 @@ class MapLayerController extends GetxController {
   }
 
   /// Re-filter/re-fetch layers and move camera after campus switch.
-  void onCampusChanged() {
+  /// When [skipCamera] is true, only re-filter markers without moving the
+  /// camera (used when the caller already sets its own camera position,
+  /// e.g. cross-campus search navigation).
+  void onCampusChanged({bool skipCamera = false}) {
     // 카메라 먼저 이동 — 사용자에게 즉각적인 피드백
-    _moveCameraToSelectedCampus();
+    if (!skipCamera) _moveCameraToSelectedCampus();
 
     // 마커 재필터링은 다음 프레임 이후 실행 (카메라 이동 렌더링 완료 후)
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -228,7 +236,8 @@ class MapLayerController extends GetxController {
           );
       }
       marker.setOnTapListener((_) {
-        BuildingDetailSheet.show(skkuId);
+        Get.find<AnalyticsService>().logMarkerTap(skkuId: skkuId);
+        BuildingDetailSheet.show(skkuId, source: 'marker_tap');
       });
       return marker;
     }).toList();

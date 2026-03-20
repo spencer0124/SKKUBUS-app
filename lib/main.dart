@@ -37,6 +37,8 @@ import 'package:skkumap/features/building/controller/building_detail_controller.
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/repositories/ui_repository.dart';
 import 'package:skkumap/core/data/connectivity_service.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const storage = FlutterSecureStorage();
 
@@ -53,6 +55,15 @@ Future<void> main() async {
   await initFirebase();
   registerDependencies();
   await Get.find<data.ApiClient>().ensureAuth();
+
+  // ── Analytics: set user ID + initial properties ──
+  if (!kDebugMode) {
+    final analyticsService = Get.find<AnalyticsService>();
+    analyticsService.setUserId(FirebaseAuth.instance.currentUser?.uid);
+    analyticsService.setAppLanguage(Get.deviceLocale?.languageCode ?? 'ko');
+    analyticsService.setPreferredCampus('hssc');
+  }
+
   Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
@@ -166,6 +177,9 @@ Future<void> initNaverMapSdkV2() async {
 }
 
 void registerDependencies() {
+  // ── Analytics (registered first so controllers can depend on it) ──
+  Get.put(AnalyticsService());
+
   // ── API infrastructure (fenix: true — survives controller dispose) ──
   final dio = createDioClient();
   final apiClient = data.ApiClient(dio);

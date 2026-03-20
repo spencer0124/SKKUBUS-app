@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 
 import 'package:skkumap/core/model/sdui_section.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/features/campus_map/data/campus_service_defaults.dart';
 import 'package:skkumap/core/repositories/ui_repository.dart';
 import 'package:skkumap/core/data/result.dart';
@@ -14,6 +15,14 @@ class CampusMapController extends GetxController {
   // 필터에서 선택된 캠퍼스
   // 0: 인사캠, 1: 자과캠
   var selectedCampus = 0.obs;
+
+  void switchCampus(int index) {
+    selectedCampus.value = index;
+    final campus = index == 0 ? 'hssc' : 'nsc';
+    final analytics = Get.find<AnalyticsService>();
+    analytics.logCampusSwitch(campus: campus);
+    analytics.setPreferredCampus(campus);
+  }
 
   var campusSections = <SduiSection>[].obs;
   var isCampusLoading = true.obs;
