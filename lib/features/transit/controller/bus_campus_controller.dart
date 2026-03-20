@@ -6,6 +6,7 @@ import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/features/transit/model/bus_group.dart';
 import 'package:skkumap/features/transit/model/smart_schedule.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 // ── Lifecycle observer ─────────────────────────────────────────────
@@ -63,6 +64,11 @@ class BusScheduleController extends GetxController {
     if (_configSet) return;
     _configSet = true;
     group = g;
+    Get.find<AnalyticsService>().logBusRouteOpen(
+      routeId: g.id,
+      routeLabel: g.label,
+      screenType: g.screenType,
+    );
     currentService = Rx(group.services.firstWhere(
       (s) => s.serviceId == group.defaultServiceId,
       orElse: () => group.services.first,
@@ -89,6 +95,10 @@ class BusScheduleController extends GetxController {
   // ── Service tab switching ─────────────────────────────────────────
 
   void switchService(BusService service) {
+    Get.find<AnalyticsService>().logBusServiceSwitch(
+      routeId: group.id,
+      serviceId: service.serviceId,
+    );
     currentService.value = service;
     hasError.value = false;
     final cached = _scheduleCache[service.serviceId];

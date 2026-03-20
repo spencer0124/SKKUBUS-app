@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 import 'package:skkumap/features/transit/controller/transit_controller.dart';
 
@@ -46,6 +47,12 @@ class AppShellController extends GetxController {
   void setTab(int index) {
     bottomNavigationIndex.value = index;
     _saveTabIndex(index);
+    final tabName = switch (index) {
+      1 => 'campus',
+      2 => 'transit',
+      _ => 'unknown',
+    };
+    Get.find<AnalyticsService>().logTabSwitch(tabName: tabName);
   }
 
   Future<void> _saveTabIndex(int index) async {

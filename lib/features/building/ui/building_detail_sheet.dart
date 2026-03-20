@@ -5,6 +5,7 @@ import 'package:skkumap/features/building/controller/building_detail_controller.
 import 'package:skkumap/features/building/model/building_detail.dart';
 import 'package:skkumap/features/building/model/building_models.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 
 class BuildingDetailSheet extends StatelessWidget {
   final int skkuId;
@@ -16,12 +17,14 @@ class BuildingDetailSheet extends StatelessWidget {
     int skkuId, {
     String? highlightFloor,
     String? highlightSpaceCd,
+    String? source,
   }) {
     final ctrl = Get.find<BuildingDetailController>();
     ctrl.loadDetail(
       skkuId,
       highlightFloor: highlightFloor,
       highlightSpaceCd: highlightSpaceCd,
+      source: source,
     );
     return Get.bottomSheet(
       BuildingDetailSheet(skkuId: skkuId),
@@ -37,7 +40,7 @@ class BuildingDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ctrl = Get.find<BuildingDetailController>();
     return DraggableScrollableSheet(
-      initialChildSize: 0.6,
+      initialChildSize: 0.9,
       minChildSize: 0.3,
       maxChildSize: 0.9,
       expand: false,
@@ -308,7 +311,15 @@ class BuildingDetailSheet extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => Get.toNamed(Routes.mapHssc),
+            onTap: () {
+              final d = Get.find<BuildingDetailController>().detail.value;
+              if (d != null) {
+                Get.find<AnalyticsService>().logConnectionMapOpen(
+                  campus: d.building.campus,
+                );
+              }
+              Get.toNamed(Routes.mapHssc);
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
@@ -384,9 +395,14 @@ class BuildingDetailSheet extends StatelessWidget {
                 return GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () {
+                    Get.find<AnalyticsService>().logConnectionTap(
+                      fromSkkuId: skkuId,
+                      targetSkkuId: first.targetSkkuId,
+                    );
                     Get.back();
                     Future.delayed(const Duration(milliseconds: 300), () {
-                      BuildingDetailSheet.show(first.targetSkkuId);
+                      BuildingDetailSheet.show(first.targetSkkuId,
+                          source: 'connection');
                     });
                   },
                   child: Container(

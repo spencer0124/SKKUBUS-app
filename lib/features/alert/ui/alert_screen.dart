@@ -1,9 +1,9 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // late SharedPreferences prefs;
@@ -109,9 +109,7 @@ class AlertScreen extends StatelessWidget {
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 await prefs.setBool('newalertdone', true);
-                FirebaseAnalytics.instance.logEvent(
-                  name: 'newalert_nextclicked',
-                );
+                Get.find<AnalyticsService>().logAlertNextClicked();
                 Get.toNamed(Routes.busCampus);
               },
               child: Container(

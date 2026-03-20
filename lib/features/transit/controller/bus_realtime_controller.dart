@@ -12,6 +12,7 @@ import 'package:skkumap/features/transit/model/realtime_station.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
 // life cycle
@@ -72,6 +73,11 @@ class BusRealtimeController extends GetxController {
     if (_configSet) return; // prevent re-init on widget rebuild
     _configSet = true;
     group = config;
+    Get.find<AnalyticsService>().logBusRouteOpen(
+      routeId: config.id,
+      routeLabel: config.label,
+      screenType: config.screenType,
+    );
 
     // Parse static stations from config (one-time)
     stations = group.realtimeStations;

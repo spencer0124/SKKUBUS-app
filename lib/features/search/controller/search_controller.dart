@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 import 'package:skkumap/features/building/data/building_repository.dart';
 import 'package:skkumap/features/building/model/building.dart';
@@ -68,6 +69,7 @@ class PlaceSearchController extends GetxController {
 
   void updateFilter(SearchTab tab) {
     currentTab.value = tab;
+    Get.find<AnalyticsService>().logSearchFilterChange(filter: tab.name);
     // Re-search with campus filter
     if (_lastQuery.isNotEmpty) {
       performSearch(_lastQuery);
@@ -106,6 +108,12 @@ class PlaceSearchController extends GetxController {
     switch (result) {
       case Ok(:final data):
         searchResult.value = data;
+        Get.find<AnalyticsService>().logSearchPerform(
+          query: query,
+          buildingResults: data.buildingCount,
+          spaceResults: data.spaceCount,
+          campusFilter: campus,
+        );
       case Err(:final failure):
         if (failure is! CancelledFailure) {
           logger.e('Search error: $failure');
