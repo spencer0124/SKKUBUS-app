@@ -5,17 +5,19 @@ enum CustomNavigationBtnType { close, info, help }
 
 class CustomNavigationBar extends StatelessWidget {
   final String title;
-  final Color backgroundColor;
   final bool isDisplayLeftBtn;
   final bool isDisplayRightBtn;
   final VoidCallback leftBtnAction;
   final VoidCallback rightBtnAction;
   final CustomNavigationBtnType rightBtnType;
 
+  static const _textColor = Color(0xFF191F28);
+  static const _rightTextColor = Color(0xFF6B7684);
+  static const _dividerColor = Color(0xFFF2F4F6);
+
   const CustomNavigationBar({
     super.key,
     this.title = 'loading',
-    this.backgroundColor = Colors.white,
     this.isDisplayLeftBtn = true,
     this.isDisplayRightBtn = true,
     this.leftBtnAction = _defaultFunction,
@@ -27,80 +29,86 @@ class CustomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      height: 48,
-      color: backgroundColor,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: MediaQuery.of(context).size.width,
+          height: 48,
+          color: Colors.white,
+          padding: const EdgeInsets.only(left: 4, right: 8),
+          child: Row(
             children: [
+              // Left button area
               SizedBox(
-                // width: 45,
-                height: 45,
-                child:
-                    isDisplayLeftBtn
-                        ? IconButton(
-                          icon: const Icon(Icons.chevron_left, size: 30.0),
-                          onPressed: leftBtnAction,
-                          color: Colors.white,
-                        )
-                        : null,
+                width: 44,
+                height: 44,
+                child: isDisplayLeftBtn
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 20,
+                        ),
+                        onPressed: leftBtnAction,
+                        color: _textColor,
+                      )
+                    : null,
               ),
-              if (rightBtnType == CustomNavigationBtnType.info)
-                const SizedBox(width: 35),
+              // Title (centered with Expanded)
+              Expanded(
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: _textColor,
+                    fontFamily: 'WantedSansBold',
+                  ),
+                ),
+              ),
+              // Right button area
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: isDisplayRightBtn
+                    ? _buildRightButton()
+                    : null,
+              ),
             ],
           ),
-          const Spacer(),
-          Text(
-            title,
+        ),
+        Container(height: 1, color: _dividerColor),
+      ],
+    );
+  }
+
+  Widget _buildRightButton() {
+    if (rightBtnType == CustomNavigationBtnType.info) {
+      return GestureDetector(
+        onTap: rightBtnAction,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: Text(
+            "정보".tr,
             style: const TextStyle(
-              fontSize: 17,
-              color: Colors.white,
-              fontFamily: 'WantedSansBold',
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: _rightTextColor,
+              fontFamily: 'WantedSansMedium',
             ),
           ),
-          const Spacer(),
-          SizedBox(
-            // width: 45,
-            height: 45,
-            child:
-                isDisplayRightBtn
-                    ? GestureDetector(
-                      onTap: rightBtnAction,
-                      child: Row(
-                        children: [
-                          Icon(
-                            _getRightBtnIcon(),
-                            size: 23,
-                            color: Colors.white,
-                          ),
-                          if (rightBtnType == CustomNavigationBtnType.info)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 4.0,
-                                right: 14.0,
-                              ),
-                              child: SizedBox(
-                                width: 35,
-                                child: Text(
-                                  "정보".tr,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                    fontFamily: 'WantedSansBold',
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    )
-                    : const SizedBox(width: 45 + 27, height: 45),
-          ),
-        ],
+        ),
+      );
+    }
+
+    return IconButton(
+      icon: Icon(
+        _getRightBtnIcon(),
+        size: 20,
       ),
+      onPressed: rightBtnAction,
+      color: _textColor,
     );
   }
 

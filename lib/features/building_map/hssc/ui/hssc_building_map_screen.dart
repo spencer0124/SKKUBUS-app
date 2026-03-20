@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:skkumap/app_theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import 'package:skkumap/features/building_map/hssc/controller/hssc_building_map_controller.dart';
@@ -24,8 +23,8 @@ class HSSCBuildingMap extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: AppColors.greenMain,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
       ),
@@ -35,7 +34,6 @@ class HSSCBuildingMap extends StatelessWidget {
             children: [
               CustomNavigationBar(
                 title: '인사캠 건물지도'.tr,
-                backgroundColor: AppColors.greenMain,
                 isDisplayLeftBtn: true,
                 isDisplayRightBtn: true,
                 leftBtnAction: () {

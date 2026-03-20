@@ -6,6 +6,7 @@ import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/features/transit/model/bus_group.dart';
 import 'package:skkumap/features/transit/model/smart_schedule.dart';
 import 'package:skkumap/core/utils/color_utils.dart';
+import 'package:skkumap/core/widgets/custom_navigation.dart';
 
 // ── Colors ───────────────────────────────────────────────────────
 
@@ -32,6 +33,9 @@ class BusCampusScreen extends StatelessWidget {
     controller.loadInitialData();
 
     final services = group.services;
+    final infoFeature = group.features
+        .where((f) => f['type'] == 'info')
+        .firstOrNull;
 
     return DefaultTabController(
       length: services.length,
@@ -52,7 +56,26 @@ class BusCampusScreen extends StatelessWidget {
               color: Colors.white,
               child: Column(
                 children: [
-                  _buildTitleBar(group),
+                  CustomNavigationBar(
+                    title: group.label,
+                    isDisplayLeftBtn: true,
+                    isDisplayRightBtn: infoFeature != null,
+                    leftBtnAction: () => Get.back(),
+                    rightBtnAction: () {
+                      if (infoFeature != null) {
+                        Get.toNamed(Routes.webview, arguments: {
+                          'title': group.label,
+                          'color': group.card.themeColor
+                              .toARGB32()
+                              .toRadixString(16)
+                              .substring(2),
+                          'webviewLink': infoFeature['url'],
+                          'screenName': group.id,
+                        });
+                      }
+                    },
+                    rightBtnType: CustomNavigationBtnType.info,
+                  ),
                   _buildServiceTabs(controller, services),
                 ],
               ),
@@ -101,63 +124,6 @@ class BusCampusScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  // ── Title Bar ──────────────────────────────────────────────────
-
-  Widget _buildTitleBar(BusGroup group) {
-    final infoFeature = group.features
-        .where((f) => f['type'] == 'info')
-        .firstOrNull;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: const Text(
-              '‹',
-              style: TextStyle(fontSize: 22, color: _textColor),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              group.label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'WantedSansBold',
-                color: _textColor,
-              ),
-            ),
-          ),
-          if (infoFeature != null)
-            GestureDetector(
-              onTap: () => Get.toNamed(Routes.webview, arguments: {
-                'title': group.label,
-                'color': group.card.themeColor
-                    .toARGB32()
-                    .toRadixString(16)
-                    .substring(2),
-                'webviewLink': infoFeature['url'],
-                'screenName': group.id,
-              }),
-              child: Text(
-                '정보'.tr,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: _heroGreen,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'WantedSansMedium',
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }

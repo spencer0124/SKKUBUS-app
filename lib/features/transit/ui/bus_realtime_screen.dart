@@ -94,8 +94,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0.0),
         child: AppBar(
-          systemOverlayStyle: SystemUiOverlayStyle.light,
-          backgroundColor: themeColor,
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
       ),
@@ -104,7 +104,6 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
           // 상단 커스텀 내비게이션 바
           CustomNavigationBar(
             title: group.label,
-            backgroundColor: themeColor,
             isDisplayLeftBtn: true,
             isDisplayRightBtn: infoFeature != null,
             leftBtnAction: () {
@@ -128,10 +127,6 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
           ),
 
           // 상단 정보 부분
-          Container(
-            height: 0.5,
-            color: Colors.grey[300],
-          ),
           Obx(() {
             final meta = controller.realtimeData.value?.meta;
             return TopInfo(
