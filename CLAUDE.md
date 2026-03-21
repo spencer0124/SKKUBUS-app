@@ -1,74 +1,118 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-SKKUBUS (스꾸버스) — a Flutter mobile app for Sungkyunkwan University (SKKU) students providing real-time shuttle bus tracking, campus maps, building info, cafeteria menus, lost & found, and announcements. Targets both Android and iOS from a single Dart codebase.
+SKKUBUS (스꾸버스) — a Flutter mobile app for Sungkyunkwan University providing real-time shuttle bus tracking, campus maps, building info, and campus services. Targets Android and iOS from a single Dart codebase.
 
-## Build & Run Commands
-
-```bash
-flutter pub get              # Install dependencies
-flutter run                  # Debug mode
-flutter build apk --release  # Android release build
-flutter build ios --release  # iOS release build
-flutter analyze              # Static analysis (uses flutter_lints)
-flutter test                 # Run tests
-```
-
-Requires a `.env` file in the project root with API keys (e.g., `navernewClientId` for Naver Map SDK). This file is not committed to the repo.
-
-## OTA Updates
-
-Shorebird is configured for code-push OTA updates (see `shorebird.yaml`). Use `shorebird` CLI for patch releases.
+**Stack:** Flutter 3.x, Dart >=3.7.0 (Dart 3 pattern matching used throughout), GetX state management
 
 ## Architecture
 
-**Framework:** Flutter 3.x with Dart >=3.7.0, **State management:** GetX (package `get`)
+### Feature-First Structure
 
-### Page Structure (MVC + GetX Bindings)
+- `lib/core/` — shared infrastructure used across features
+- `lib/features/` — self-contained feature modules
 
-Each feature page under `lib/app/pages/<feature>/` follows this layout:
-- `binding/` — GetX dependency bindings
-- `controller/` — business logic (GetxController subclasses)
-- `ui/` or `view/` or `screen/` — widget tree
+### core/ vs features/ Boundary Rules
 
-### Key Directories
+- **core/**: Code shared by 2+ features OR app-wide infrastructure (API layer, routes, services, types, utils, shared widgets)
+- **features/**: Self-contained modules. Each may have: `binding/`, `controller/`, `data/`, `model/`, `ui/`, `widgets/` — use only what the feature needs
+- Feature-specific repositories → `features/<name>/data/`
+- Cross-cutting repositories → `core/repositories/`, registered in `main.dart` with `fenix: true`
+- Feature-specific models → `features/<name>/model/`
+- Shared/SDUI models → `core/model/`
 
-| Path | Purpose |
-|---|---|
-| `lib/main.dart` | App entry point: Firebase, Naver Map SDK, AdMob, and GetX dependency initialization |
-| `lib/app/routes/app_routes.dart` | All named routes (GetPage definitions). Initial route `/` is `SplashAd` |
-| `lib/app/model/` | Data models (bus locations, station lists, campus markers, search) |
-| `lib/app/types/` | Enums and type definitions (bus status, bus type, campus type, time format) |
-| `lib/app/utils/` | Shared utilities — API fetch helpers (`api_fetch/`), screen size, geolocator, constants, ad widget |
-| `lib/app/components/` | Reusable UI components (navigation bar, bus widgets, main page sections) |
-| `lib/admob/` | AdMob ad helper |
-| `lib/notification/` | Push notification handling (Firebase Messaging) |
-| `lib/languages.dart` | i18n translations (GetX `Translations`) |
+### GetX Bindings (Fenix Convention)
 
-### Major Feature Areas
+- Every routed feature has a `Binding` class that registers controllers via `Get.lazyPut`
+- Bindings are declared per-route in `core/routes/app_routes.dart`
+- Global repositories in `main.dart` use `fenix: true` (survives controller disposal). Feature-local controllers do NOT use fenix.
 
-- **Shuttle bus (Seoul/인사캠):** `bus_main_main` (list), `bus_main_detail` (route detail)
-- **Shuttle bus (Suwon/자과캠):** `bus_inja_main` (list), `bus_inja_detail` (route detail)
-- **Campus map:** `mainpage` — Naver Map integration with markers, snapping sheet, search
-- **Building info:** `hssc_building_map` (인사캠 HSSC), `nsc_building_map` (자과캠 NSC), with credit pages
-- **Kingo login/info:** `KingoLogin`, `KingoInfo` — university portal authentication
-- **Search:** `search_list`, `search_detail`
-- **Webview:** generic in-app browser for external links
-- **Lost & found:** `lostandfound`
-- **Splash ad:** `splash_ad` — initial launch screen with ad
+### Result<T> + AppFailure Pattern
 
-### External Services
+All API calls return `Result<T>` — a sealed class (`Ok<T>` / `Err<T>`) in `core/data/result.dart`. Typed failure hierarchy: `NetworkFailure`, `ServerFailure`, `ParseFailure`, `CancelledFailure`.
 
-- **Firebase:** Auth, Firestore, Crashlytics (release only), Analytics, Cloud Messaging
-- **Naver Map SDK:** via `flutter_naver_map` — initialized with client ID from `.env`
-- **Google AdMob:** banner/interstitial ads
-- **Dio / http:** API requests for bus location data and station lists
+Controllers must pattern-match with Dart 3 switch:
+```dart
+switch (result) {
+  case Ok(:final data): handleSuccess(data);
+  case Err(:final failure): handleError(failure);
+}
+```
+Never catch exceptions from API calls directly — `ApiClient` handles that internally.
 
-### Design
+### API Envelope
 
-- Screen dimensions designed for 390×844 (iPhone 14 baseline) via `flutter_screenutil`
-- Custom fonts: WantedSans (Bold, Regular, Medium) in `assets/fonts/`
-- Supports Korean (ko) and English (en) locales with fallback to en_US
+v2 endpoints return `{ meta, data }`. The **full envelope** is passed to model parsers (not just `data`). Use `ApiClient.safeGet`/`safePost` for v2 endpoints. Use `safeGetRaw` for legacy v1 endpoints without the envelope.
+
+### Mock Fallback
+
+Repositories may fall back to mock data on API failure. Place mock data under `features/<name>/data/mock/`.
+
+### Server-Driven UI (SDUI)
+
+Campus tab is server-driven. Section types defined in `core/model/sdui_section.dart`, rendered by widgets in `core/widgets/sdui/`. Unknown section types → `SizedBox.shrink()` for backward compatibility.
+
+## Build, Run, Environment
+
+```bash
+flutter pub get                                            # Install dependencies
+flutter run --dart-define-from-file=env/dev-ios.env        # iOS local dev
+flutter run --dart-define-from-file=env/dev-android.env    # Android local dev
+flutter run --dart-define-from-file=env/staging.env        # Staging
+flutter build apk --dart-define-from-file=env/prod.env     # Android release
+flutter build ios --dart-define-from-file=env/prod.env     # iOS release
+flutter analyze                                            # Static analysis
+flutter test                                               # Run all tests
+```
+
+**IMPORTANT:** Without `--dart-define-from-file`, the app defaults to **production API** (`https://api.skkuuniverse.com`). Always specify an env file.
+
+### Two-Layer Environment System
+
+- **Build-time** (`env/*.env`): Injects `BASE_URL` and `ENV` via `--dart-define-from-file` → accessed with `String.fromEnvironment`. Controls API server target.
+- **Runtime** (`.env` in project root): SDK keys (Naver Map, AdMob) loaded by `flutter_dotenv`. Not committed to repo.
+
+### VSCode Launch Configs
+
+`.vscode/launch.json` has pre-configured profiles: **Dev (iOS)**, **Dev (Android)**, **Staging**, **Prod** — each with the correct `--dart-define-from-file` flag. Use these instead of manual CLI flags.
+
+### OTA Updates
+
+Shorebird is configured for code-push OTA updates (`shorebird.yaml`). Use `shorebird` CLI for patch releases.
+
+## Testing
+
+- **TDD workflow:** Write failing test → implement → make it pass → refactor
+- Test files mirror source structure: `test/features/<name>/` and `test/core/`
+- **Unit tests:** Repositories (mock ApiClient), controllers (mock repos), model parsing (JSON ↔ model round-trip)
+- **Widget tests:** Screens with complex interaction logic
+- Mock data: Reuse existing mock files under `features/<name>/data/mock/` or create test fixtures in `test/fixtures/`
+- Run single test: `flutter test test/path/to/test.dart`
+- Test naming: `<class_under_test>_test.dart`
+- Use `Get.testMode = true` in test setUp for GetX controller tests
+
+## Adding a New Feature
+
+1. Create `lib/features/<feature_name>/` with subdirs as needed (`binding/`, `controller/`, `data/`, `model/`, `ui/`, `widgets/`)
+2. Create `Binding` class → register controllers via `Get.lazyPut`
+3. Add route constant to `Routes` in `core/routes/app_routes.dart`
+4. Add `GetPage` with binding in the route list
+5. For API calls: create repository returning `Result<T>` via `ApiClient.safeGet` with v2 envelope parser
+6. If repository serves 2+ features → move to `core/repositories/`, register in `main.dart` with `fenix: true`
+7. Add analytics screen name in `core/utils/analytics_screen_names.dart`
+8. Write tests for repository and controller
+
+## Conventions and Gotchas
+
+- **Responsive design:** 390×844 baseline via `flutter_screenutil` — use `.w`, `.h`, `.sp` extensions
+- **Theme tokens:** Use `AppColors`, `AppRadius`, `AppSpacing` from `app_theme.dart` — no hardcoded hex values
+- **i18n:** Korean + English via GetX `.tr` extension. Strings defined in `languages.dart`
+- **API endpoints:** Centralized in `core/data/api_endpoints.dart` — add new paths there, not inline in repositories
+- **Logging:** Use `logger` from `core/utils/app_logger.dart`, never `print()`
+- **Dio interceptor chain** (`dio_client.dart`): Auth → Platform → Retry → Observability. Order matters — Retry handles 408/429/503 before Auth; 401s pass through to Auth for token refresh.
+- **Debug mode:** Firebase Analytics and Crashlytics are disabled in `kDebugMode` (handled globally in `main.dart`). Don't add per-feature debug guards for analytics.
+- **External services:** Firebase (Anonymous Auth, Firestore, Crashlytics, Analytics, FCM), Naver Map SDK, Google AdMob, Dio
+- **Detailed specs:** See `docs/` for SDUI spec, build settings, map config API, analytics tracking
