@@ -18,14 +18,12 @@ import 'package:skkumap/core/data/api_endpoints.dart';
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/features/building/data/building_repository.dart';
-import 'package:skkumap/features/transit/data/station_repository.dart';
 import 'package:skkumap/core/repositories/ui_repository.dart';
 import 'package:skkumap/core/data/result.dart';
 import 'package:skkumap/core/model/ad_model.dart';
 import 'package:skkumap/features/transit/model/realtime_data.dart';
 import 'package:skkumap/features/transit/model/mainpage_buslist_model.dart' show BusListItem;
 import 'package:skkumap/features/building/model/building_search_result.dart';
-import 'package:skkumap/features/transit/model/station_model.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Real API response snapshots (captured 2026-03-08)
@@ -81,62 +79,6 @@ const _realtimeDataJongro = <String, dynamic>{
       {'stationIndex': 5, 'eta': '13분9초후[11번째 전]'},
     ],
   },
-};
-
-/// GET /bus/station/01592 — two bus lines at this stop
-const _stationArrival = <String, dynamic>{
-  'meta': {
-    'lang': 'ko',
-    'totalCount': 2,
-  },
-  'data': [
-    {
-      'busNm': '종로07',
-      'busSupportTime': true,
-      'msg1ShowMessage': true,
-      'msg1Message': '정보 없음',
-      'msg1RemainStation': null,
-      'msg1RemainSeconds': null,
-      'msg2ShowMessage': false,
-      'msg2Message': null,
-      'msg2RemainStation': null,
-      'msg2RemainSeconds': null,
-    },
-    {
-      'busNm': '인사캠셔틀',
-      'busSupportTime': false,
-      'msg1ShowMessage': true,
-      'msg1Message': '도착 정보 없음',
-      'msg1RemainStation': null,
-      'msg1RemainSeconds': null,
-      'msg2ShowMessage': true,
-      'msg2Message': null,
-      'msg2RemainStation': null,
-      'msg2RemainSeconds': null,
-    },
-  ],
-};
-
-/// GET /bus/station/01592 — bus with arrival time data
-const _stationArrivalWithTimes = <String, dynamic>{
-  'meta': {
-    'lang': 'ko',
-    'totalCount': 1,
-  },
-  'data': [
-    {
-      'busNm': '종로02',
-      'busSupportTime': true,
-      'msg1ShowMessage': true,
-      'msg1Message': '5분51초후[3번째 전]',
-      'msg1RemainStation': 3,
-      'msg1RemainSeconds': 351,
-      'msg2ShowMessage': true,
-      'msg2Message': '13분9초후[11번째 전]',
-      'msg2RemainStation': 11,
-      'msg2RemainSeconds': 789,
-    },
-  ],
 };
 
 /// GET /ui/home/buslist — 4 bus items in the home screen list (new format)
@@ -361,84 +303,7 @@ void main() {
     });
   });
 
-  // ── 4. Station Arrival — camelCase field parsing ─────────────────────
-  group('GET /bus/station/01592', () {
-    test('parses meta with totalCount (no success field)', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.station('01592'),
-        (server) => server.reply(200, _stationArrival),
-      );
-
-      final repo = StationRepository(client);
-      final result = await repo.getStationData('01592');
-
-      expect(result, isA<Ok<StationResponse>>());
-      final data = (result as Ok<StationResponse>).data;
-      expect(data.metaData.totalCount, 2);
-      expect(data.metaData.success, true); // defaults to true when absent
-    });
-
-    test('parses bus with null arrival times (msg1ShowMessage camelCase)',
-        () async {
-      dioAdapter.onGet(
-        ApiEndpoints.station('01592'),
-        (server) => server.reply(200, _stationArrival),
-      );
-
-      final repo = StationRepository(client);
-      final result = await repo.getStationData('01592');
-      final buses = (result as Ok<StationResponse>).data.stationData;
-      expect(buses, hasLength(2));
-
-      // First bus: 종로07 with msg1 visible, msg2 hidden
-      final bus1 = buses[0];
-      expect(bus1.busNm, '종로07');
-      expect(bus1.busSupportTime, true);
-      expect(bus1.msg1Showmessage, true);
-      expect(bus1.msg1Message, '정보 없음');
-      expect(bus1.msg1RemainStation, isNull);
-      expect(bus1.msg1RemainSeconds, isNull);
-      expect(bus1.msg2Showmessage, false);
-      expect(bus1.msg2Message, isNull);
-      expect(bus1.msg2RemainStation, isNull);
-      expect(bus1.msg2RemainSeconds, isNull);
-
-      // Second bus: 인사캠셔틀
-      final bus2 = buses[1];
-      expect(bus2.busNm, '인사캠셔틀');
-      expect(bus2.busSupportTime, false);
-      expect(bus2.msg1Showmessage, true);
-      expect(bus2.msg1Message, '도착 정보 없음');
-      expect(bus2.msg2Showmessage, true);
-      expect(bus2.msg2Message, isNull);
-    });
-
-    test('parses bus with actual remain times', () async {
-      dioAdapter.onGet(
-        ApiEndpoints.station('01592'),
-        (server) => server.reply(200, _stationArrivalWithTimes),
-      );
-
-      final repo = StationRepository(client);
-      final result = await repo.getStationData('01592');
-      final buses = (result as Ok<StationResponse>).data.stationData;
-      expect(buses, hasLength(1));
-
-      final bus = buses[0];
-      expect(bus.busNm, '종로02');
-      expect(bus.busSupportTime, true);
-      expect(bus.msg1Showmessage, true);
-      expect(bus.msg1Message, '5분51초후[3번째 전]');
-      expect(bus.msg1RemainStation, 3);
-      expect(bus.msg1RemainSeconds, 351);
-      expect(bus.msg2Showmessage, true);
-      expect(bus.msg2Message, '13분9초후[11번째 전]');
-      expect(bus.msg2RemainStation, 11);
-      expect(bus.msg2RemainSeconds, 789);
-    });
-  });
-
-  // ── 5. Home Bus List (SDUI) ──────────────────────────────────────────
+  // ── 4. Home Bus List (SDUI) ──────────────────────────────────────────
   group('GET /ui/home/buslist', () {
     test('parses all 4 bus list items', () async {
       dioAdapter.onGet(
@@ -633,10 +498,6 @@ void main() {
 
   // ── 8. Endpoint paths match production ───────────────────────────────
   group('ApiEndpoints paths', () {
-    test('station arrival path', () {
-      expect(ApiEndpoints.station('01592'), '/bus/station/01592');
-    });
-
     test('UI paths', () {
       expect(ApiEndpoints.homeTransitList(), '/ui/home/transitlist');
       expect(ApiEndpoints.homeScroll(), '/ui/home/scroll');

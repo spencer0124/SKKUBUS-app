@@ -76,9 +76,13 @@ class BusCampusScreen extends StatelessWidget {
                     },
                     rightBtnType: CustomNavigationBtnType.info,
                   ),
-                  _buildServiceTabs(controller, services),
                 ],
               ),
+            ),
+            _buildNotices(controller),
+            Container(
+              color: Colors.white,
+              child: _buildServiceTabs(controller, services),
             ),
             // ── Content ──
             Expanded(
@@ -114,7 +118,6 @@ class BusCampusScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _buildNotices(controller),
                     Expanded(
                       child: _buildActiveContent(controller, group),
                     ),

@@ -32,7 +32,6 @@ import 'package:skkumap/features/transit/data/bus_repository.dart';
 import 'package:skkumap/features/transit/data/bus_config_repository.dart';
 import 'package:skkumap/features/campus_map/data/map_config_repository.dart';
 import 'package:skkumap/features/campus_map/data/map_layer_repository.dart';
-import 'package:skkumap/features/transit/data/station_repository.dart';
 import 'package:skkumap/features/building/data/building_repository.dart';
 import 'package:skkumap/features/building/controller/building_detail_controller.dart';
 import 'package:skkumap/core/repositories/ad_repository.dart';
@@ -190,7 +189,6 @@ void registerDependencies() {
 
   Get.lazyPut(() => BusRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.put(BusConfigRepository(Get.find<data.ApiClient>()));
-  Get.lazyPut(() => StationRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => BuildingRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => AdRepository(Get.find<data.ApiClient>()), fenix: true);
   Get.lazyPut(() => UiRepository(Get.find<data.ApiClient>()), fenix: true);

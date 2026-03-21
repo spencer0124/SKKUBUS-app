@@ -29,7 +29,6 @@ class AppShellLifeCycle extends GetxController with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
       Get.find<TransitController>().mainPageBusListFetch();
-      Get.find<TransitController>().stationDataFetch();
       controller.fetchMainpageAd();
     }
   }
@@ -119,7 +118,6 @@ class AppShellController extends GetxController {
       fetchMainpageAd();
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         _timer = Timer.periodic(const Duration(seconds: 15), (Timer t) {
-          Get.find<TransitController>().stationDataFetch();
           fetchMainpageAd();
         });
       });
