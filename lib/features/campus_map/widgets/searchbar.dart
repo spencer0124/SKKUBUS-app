@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:get/get.dart';
@@ -45,25 +47,51 @@ class CustomSearchBar extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () async {
+          final route = ModalRoute.of(context);
           final result = await Get.toNamed(Routes.search);
           if (result is BuildingNavPayload) {
-            // Switch campus if the result belongs to a different one
+            // ── Step 1: 검색 화면 pop 애니메이션 완료 대기 ──
+            if (route != null) {
+              final anim = route.secondaryAnimation;
+              if (anim != null &&
+                  anim.status != AnimationStatus.dismissed) {
+                final c = Completer<void>();
+                void onStatus(AnimationStatus s) {
+                  if (s == AnimationStatus.dismissed) {
+                    anim.removeStatusListener(onStatus);
+                    if (!c.isCompleted) c.complete();
+                  }
+                }
+                anim.addStatusListener(onStatus);
+                await c.future;
+              }
+            }
+
+            // ── Step 2: 캠퍼스 전환 (토글 UI 변경이 사용자에게 보임) ──
             final campusCtrl = Get.find<CampusMapController>();
+            final layerCtrl = Get.find<MapLayerController>();
             final currentKey =
                 campusCtrl.selectedCampus.value == 0 ? 'hssc' : 'nsc';
-            if (result.campus != currentKey) {
+            final needsCampusSwitch = result.campus != currentKey;
+
+            if (needsCampusSwitch) {
               campusCtrl.selectedCampus.value =
                   result.campus == 'hssc' ? 0 : 1;
-              Get.find<MapLayerController>()
-                  .onCampusChanged(skipCamera: true);
+              layerCtrl.onCampusChanged(skipCamera: true);
             }
-            // Move camera to building location
+
+            // ── Step 3: 카메라 이동 ──
             final nmapCtrl = Get.find<UltimateNMapController>();
             nmapCtrl.cameraPosition.value = NCameraPosition(
               target: NLatLng(result.lat, result.lng),
               zoom: 17.5,
             );
-            // Show building detail bottom sheet
+
+            // ── Step 4: 마커/카메라 렌더링 대기 후 상세 sheet ──
+            await Future.delayed(
+              Duration(milliseconds: needsCampusSwitch ? 150 : 50),
+            );
+
             BuildingDetailSheet.show(
               result.skkuId,
               highlightFloor: result.highlightFloor,
