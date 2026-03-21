@@ -11,13 +11,10 @@ class AdWidgetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      child: SizedBox(
-        width: double.infinity,
-        height: 55,
-        child: AdWidget(ad: bannerAd!),
-      ),
+    return SizedBox(
+      width: bannerAd!.size.width.toDouble(),
+      height: bannerAd!.size.height.toDouble(),
+      child: AdWidget(ad: bannerAd!),
     );
   }
 }

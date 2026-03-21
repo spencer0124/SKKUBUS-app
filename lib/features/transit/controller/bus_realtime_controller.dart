@@ -62,14 +62,15 @@ class BusRealtimeController extends GetxController {
   var realtimeData = Rx<RealtimeData?>(null);
   var loadingdone = false.obs;
 
+  bool _isLoadingAd = false;
+
   @override
   void onInit() {
     super.onInit();
-    _initializeBannerAd();
     fetchMainpageAd();
   }
 
-  void setRouteConfig(BusGroup config) {
+  void setRouteConfig(BusGroup config, {required int screenWidth}) {
     if (_configSet) return; // prevent re-init on widget rebuild
     _configSet = true;
     group = config;
@@ -90,23 +91,42 @@ class BusRealtimeController extends GetxController {
       fetchRealtimeData();
     });
     fetchRealtimeData();
+
+    _initializeBannerAd(screenWidth);
   }
 
-  void _initializeBannerAd() {
+  Future<void> _initializeBannerAd(int width) async {
+    if (_isLoadingAd) return;
+    _isLoadingAd = true;
+
+    // Dispose existing ad to prevent memory leak
+    _bannerAd?.dispose();
+    _bannerAd = null;
+    isBannerAdLoaded.value = false;
+
+    final adSize =
+        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(width);
+    if (adSize == null) {
+      _isLoadingAd = false;
+      return;
+    }
+
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: const AdRequest(),
-      size: AdSize.banner,
+      size: adSize,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           _bannerAd = ad as BannerAd;
           update();
           isBannerAdLoaded.value = true;
+          _isLoadingAd = false;
         },
         onAdFailedToLoad: (ad, err) {
           logger.e('Failed to load a banner ad: ${err.message}');
           ad.dispose();
           isBannerAdLoaded.value = false;
+          _isLoadingAd = false;
         },
       ),
     )..load();

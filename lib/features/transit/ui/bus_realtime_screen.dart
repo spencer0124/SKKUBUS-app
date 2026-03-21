@@ -16,7 +16,6 @@ import 'package:skkumap/core/types/bus_status.dart';
 import 'package:skkumap/core/types/time_format.dart';
 import 'package:skkumap/features/transit/widgets/businfo_component.dart';
 
-import 'package:shimmer/shimmer.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:skkumap/core/repositories/ad_repository.dart';
@@ -28,7 +27,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
   Widget build(BuildContext context) {
     final double screenWidth = ScreenSize.width(context);
     final BusGroup group = Get.arguments['busConfig'];
-    controller.setRouteConfig(group);
+    controller.setRouteConfig(group, screenWidth: screenWidth.truncate());
     final themeColor = group.card.themeColor;
 
     // Find info feature from screen data
@@ -45,49 +44,40 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
           onRefresh: () {
             controller.fetchRealtimeData();
           }),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[200],
-
-        // 화면 하단 광고
-        child: Obx(
-          () => controller.isBannerAdLoaded.value
-              ? ((controller.belowAdImage.value) != '')
-                  ? SizedBox(
-                      height: 55,
-                      child: (controller.belowAdImage.value) != ''
-                          ? GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onTap: () async {
-                                if (await canLaunchUrl(
-                                    Uri.parse(controller.belowAdLink.value))) {
-                                  await launchUrl(
-                                      Uri.parse(controller.belowAdLink.value));
-                                  Get.find<AdRepository>().trackEvent('bus_bottom', 'click');
-                                } else {
-                                  Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
-                                }
-                              },
-                              child:
-                                  Image.network(controller.belowAdImage.value))
-                          : Shimmer.fromColors(
-                              baseColor: Colors.grey[100]!,
-                              highlightColor: Colors.white,
-                              child: Container(
-                                width: screenWidth * 0.75,
-                                height: 20,
-                                color: Colors.grey,
-                              ),
-                            ))
-                  : SizedBox(
-                      height: 55,
-                      child: AdWidgetContainer(
+      // 화면 하단 광고
+      bottomNavigationBar: Obx(
+        () => controller.isBannerAdLoaded.value
+            ? BottomAppBar(
+                padding: EdgeInsets.zero,
+                color: Colors.white,
+                child: (controller.belowAdImage.value != '')
+                    ? ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 80),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () async {
+                            if (await canLaunchUrl(
+                                Uri.parse(controller.belowAdLink.value))) {
+                              await launchUrl(
+                                  Uri.parse(controller.belowAdLink.value));
+                              Get.find<AdRepository>()
+                                  .trackEvent('bus_bottom', 'click');
+                            } else {
+                              Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
+                            }
+                          },
+                          child: Image.network(
+                            controller.belowAdImage.value,
+                            width: double.infinity,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      )
+                    : AdWidgetContainer(
                         bannerAd: controller.bannerAd,
                       ),
-                    )
-              : Container(
-                  height: 55,
-                ),
-        ),
+              )
+            : const SizedBox.shrink(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       backgroundColor: Colors.white,
@@ -190,7 +180,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                               },
                             ),
                             const SizedBox(
-                              height: 55,
+                              height: 20,
                             )
                           ],
                         );
