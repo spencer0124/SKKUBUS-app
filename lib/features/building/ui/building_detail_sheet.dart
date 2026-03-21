@@ -356,7 +356,7 @@ class BuildingDetailSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          '${detail.building.name.localized} ${'위치가 표시돼요'.tr}',
+                          '층별 연결 통로를 확인할 수 있어요'.tr,
                           style: const TextStyle(
                             fontFamily: 'WantedSansRegular',
                             fontSize: 12,
