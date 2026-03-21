@@ -79,7 +79,7 @@ class BuildingDetailSheet extends StatelessWidget {
             Text(
               '건물 정보를 불러올 수 없습니다'.tr,
               style: const TextStyle(
-                fontFamily: 'WantedSansMedium',
+                fontWeight: FontWeight.w500,
                 fontSize: 15,
                 color: AppColors.textPrimary,
               ),
@@ -153,7 +153,7 @@ class BuildingDetailSheet extends StatelessWidget {
                           Text(
                             building.name.localized,
                             style: const TextStyle(
-                              fontFamily: 'WantedSansMedium',
+                              fontWeight: FontWeight.w500,
                               fontSize: 18,
                               color: AppColors.textPrimary,
                             ),
@@ -165,7 +165,7 @@ class BuildingDetailSheet extends StatelessWidget {
                                 Text(
                                   building.displayNo!,
                                   style: const TextStyle(
-                                    fontFamily: 'WantedSansMedium',
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 13,
                                     color: AppColors.textSecondary,
                                   ),
@@ -182,7 +182,7 @@ class BuildingDetailSheet extends StatelessWidget {
                                 child: Text(
                                   building.campusLabel,
                                   style: const TextStyle(
-                                    fontFamily: 'WantedSansMedium',
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 11,
                                     color: AppColors.textSecondary,
                                   ),
@@ -226,7 +226,6 @@ class BuildingDetailSheet extends StatelessWidget {
                         Text(
                           building.description!.localized,
                           style: const TextStyle(
-                            fontFamily: 'WantedSansRegular',
                             fontSize: 13,
                             color: AppColors.textSecondary,
                             height: 1.55,
@@ -248,7 +247,7 @@ class BuildingDetailSheet extends StatelessWidget {
                   child: Text(
                     '층별 정보'.tr,
                     style: const TextStyle(
-                      fontFamily: 'WantedSansMedium',
+                      fontWeight: FontWeight.w500,
                       fontSize: 13,
                       color: AppColors.textSecondary,
                     ),
@@ -299,7 +298,7 @@ class BuildingDetailSheet extends StatelessWidget {
           child: Text(
             '연결 건물'.tr,
             style: const TextStyle(
-              fontFamily: 'WantedSansMedium',
+              fontWeight: FontWeight.w500,
               fontSize: 13,
               color: AppColors.textSecondary,
             ),
@@ -349,7 +348,7 @@ class BuildingDetailSheet extends StatelessWidget {
                         Text(
                           '건물 연결지도 보기'.tr,
                           style: const TextStyle(
-                            fontFamily: 'WantedSansMedium',
+                            fontWeight: FontWeight.w500,
                             fontSize: 15,
                             color: AppColors.textPrimary,
                           ),
@@ -358,7 +357,6 @@ class BuildingDetailSheet extends StatelessWidget {
                         Text(
                           '층별 연결 통로를 확인할 수 있어요'.tr,
                           style: const TextStyle(
-                            fontFamily: 'WantedSansRegular',
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),
@@ -441,7 +439,7 @@ class BuildingDetailSheet extends StatelessWidget {
                           child: Text(
                             first.targetName.localized,
                             style: const TextStyle(
-                              fontFamily: 'WantedSansMedium',
+                              fontWeight: FontWeight.w500,
                               fontSize: 14,
                               color: AppColors.textPrimary,
                             ),
@@ -473,7 +471,6 @@ class BuildingDetailSheet extends StatelessWidget {
           Text(
             '엘리베이터'.tr,
             style: const TextStyle(
-              fontFamily: 'WantedSansRegular',
               fontSize: 12,
               color: AppColors.textTertiary,
             ),
@@ -486,7 +483,6 @@ class BuildingDetailSheet extends StatelessWidget {
           Text(
             '장애인 화장실'.tr,
             style: const TextStyle(
-              fontFamily: 'WantedSansRegular',
               fontSize: 12,
               color: AppColors.textTertiary,
             ),
@@ -535,7 +531,7 @@ class _FloorTile extends StatelessWidget {
                     child: Text(
                       floor.floor.localized,
                       style: TextStyle(
-                        fontFamily: 'WantedSansMedium',
+                        fontWeight: FontWeight.w500,
                         fontSize: 14,
                         color: isExpanded
                             ? AppColors.brand
@@ -547,7 +543,6 @@ class _FloorTile extends StatelessWidget {
                   Text(
                     '${'호실'.tr} ${floor.spaces.length}${'개'.tr}',
                     style: const TextStyle(
-                      fontFamily: 'WantedSansRegular',
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -570,7 +565,6 @@ class _FloorTile extends StatelessWidget {
                               child: Text(
                                 '→ $name',
                                 style: const TextStyle(
-                                  fontFamily: 'WantedSansRegular',
                                   fontSize: 10,
                                   color: AppColors.textSecondary,
                                 ),
@@ -658,9 +652,9 @@ class _FloorTile extends StatelessWidget {
                       child: Text(
                         space.name.localized,
                         style: TextStyle(
-                          fontFamily: isHighlighted
-                              ? 'WantedSansMedium'
-                              : 'WantedSansRegular',
+                          fontWeight: isHighlighted
+                              ? FontWeight.w500
+                              : FontWeight.w400,
                           fontSize: 13,
                           color: isHighlighted
                               ? AppColors.brand
@@ -693,7 +687,6 @@ class _FloorTile extends StatelessWidget {
                   child: Text(
                     '+ $remaining${'개 더보기'.tr}',
                     style: const TextStyle(
-                      fontFamily: 'WantedSansRegular',
                       fontSize: 12,
                       color: AppColors.textTertiary,
                     ),

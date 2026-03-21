@@ -137,7 +137,7 @@ class _CampusToggle extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
-            fontFamily: 'WantedSansMedium',
+            fontWeight: FontWeight.w500,
             fontSize: 13,
             color: isSelected ? Colors.white : AppColors.textSecondary,
           ),

@@ -134,7 +134,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 enableIMEPersonalizedLearning: false,
                 style: const TextStyle(
                   color: Colors.black,
-                  fontFamily: 'WantedSansMedium',
+                  fontWeight: FontWeight.w500,
                 ),
                 cursorHeight: 19,
                 cursorColor: AppColors.greenMain,
@@ -173,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
             Text(
               '${'건물'.tr} $bCount${'건'.tr}, ${'공간'.tr} $sCount${'건'.tr}',
               style: const TextStyle(
-                fontFamily: 'WantedSansMedium',
+                fontWeight: FontWeight.w500,
                 fontSize: 11,
               ),
             ),
@@ -218,7 +218,7 @@ class _SearchScreenState extends State<SearchScreen> {
           label,
           style: TextStyle(
             color: isSelected ? AppColors.brand : AppColors.textSecondary,
-            fontFamily: isSelected ? 'WantedSansMedium' : 'WantedSansRegular',
+            fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
             fontSize: 13,
           ),
         ),
@@ -280,7 +280,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   building.name.localized,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'WantedSansMedium',
+                    fontWeight: FontWeight.w500,
                     fontSize: 15,
                   ),
                 ),
@@ -290,7 +290,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text(
                       building.campusLabel,
                       style: TextStyle(
-                        fontFamily: 'WantedSansRegular',
                         fontSize: 12,
                         color: Colors.grey[600],
                       ),
@@ -300,7 +299,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       Text(
                         building.displayNo!,
                         style: TextStyle(
-                          fontFamily: 'WantedSansRegular',
                           fontSize: 12,
                           color: Colors.grey[600],
                         ),
@@ -345,7 +343,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       space.name.localized,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'WantedSansMedium',
+                        fontWeight: FontWeight.w500,
                         fontSize: 15,
                       ),
                     ),
@@ -354,7 +352,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   Text(
                     '[${group.campusLabel}] ${group.buildingName.localized} ${space.floor.localized}',
                     style: TextStyle(
-                      fontFamily: 'WantedSansRegular',
                       fontSize: 12,
                       color: Colors.grey[600],
                     ),
@@ -367,7 +364,7 @@ class _SearchScreenState extends State<SearchScreen> {
               space.spaceCd,
               style: TextStyle(
                 color: Colors.grey[500],
-                fontFamily: 'WantedSansMedium',
+                fontWeight: FontWeight.w500,
                 fontSize: 15,
               ),
             ),

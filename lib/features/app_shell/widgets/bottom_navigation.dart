@@ -89,8 +89,7 @@ class _TabItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 10,
-                fontFamily:
-                    isSelected ? 'WantedSansMedium' : 'WantedSansRegular',
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
                 color: color,
                 height: 1.0,
               ),

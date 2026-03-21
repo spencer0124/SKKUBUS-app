@@ -1,4 +1,17 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+
+class AppFonts {
+  static const String wantedSans = 'WantedSans';
+
+  /// ko/en → WantedSans, 그 외(zh 등) → 시스템 기본 폰트
+  static String? fontFamily(Locale? locale) {
+    final lang = locale?.languageCode;
+    if (lang == 'ko' || lang == 'en') return wantedSans;
+    return null;
+  }
+}
 
 class AppColors {
   // ── Brand (CTA, 선택 상태에만 포인트로 사용) ──

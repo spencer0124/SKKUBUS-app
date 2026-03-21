@@ -100,7 +100,7 @@ class TransitTab extends StatelessWidget {
                                         adCtrl.mainpageNoticeText.value,
                                         style: const TextStyle(
                                           color: AppColors.textSecondary,
-                                          fontFamily: 'WantedSansMedium',
+                                          fontWeight: FontWeight.w500,
                                           fontSize: 13,
                                         ),
                                         maxLines: 1,

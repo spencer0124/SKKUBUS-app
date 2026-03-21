@@ -37,7 +37,7 @@ class FilterSheet extends StatelessWidget {
                   "필터",
                   style: TextStyle(
                     color: AppColors.textPrimary,
-                    fontFamily: 'WantedSansBold',
+                    fontWeight: FontWeight.w700,
                     fontSize: 17,
                   ),
                 ),
@@ -66,7 +66,7 @@ class FilterSheet extends StatelessWidget {
               "캠퍼스",
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontFamily: 'WantedSansBold',
+                fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
             ),
@@ -78,7 +78,6 @@ class FilterSheet extends StatelessWidget {
               "지도에 표시할 캠퍼스를 선택하세요",
               style: TextStyle(
                 color: AppColors.textTertiary,
-                fontFamily: 'WantedSansRegular',
                 fontSize: 12,
                 height: 1.3,
               ),
@@ -128,7 +127,7 @@ class FilterSheet extends StatelessWidget {
               "지도 레이어",
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontFamily: 'WantedSansBold',
+                fontWeight: FontWeight.w700,
                 fontSize: 14,
               ),
             ),
@@ -140,7 +139,6 @@ class FilterSheet extends StatelessWidget {
               "지도에 표시할 정보를 선택하세요",
               style: TextStyle(
                 color: AppColors.textTertiary,
-                fontFamily: 'WantedSansRegular',
                 fontSize: 12,
                 height: 1.3,
               ),

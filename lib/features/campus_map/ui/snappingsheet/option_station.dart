@@ -81,7 +81,7 @@ class OptionStation extends StatelessWidget {
                             _adCtrl.mainpageAdText.value,
                             style: const TextStyle(
                               color: Colors.black,
-                              fontFamily: 'WantedSansMedium',
+                              fontWeight: FontWeight.w500,
                               fontSize: 12.5,
                             ),
                           )),

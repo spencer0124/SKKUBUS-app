@@ -25,6 +25,7 @@ import 'package:skkumap/core/utils/geolocator.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 import 'package:skkumap/core/utils/analytics_screen_names.dart';
 
+import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/core/data/api_client.dart' as data;
 import 'package:skkumap/core/data/dio_client.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
@@ -125,6 +126,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         locale: Get.deviceLocale,
         fallbackLocale: const Locale('en', 'US'),
         theme: ThemeData(
+          fontFamily: AppFonts.fontFamily(Get.locale ?? Get.deviceLocale),
           appBarTheme: const AppBarTheme(
             systemOverlayStyle: SystemUiOverlayStyle.light,
             scrolledUnderElevation: 0,

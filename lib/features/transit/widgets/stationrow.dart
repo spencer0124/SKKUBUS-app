@@ -82,7 +82,7 @@ class CustomRow2 extends StatelessWidget {
                                   titleText,
                                   style: const TextStyle(
                                     color: Colors.black,
-                                    fontFamily: 'WantedSansMedium',
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 15,
                                   ),
                                   textAlign: TextAlign.start,
@@ -91,7 +91,7 @@ class CustomRow2 extends StatelessWidget {
                                   '  ',
                                   style: TextStyle(
                                     color: Colors.black,
-                                    fontFamily: 'WantedSansBold',
+                                    fontWeight: FontWeight.w700,
                                     fontSize: 15,
                                   ),
                                   textAlign: TextAlign.start,
@@ -130,7 +130,6 @@ class CustomRow2 extends StatelessWidget {
                                             subtitleText1,
                                             style: const TextStyle(
                                               color: Colors.black,
-                                              // fontFamily: 'WantedSansMedium',
                                               fontSize: 13,
                                             ),
                                           )
@@ -164,7 +163,6 @@ class CustomRow2 extends StatelessWidget {
                                             subtitleText2,
                                             style: const TextStyle(
                                               color: Colors.black,
-                                              // fontFamily: 'WantedSansMedium',
                                               fontSize: 13,
                                             ),
                                           ),
@@ -205,7 +203,7 @@ class CustomRow2 extends StatelessWidget {
                     '',
                     style: TextStyle(
                       color: Colors.grey[900],
-                      fontFamily: 'WantedSansMedium',
+                      fontWeight: FontWeight.w500,
                       fontSize: 12.5,
                     ),
                   ),

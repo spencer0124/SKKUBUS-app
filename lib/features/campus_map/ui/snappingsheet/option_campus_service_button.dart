@@ -51,7 +51,7 @@ class CustomServiceBtn extends StatelessWidget {
                 fit: BoxFit.scaleDown,
                 child: Text(
                   title,
-                  style: const TextStyle(fontFamily: "WantedSansRegular"),
+                  style: const TextStyle(),
                 ),
               ),
             ),

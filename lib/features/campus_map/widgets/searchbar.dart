@@ -83,7 +83,7 @@ class CustomSearchBar extends StatelessWidget {
               '성균관대 건물/공간 검색'.tr,
               style: const TextStyle(
                 color: AppColors.textTertiary,
-                fontFamily: 'WantedSansMedium',
+                fontWeight: FontWeight.w500,
                 fontSize: 15,
               ),
             ),

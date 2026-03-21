@@ -91,15 +91,14 @@ flutter:
 
   uses-material-design: true
   fonts:
-    - family: WantedSansBold
-      fonts:
-        - asset: assets/fonts/WantedSans-Bold.otf
-    - family: WantedSansRegular
+    - family: WantedSans
       fonts:
         - asset: assets/fonts/WantedSans-Regular.otf
-    - family: WantedSansMedium
-      fonts:
+          weight: 400
         - asset: assets/fonts/WantedSans-Medium.otf
+          weight: 500
+        - asset: assets/fonts/WantedSans-Bold.otf
+          weight: 700
     - family: Tossface
       fonts:
         - asset: assets/fonts/TossFaceFontMac.ttf

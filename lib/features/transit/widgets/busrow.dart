@@ -65,7 +65,7 @@ class CustomRow1 extends StatelessWidget {
                               label,
                               style: const TextStyle(
                                 color: AppColors.textPrimary,
-                                fontFamily: 'WantedSansBold',
+                                fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
                             ),
@@ -85,7 +85,7 @@ class CustomRow1 extends StatelessWidget {
                                 busTypeText,
                                 style: TextStyle(
                                   color: badgeColor,
-                                  fontFamily: 'WantedSansMedium',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 11,
                                   height: 1.3,
                                 ),
@@ -99,7 +99,6 @@ class CustomRow1 extends StatelessWidget {
                             subtitle!,
                             style: const TextStyle(
                               color: AppColors.textTertiary,
-                              fontFamily: 'WantedSansRegular',
                               fontSize: 13,
                             ),
                             maxLines: 1,
