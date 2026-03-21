@@ -83,15 +83,7 @@ class CustomSearchBar extends StatelessWidget {
             // ── Step 3: 카메라 이동 ──
             final nmapCtrl = Get.find<UltimateNMapController>();
             if (needsCampusSwitch) {
-              // Cross-campus: 애니메이션 카메라 이동 + 완료 대기
-              await nmapCtrl.animateCamera(
-                NCameraPosition(
-                  target: NLatLng(result.lat, result.lng),
-                  zoom: 17.5,
-                ),
-              );
-            } else {
-              // Same-campus: 즉시 이동 + 프레임 렌더 대기
+              // Cross-campus: 즉시 이동 + 프레임 렌더 대기
               nmapCtrl.cameraPosition.value = NCameraPosition(
                 target: NLatLng(result.lat, result.lng),
                 zoom: 17.5,
@@ -100,6 +92,14 @@ class CustomSearchBar extends StatelessWidget {
               WidgetsBinding.instance
                   .addPostFrameCallback((_) => c.complete());
               await c.future;
+            } else {
+              // Same-campus: 부드러운 카메라 이동 + 완료 대기
+              await nmapCtrl.animateCamera(
+                NCameraPosition(
+                  target: NLatLng(result.lat, result.lng),
+                  zoom: 17.5,
+                ),
+              );
             }
 
             // ── Step 4: 상세 sheet (delay 없음 — 위 await로 타이밍 보장) ──
