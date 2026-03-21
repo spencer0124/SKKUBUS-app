@@ -136,12 +136,10 @@ class BusCampusScreen extends StatelessWidget {
       labelColor: _heroGreen,
       unselectedLabelColor: _gray,
       labelStyle: const TextStyle(
-        fontFamily: 'WantedSansBold',
         fontSize: 14,
         fontWeight: FontWeight.w700,
       ),
       unselectedLabelStyle: const TextStyle(
-        fontFamily: 'WantedSansMedium',
         fontSize: 14,
         fontWeight: FontWeight.w500,
       ),
@@ -181,7 +179,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    fontFamily: 'WantedSansBold',
                     color: _textColor,
                   ),
                 ),
@@ -193,7 +190,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: _gray,
-                    fontFamily: 'WantedSansRegular',
                     height: 1.6,
                   ),
                 ),
@@ -231,7 +227,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    fontFamily: 'WantedSansBold',
                     color: _textColor,
                   ),
                 ),
@@ -266,7 +261,6 @@ class BusCampusScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'WantedSansBold',
                   color: _textColor,
                 ),
               ),
@@ -285,7 +279,6 @@ class BusCampusScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      fontFamily: 'WantedSansMedium',
                       color: Colors.white,
                     ),
                   ),
@@ -347,9 +340,6 @@ class BusCampusScreen extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 11,
-                            fontFamily: isSelected || isToday
-                                ? 'WantedSansBold'
-                                : 'WantedSansRegular',
                             fontWeight: isSelected || isToday
                                 ? FontWeight.w700
                                 : FontWeight.w400,
@@ -373,9 +363,6 @@ class BusCampusScreen extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12,
-                                fontFamily: isSelected || isToday
-                                    ? 'WantedSansBold'
-                                    : 'WantedSansRegular',
                                 fontWeight: isSelected || isToday
                                     ? FontWeight.w700
                                     : FontWeight.w400,
@@ -413,7 +400,6 @@ class BusCampusScreen extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 8,
-                              fontFamily: 'WantedSansRegular',
                               color: day.label != null
                                   ? (isSelected ? Colors.white70 : _gray)
                                   : Colors.transparent,
@@ -463,7 +449,7 @@ class BusCampusScreen extends StatelessWidget {
                     notice.text,
                     style: TextStyle(
                       fontSize: 12,
-                      fontFamily: 'WantedSansMedium',
+                      fontWeight: FontWeight.w500,
                       color: isWarning
                           ? const Color(0xFFE65100)
                           : const Color(0xFF1565C0),
@@ -531,7 +517,6 @@ class BusCampusScreen extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 12,
                       color: _grayLight,
-                      fontFamily: 'WantedSansRegular',
                     ),
                   ),
                 ),
@@ -568,7 +553,6 @@ class BusCampusScreen extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  fontFamily: 'WantedSansBold',
                   color: _textColor,
                 ),
               ),
@@ -580,7 +564,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     color: _gray,
-                    fontFamily: 'WantedSansRegular',
                     height: 1.6,
                   ),
                 ),
@@ -675,7 +658,6 @@ class BusCampusScreen extends StatelessWidget {
             fontSize: 12,
             color: Colors.white.withValues(alpha: 0.75),
             fontWeight: FontWeight.w500,
-            fontFamily: 'WantedSansMedium',
           ),
         ),
         const SizedBox(height: 6),
@@ -688,7 +670,6 @@ class BusCampusScreen extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 52,
                 fontWeight: FontWeight.w800,
-                fontFamily: 'WantedSansBold',
                 color: Colors.white,
                 letterSpacing: -1.5,
                 height: 1,
@@ -702,7 +683,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     color: Colors.white.withValues(alpha: 0.75),
-                    fontFamily: 'WantedSansRegular',
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -711,7 +691,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    fontFamily: 'WantedSansBold',
                     color: Colors.white,
                     height: 1,
                   ),
@@ -756,7 +735,6 @@ class BusCampusScreen extends StatelessWidget {
             fontSize: 12,
             color: Colors.white.withValues(alpha: 0.75),
             fontWeight: FontWeight.w500,
-            fontFamily: 'WantedSansMedium',
           ),
         ),
         const SizedBox(height: 6),
@@ -765,7 +743,6 @@ class BusCampusScreen extends StatelessWidget {
           style: const TextStyle(
             fontSize: 52,
             fontWeight: FontWeight.w800,
-            fontFamily: 'WantedSansBold',
             color: Colors.white,
             letterSpacing: -1.5,
             height: 1,
@@ -787,7 +764,6 @@ class BusCampusScreen extends StatelessWidget {
         style: const TextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w700,
-          fontFamily: 'WantedSansBold',
           color: Colors.white,
         ),
       ),
@@ -844,7 +820,6 @@ class BusCampusScreen extends StatelessWidget {
                 fontSize: 11,
                 color: _grayLight,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
               ),
             ),
           ),
@@ -857,7 +832,6 @@ class BusCampusScreen extends StatelessWidget {
                   fontSize: 11,
                   color: _grayLight,
                   fontWeight: FontWeight.w600,
-                  fontFamily: 'WantedSansMedium',
                 ),
               ),
             ),
@@ -869,7 +843,6 @@ class BusCampusScreen extends StatelessWidget {
                 fontSize: 11,
                 color: _grayLight,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
               ),
             ),
           ),
@@ -880,7 +853,6 @@ class BusCampusScreen extends StatelessWidget {
                 fontSize: 11,
                 color: _grayLight,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
               ),
             ),
           ),
@@ -940,8 +912,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: isNext ? FontWeight.w700 : FontWeight.w500,
-                    fontFamily:
-                        isNext ? 'WantedSansBold' : 'WantedSansMedium',
                     color: textColor,
                   ),
                 ),
@@ -959,7 +929,6 @@ class BusCampusScreen extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
-                        fontFamily: 'WantedSansBold',
                         color: _heroGreen,
                       ),
                     ),
@@ -986,7 +955,6 @@ class BusCampusScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    fontFamily: 'WantedSansMedium',
                     color: isPast ? _grayLight : badgeColor,
                   ),
                 ),
@@ -1000,7 +968,6 @@ class BusCampusScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'WantedSansMedium',
                 color: isPast ? _grayLight : _textColor,
               ),
             ),
@@ -1016,9 +983,6 @@ class BusCampusScreen extends StatelessWidget {
                 fontWeight: entry.notes != null
                     ? FontWeight.w600
                     : FontWeight.w400,
-                fontFamily: entry.notes != null
-                    ? 'WantedSansMedium'
-                    : 'WantedSansRegular',
                 color: isPast
                     ? _grayLight
                     : entry.notes != null

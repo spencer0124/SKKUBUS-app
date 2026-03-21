@@ -27,7 +27,7 @@ class CustomFilter extends StatelessWidget {
               '필터',
               style: TextStyle(
                 color: AppColors.textSecondary,
-                fontFamily: 'WantedSansMedium',
+                fontWeight: FontWeight.w500,
                 fontSize: 13,
               ),
             ),

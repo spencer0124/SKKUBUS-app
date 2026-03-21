@@ -34,7 +34,7 @@ class SduiNoticeWidget extends StatelessWidget {
               child: Text(
                 section.title,
                 style: const TextStyle(
-                  fontFamily: 'WantedSansMedium',
+                  fontWeight: FontWeight.w500,
                   fontSize: 13,
                   color: AppColors.textSecondary,
                 ),

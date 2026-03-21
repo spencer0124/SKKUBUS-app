@@ -97,7 +97,7 @@ class OptionBus extends StatelessWidget {
                                 _adCtrl.mainpageAdText.value,
                                 style: const TextStyle(
                                   color: Colors.black,
-                                  fontFamily: 'WantedSansMedium',
+                                  fontWeight: FontWeight.w500,
                                   fontSize: 12.5,
                                 ),
                               )),
@@ -114,7 +114,6 @@ class OptionBus extends StatelessWidget {
                                   //   '상세정보'.tr,
                                   //   style: TextStyle(
                                   //     color: Colors.grey[900],
-                                  //     fontFamily: 'WantedSansMedium',
                                   //     fontSize: 12.5,
                                   //   ),
                                   // ),
@@ -203,7 +202,7 @@ class OptionBus extends StatelessWidget {
                                                   .mainpageNoticeText.value,
                                               style: const TextStyle(
                                                 color: Colors.black,
-                                                fontFamily: 'WantedSansMedium',
+                                                fontWeight: FontWeight.w500,
                                                 fontSize: 12.5,
                                               ),
                                             )),
@@ -222,7 +221,6 @@ class OptionBus extends StatelessWidget {
                                                 //   '상세정보'.tr,
                                                 //   style: TextStyle(
                                                 //     color: Colors.grey[900],
-                                                //     fontFamily: 'WantedSansMedium',
                                                 //     fontSize: 12.5,
                                                 //   ),
                                                 // ),

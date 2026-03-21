@@ -116,7 +116,7 @@ class BusListComponent extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[600],
-                            fontFamily: 'WantedSansBold',
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       if (!(stationName.contains('미정차') ||
@@ -126,7 +126,7 @@ class BusListComponent extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 15,
                             color: Colors.black,
-                            fontFamily: 'WantedSansBold',
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       // Data-driven transfer line badges
@@ -157,7 +157,6 @@ class BusListComponent extends StatelessWidget {
                           subtitle!,
                           style: TextStyle(
                             fontSize: 11,
-                            fontFamily: 'WantedSansRegular',
                             color: Colors.grey[500],
                           ),
                         ),
@@ -166,7 +165,6 @@ class BusListComponent extends StatelessWidget {
                           " | ",
                           style: TextStyle(
                             fontSize: 11,
-                            fontFamily: 'WantedSansRegular',
                             color: Colors.grey.withValues(alpha: 0.3),
                           ),
                         ),
@@ -174,7 +172,7 @@ class BusListComponent extends StatelessWidget {
                         eta,
                         style: TextStyle(
                           fontSize: 11,
-                          fontFamily: 'WantedSansMedium',
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey[500],
                         ),
                       ),

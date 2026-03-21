@@ -15,7 +15,7 @@ class SduiSectionTitleWidget extends StatelessWidget {
       child: Text(
         section.title,
         style: const TextStyle(
-          fontFamily: 'WantedSansBold',
+          fontWeight: FontWeight.w700,
           fontSize: 16,
           color: AppColors.textPrimary,
         ),

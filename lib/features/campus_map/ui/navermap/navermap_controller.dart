@@ -66,7 +66,7 @@ class UltimateNMapController extends GetxController {
                       style: const TextStyle(
                         color: Colors.black,
                         fontSize: 7,
-                        fontFamily: 'WantedSansBold',
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

@@ -40,7 +40,6 @@ class LiveActivityBusETA extends StatelessWidget {
             title,
             style: const TextStyle(
               color: Colors.black,
-              fontFamily: 'WantedSansRegular',
               fontSize: 14,
             ),
           ),
@@ -52,7 +51,7 @@ class LiveActivityBusETA extends StatelessWidget {
                       duration,
                       style: const TextStyle(
                         color: AppColors.greenMain,
-                        fontFamily: 'WantedSansBold',
+                        fontWeight: FontWeight.w700,
                         fontSize: 18,
                       ),
                     )
@@ -60,7 +59,7 @@ class LiveActivityBusETA extends StatelessWidget {
                       "운행종료",
                       style: TextStyle(
                         color: AppColors.greenMain,
-                        fontFamily: 'WantedSansBold',
+                        fontWeight: FontWeight.w700,
                         fontSize: 18,
                       ),
                     ),
@@ -70,7 +69,6 @@ class LiveActivityBusETA extends StatelessWidget {
                       distance,
                       style: TextStyle(
                         color: Colors.grey[900],
-                        fontFamily: 'WantedSansRegular',
                         fontSize: 13,
                       ),
                     )
@@ -82,14 +80,12 @@ class LiveActivityBusETA extends StatelessWidget {
                   timeRange,
                   style: TextStyle(
                     color: Colors.grey[700],
-                    fontFamily: 'WantedSansRegular',
                   ),
                 )
               : Text(
                   "버스 정보 없음",
                   style: TextStyle(
                     color: Colors.grey[700],
-                    fontFamily: 'WantedSansRegular',
                   ),
                 )
         ],
