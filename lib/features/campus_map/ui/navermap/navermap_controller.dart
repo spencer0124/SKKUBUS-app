@@ -11,6 +11,38 @@ class UltimateNMapController extends GetxController {
   bool _markerIconPrecached = false;
   // store the native map controller for bounds queries
   final mapController = Rx<NaverMapController?>(null);
+
+  /// True while [animateCamera] is running — suppresses the reactive
+  /// `ever` listener in navermap.dart so it doesn't override the animation
+  /// with an instant jump.
+  bool _isAnimating = false;
+  bool get isAnimating => _isAnimating;
+
+  /// Animate camera to [position] and return when the animation completes.
+  /// Uses `NaverMapController.updateCamera` which returns `Future<bool>`
+  /// (resolves when the native animation finishes).
+  Future<void> animateCamera(
+    NCameraPosition position, {
+    NCameraAnimation animation = NCameraAnimation.easing,
+    Duration duration = const Duration(milliseconds: 400),
+  }) async {
+    final mc = mapController.value;
+    if (mc == null) {
+      cameraPosition.value = position;
+      return;
+    }
+    _isAnimating = true;
+    cameraPosition.value = position; // sync state (ever listener skips)
+    final update = NCameraUpdate.withParams(
+      target: position.target,
+      zoom: position.zoom,
+      tilt: position.tilt,
+      bearing: position.bearing,
+    );
+    update.setAnimation(animation: animation, duration: duration);
+    await mc.updateCamera(update);
+    _isAnimating = false;
+  }
   final markers = <NMarker>[].obs;
   final overlays = <NOverlay>[].obs;
   // Fallback before config loads — HSSC is default campus.
