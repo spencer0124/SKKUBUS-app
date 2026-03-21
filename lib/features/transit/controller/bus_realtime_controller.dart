@@ -50,6 +50,7 @@ class BusRealtimeController extends GetxController {
   BannerAd? _bannerAd;
   BannerAd? get bannerAd => _bannerAd;
   RxBool isBannerAdLoaded = false.obs;
+  RxnInt expectedAdHeight = RxnInt();
 
   late BusGroup group;
   bool _configSet = false;
@@ -111,6 +112,8 @@ class BusRealtimeController extends GetxController {
       return;
     }
 
+    expectedAdHeight.value = adSize.height;
+
     _bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: const AdRequest(),
@@ -126,6 +129,7 @@ class BusRealtimeController extends GetxController {
           logger.e('Failed to load a banner ad: ${err.message}');
           ad.dispose();
           isBannerAdLoaded.value = false;
+          expectedAdHeight.value = null;
           _isLoadingAd = false;
         },
       ),

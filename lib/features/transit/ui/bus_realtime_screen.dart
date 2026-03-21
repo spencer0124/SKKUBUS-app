@@ -77,7 +77,15 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                         bannerAd: controller.bannerAd,
                       ),
               )
-            : const SizedBox.shrink(),
+            : controller.expectedAdHeight.value != null
+                ? BottomAppBar(
+                    padding: EdgeInsets.zero,
+                    color: Colors.white,
+                    child: SizedBox(
+                      height: controller.expectedAdHeight.value!.toDouble(),
+                    ),
+                  )
+                : const SizedBox.shrink(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       backgroundColor: Colors.white,
