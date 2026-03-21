@@ -127,6 +127,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         theme: ThemeData(
           appBarTheme: const AppBarTheme(
             systemOverlayStyle: SystemUiOverlayStyle.light,
+            scrolledUnderElevation: 0,
           ),
         ),
       ),
