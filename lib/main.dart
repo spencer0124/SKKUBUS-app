@@ -37,6 +37,7 @@ import 'package:skkumap/features/building/controller/building_detail_controller.
 import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/repositories/ui_repository.dart';
 import 'package:skkumap/core/data/connectivity_service.dart';
+import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -67,6 +68,7 @@ Future<void> main() async {
   Get.find<MapConfigRepository>().initialize(); // fire-and-forget, non-blocking
   Get.put(ConnectivityService());
   await initMobileAds();
+  Get.put(AdService());
   await initNaverMapSdkV2();
 
   runApp(const MyApp());

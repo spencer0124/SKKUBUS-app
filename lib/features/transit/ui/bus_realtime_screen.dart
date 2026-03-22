@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/features/transit/controller/bus_realtime_controller.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/utils/ad_widget.dart';
 import 'package:skkumap/app_theme.dart';
 
@@ -16,18 +17,13 @@ import 'package:skkumap/core/types/bus_status.dart';
 import 'package:skkumap/core/types/time_format.dart';
 import 'package:skkumap/features/transit/widgets/businfo_component.dart';
 
-import 'package:skkumap/core/utils/screensize.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:skkumap/core/repositories/ad_repository.dart';
-
 class BusRealtimeScreen extends GetView<BusRealtimeController> {
   const BusRealtimeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = ScreenSize.width(context);
     final BusGroup group = Get.arguments['busConfig'];
-    controller.setRouteConfig(group, screenWidth: screenWidth.truncate());
+    controller.setRouteConfig(group);
     final themeColor = group.card.themeColor;
 
     // Find info feature from screen data
@@ -37,6 +33,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
         .where((f) => f['type'] == 'info')
         .firstOrNull;
 
+    final adService = Get.find<AdService>();
+
     return Scaffold(
       // floating action button
       floatingActionButton: RefreshButton(
@@ -45,48 +43,26 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
             controller.fetchRealtimeData();
           }),
       // 화면 하단 광고
-      bottomNavigationBar: Obx(
-        () => controller.isBannerAdLoaded.value
-            ? BottomAppBar(
-                padding: EdgeInsets.zero,
-                color: Colors.white,
-                child: (controller.belowAdImage.value != '')
-                    ? ConstrainedBox(
-                        constraints: const BoxConstraints(maxHeight: 80),
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () async {
-                            if (await canLaunchUrl(
-                                Uri.parse(controller.belowAdLink.value))) {
-                              await launchUrl(
-                                  Uri.parse(controller.belowAdLink.value));
-                              Get.find<AdRepository>()
-                                  .trackEvent('bus_bottom', 'click');
-                            } else {
-                              Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
-                            }
-                          },
-                          child: Image.network(
-                            controller.belowAdImage.value,
-                            width: double.infinity,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      )
-                    : AdWidgetContainer(
-                        bannerAd: controller.bannerAd,
-                      ),
-              )
-            : controller.expectedAdHeight.value != null
-                ? BottomAppBar(
-                    padding: EdgeInsets.zero,
-                    color: Colors.white,
-                    child: SizedBox(
-                      height: controller.expectedAdHeight.value!.toDouble(),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-      ),
+      bottomNavigationBar: Obx(() {
+        if (adService.isLoaded('bus_realtime').value) {
+          return BottomAppBar(
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+            child: AdWidgetContainer(
+              bannerAd: adService.getBanner('bus_realtime'),
+            ),
+          );
+        }
+        final height = adService.expectedHeight('bus_realtime').value;
+        if (height != null) {
+          return BottomAppBar(
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+            child: SizedBox(height: height.toDouble()),
+          );
+        }
+        return const SizedBox.shrink();
+      }),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       backgroundColor: Colors.white,
       appBar: PreferredSize(

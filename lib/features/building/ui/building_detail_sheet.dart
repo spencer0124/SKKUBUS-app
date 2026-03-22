@@ -5,7 +5,9 @@ import 'package:skkumap/features/building/controller/building_detail_controller.
 import 'package:skkumap/features/building/model/building_detail.dart';
 import 'package:skkumap/features/building/model/building_models.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/services/analytics_service.dart';
+import 'package:skkumap/core/utils/ad_widget.dart';
 
 class BuildingDetailSheet extends StatelessWidget {
   final int skkuId;
@@ -33,7 +35,9 @@ class BuildingDetailSheet extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-    );
+    ).then((_) {
+      Get.find<AdService>().recycleBanner('building_detail');
+    });
   }
 
   @override
@@ -129,6 +133,7 @@ class BuildingDetailSheet extends StatelessWidget {
             controller: scrollController,
             padding: EdgeInsets.zero,
             children: [
+
               // ══ Section 1: Image + Header ══
               if (building.image != null)
                 Image.network(
@@ -277,6 +282,20 @@ class BuildingDetailSheet extends StatelessWidget {
             ],
           ),
         ),
+
+        // Fixed banner ad at bottom of sheet (safe area for home indicator)
+        Obx(() {
+          final adService = Get.find<AdService>();
+          if (!adService.isLoaded('building_detail').value) {
+            return const SizedBox.shrink();
+          }
+          return SafeArea(
+            top: false,
+            child: AdWidgetContainer(
+              bannerAd: adService.getBanner('building_detail'),
+            ),
+          );
+        }),
       ],
     );
   }
