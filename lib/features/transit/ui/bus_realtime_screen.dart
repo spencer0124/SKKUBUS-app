@@ -46,20 +46,20 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
       bottomNavigationBar: Obx(() {
         if (adService.isLoaded('bus_realtime').value) {
           return BottomAppBar(
+            height:
+                adService.getBanner('bus_realtime')?.size.height.toDouble(),
             padding: EdgeInsets.zero,
             color: Colors.white,
+            elevation: 0,
             child: AdWidgetContainer(
               bannerAd: adService.getBanner('bus_realtime'),
             ),
           );
         }
-        final height = adService.expectedHeight('bus_realtime').value;
-        if (height != null) {
-          return BottomAppBar(
-            padding: EdgeInsets.zero,
-            color: Colors.white,
-            child: SizedBox(height: height.toDouble()),
-          );
+        // Reserve height before ad loads to prevent layout jump
+        final h = adService.expectedHeight('bus_realtime').value;
+        if (h != null) {
+          return SizedBox(height: h.toDouble());
         }
         return const SizedBox.shrink();
       }),

@@ -217,5 +217,8 @@ android/app/.cxx/
 # Security reviews
 docs/
 
+# Widgetbook (dev tool)
+widgetbook/
+
 # FVM Version Cache
 .fvm/
