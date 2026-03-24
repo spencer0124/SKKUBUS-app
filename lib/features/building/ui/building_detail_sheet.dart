@@ -117,7 +117,7 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              '건물 정보를 불러올 수 없습니다'.tr,
+              '건물 정보를 불러오지 못했어요'.tr,
               style: SdsTypo.t6(weight: FontWeight.w500)
                   .copyWith(color: SdsColors.grey900),
             ),

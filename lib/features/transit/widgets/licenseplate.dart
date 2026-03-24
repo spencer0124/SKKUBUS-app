@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class LicensePlate extends StatelessWidget {
   final String plateNumber;
@@ -45,7 +46,7 @@ class LicensePlate extends StatelessWidget {
           Positioned(
             left: 2,
             child: Text(
-              "번호 미제공",
+              '번호 없음'.tr,
               style: TextStyle(
                 fontSize: 7.5,
                 fontWeight: FontWeight.w500,

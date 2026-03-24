@@ -32,9 +32,9 @@ class AroundPlaceController extends GetxController {
         final list = data['result'] as List?;
         if (list == null || list.isEmpty) {
           await FlutterPlatformAlert.showCustomAlert(
-            windowTitle: '검색 결과 없음!',
+            windowTitle: '찾는 장소가 없어요'.tr,
             text: '',
-            positiveButtonTitle: '확인',
+            positiveButtonTitle: '확인'.tr,
           );
           return;
         }

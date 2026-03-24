@@ -25,7 +25,7 @@ class TopInfo extends StatelessWidget {
   String get busCountString {
     return busStatus == BusStatus.active
         ? "$busCount${"대 운행 중".tr}"
-        : "운행중인 버스 없음".tr;
+        : '운행 중인 버스가 없어요'.tr;
   }
 
   @override

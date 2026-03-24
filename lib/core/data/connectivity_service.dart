@@ -36,7 +36,7 @@ class ConnectivityService extends GetxService {
           Get.key.currentState != null) {
         _lastSnackbarTime = now;
         Get.rawSnackbar(
-          message: '네트워크 연결이 불안정합니다',
+          message: '네트워크에 문제가 생겼어요'.tr,
           duration: const Duration(seconds: 3),
           snackPosition: SnackPosition.TOP,
         );
