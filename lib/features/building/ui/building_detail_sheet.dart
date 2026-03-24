@@ -214,46 +214,17 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
                   }),
                 ],
 
-                // ══ Section: 광고 ══
-                Obx(() {
-                  final adService = Get.find<AdService>();
-                  if (!adService.isNativeLoaded('native_building').value) {
-                    return const SizedBox.shrink();
-                  }
-                  return Column(
-                    children: [
-                      _sectionGap(),
-                      Padding(
-                        padding: const EdgeInsets.all(SdsSpacing.xl),
-                        child: NativeAdContainer(
-                          nativeAd: adService.getNativeAd('native_building'),
-                          height: kNativeSmallHeight,
-                        ),
-                      ),
-                    ],
-                  );
-                }),
-
                 // ══ Section: 건물 정보 (description) ══
                 if (hasDescription) ...[
                   _sectionGap(),
+                  SdsListHeader(title: '건물 정보'.tr),
                   Padding(
-                    padding: const EdgeInsets.all(SdsSpacing.xl),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '건물 정보'.tr,
-                          style: SdsTypo.t5(weight: FontWeight.w700)
-                              .copyWith(color: SdsColors.grey900),
-                        ),
-                        const SizedBox(height: 14),
-                        SdsParagraph(
-                          text: building.description!.localized,
-                          maxLines: 3,
-                          showCard: true,
-                        ),
-                      ],
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: SdsSpacing.xl,
+                    ),
+                    child: SdsParagraph(
+                      text: building.description!.localized,
+                      maxLines: 3,
                     ),
                   ),
                 ],
@@ -263,6 +234,23 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
                   _sectionGap(),
                   _buildConnectionsSection(detail),
                 ],
+
+                // ══ Section: 광고 ══
+                Obx(() {
+                  final adService = Get.find<AdService>();
+                  if (!adService.isNativeLoaded('native_building').value) {
+                    return const SizedBox.shrink();
+                  }
+                  return Column(
+                    children: [
+                      _sectionGap(),
+                      NativeAdContainer(
+                        nativeAd: adService.getNativeAd('native_building'),
+                        height: kNativeSmallHeight,
+                      ),
+                    ],
+                  );
+                }),
 
                 const SizedBox(height: 40),
               ],
@@ -316,7 +304,7 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
                           SdsBadge(
                             text: building.displayNo!,
                             variant: SdsBadgeVariant.weak,
-                            color: SdsBadgeColor.blue,
+                            color: SdsBadgeColor.brand,
                             size: SdsBadgeSize.xsmall,
                           ),
                         ],
@@ -455,7 +443,7 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
                       SdsBadge(
                         text: building.displayNo!,
                         variant: SdsBadgeVariant.weak,
-                        color: SdsBadgeColor.blue,
+                        color: SdsBadgeColor.brand,
                         size: SdsBadgeSize.xsmall,
                       ),
                     ],
@@ -539,76 +527,41 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
       children: [
         SdsListHeader(title: '연결 건물'.tr),
 
-        // CTA card
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            SdsSpacing.xl, 0, SdsSpacing.xl, SdsSpacing.md,
-          ),
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              final d = Get.find<BuildingDetailController>().detail.value;
-              if (d != null) {
-                Get.find<AnalyticsService>().logConnectionMapOpen(
-                  campus: d.building.campus,
-                );
-              }
-              Get.toNamed(Routes.mapHssc);
-            },
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: SdsColors.grey50,
-                borderRadius: BorderRadius.circular(SdsRadius.xl),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: SdsColors.brandLight,
-                      borderRadius: BorderRadius.circular(SdsRadius.md),
-                    ),
-                    child: const Icon(
-                      Icons.hub_outlined,
-                      size: 22,
-                      color: SdsColors.brand,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '건물 연결지도 보기'.tr,
-                          style: SdsTypo.t6(weight: FontWeight.w600)
-                              .copyWith(color: SdsColors.grey900),
-                        ),
-                        const SizedBox(height: SdsSpacing.xxs),
-                        Text(
-                          '층별 연결 통로를 확인할 수 있어요'.tr,
-                          style:
-                              SdsTypo.t7().copyWith(color: SdsColors.grey500),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(
-                    Icons.chevron_right,
-                    size: 18,
-                    color: SdsColors.grey400,
-                  ),
-                ],
-              ),
+        // CTA row
+        SdsListRow(
+          left: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: SdsColors.brandLight,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.hub_outlined,
+              size: 20,
+              color: SdsColors.brand,
             ),
           ),
+          contents: SdsListRowTexts.twoRow(
+            top: '건물 연결지도 보기'.tr,
+            bottom: '층별 연결 통로를 확인할 수 있어요'.tr,
+          ),
+          withArrow: true,
+          border: SdsListRowBorder.none,
+          horizontalPadding: SdsListRowHPad.small,
+          onTap: () {
+            final d = Get.find<BuildingDetailController>().detail.value;
+            if (d != null) {
+              Get.find<AnalyticsService>().logConnectionMapOpen(
+                campus: d.building.campus,
+              );
+            }
+            Get.toNamed(Routes.mapHssc);
+          },
         ),
 
         // Connection list
         ...groups.asMap().entries.map((entry) {
-          final idx = entry.key;
           final group = entry.value.value;
           final first = group.first;
 
@@ -632,9 +585,7 @@ class _BuildingDetailSheetState extends State<BuildingDetailSheet> {
               bottom: _connectionFloorDesc(group),
             ),
             withArrow: true,
-            border: idx == 0
-                ? SdsListRowBorder.none
-                : SdsListRowBorder.indentedLight,
+            border: SdsListRowBorder.indentedLight,
             horizontalPadding: SdsListRowHPad.small,
             onTap: () {
               Get.find<AnalyticsService>().logConnectionTap(
@@ -665,7 +616,6 @@ String _floorShortCode(LocalizedText floor) {
   return ko.length > 3 ? ko.substring(0, 3) : ko;
 }
 
-bool _isBasement(LocalizedText floor) => floor.ko.contains('지하');
 
 /// Builds "3층 연결통로" or "1층 · 5층 · 8층 연결통로" from grouped connections.
 String _connectionFloorDesc(List<BuildingConnection> group) {
@@ -712,32 +662,14 @@ class _FloorTile extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             _floorShortCode(floor.floor),
-            style: TextStyle(
-              fontFamily: 'WantedSans',
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: isExpanded
-                  ? Colors.white
-                  : _isBasement(floor.floor)
-                      ? SdsColors.grey500
-                      : SdsColors.grey700,
+            style: SdsTypo.t7(weight: FontWeight.w700).copyWith(
+              color: isExpanded ? Colors.white : SdsColors.grey600,
             ),
           ),
         ),
-        contents: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              floor.floor.localized,
-              style: SdsTypo.t6(weight: FontWeight.w600)
-                  .copyWith(color: SdsColors.grey900),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              '${'호실'.tr} ${floor.spaces.length}${'개'.tr}',
-              style: SdsTypo.sub12().copyWith(color: SdsColors.grey500),
-            ),
-          ],
+        contents: SdsListRowTexts.twoRow(
+          top: floor.floor.localized,
+          bottom: '${'호실'.tr} ${floor.spaces.length}${'개'.tr}',
         ),
         right: _buildConnectionTags(),
         isExpanded: isExpanded,
@@ -763,7 +695,7 @@ class _FloorTile extends StatelessWidget {
                   icon: const Icon(Icons.arrow_forward, size: 10),
                   text: name,
                   variant: SdsBadgeVariant.weak,
-                  color: SdsBadgeColor.blue,
+                  color: SdsBadgeColor.brand,
                   size: SdsBadgeSize.xsmall,
                 ),
               ))
@@ -863,7 +795,7 @@ class _FloorTile extends StatelessWidget {
                       Text(
                         '+ $remaining${'개 더보기'.tr}',
                         style: SdsTypo.sub12(weight: FontWeight.w600)
-                            .copyWith(color: SdsColors.blue500),
+                            .copyWith(color: SdsColors.brand),
                       ),
                     ],
                   ),

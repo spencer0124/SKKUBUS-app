@@ -1,28 +1,24 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
-import '../sds_radius.dart';
-import '../sds_spacing.dart';
 import '../sds_typo.dart';
 
 /// 접기/펼치기 가능한 텍스트 단락
 ///
+/// "더보기" / "접기"가 텍스트 끝에 인라인으로 붙는 토스 패턴.
+///
 /// ```dart
-/// SdsParagraph(text: '2009년에 신축된 삼성학술정보관은...', maxLines: 2)
-/// SdsParagraph(text: '...', maxLines: 3, showCard: true)  // grey50 card
+/// SdsParagraph(text: '2009년에 신축된 삼성학술정보관은...', maxLines: 3)
 /// ```
 class SdsParagraph extends StatefulWidget {
   final String text;
   final int maxLines;
 
-  /// true이면 grey50 배경 카드로 감싸기 (목업 info-block 스타일)
-  final bool showCard;
-
   const SdsParagraph({
     super.key,
     required this.text,
     this.maxLines = 2,
-    this.showCard = false,
   });
 
   @override
@@ -31,14 +27,32 @@ class SdsParagraph extends StatefulWidget {
 
 class _SdsParagraphState extends State<SdsParagraph> {
   bool _expanded = false;
+  late final TapGestureRecognizer _moreRecognizer;
+  late final TapGestureRecognizer _lessRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _moreRecognizer = TapGestureRecognizer()
+      ..onTap = () => setState(() => _expanded = true);
+    _lessRecognizer = TapGestureRecognizer()
+      ..onTap = () => setState(() => _expanded = false);
+  }
+
+  @override
+  void dispose() {
+    _moreRecognizer.dispose();
+    _lessRecognizer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final style = SdsTypo.t6().copyWith(color: SdsColors.grey600);
+    final style = SdsTypo.t7().copyWith(color: SdsColors.grey600);
     final actionStyle = SdsTypo.t7(weight: FontWeight.w600)
         .copyWith(color: SdsColors.grey500);
 
-    Widget content = LayoutBuilder(
+    return LayoutBuilder(
       builder: (context, constraints) {
         final textPainter = TextPainter(
           text: TextSpan(text: widget.text, style: style),
@@ -53,53 +67,50 @@ class _SdsParagraphState extends State<SdsParagraph> {
         }
 
         if (_expanded) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.text, style: style),
-              const SizedBox(height: SdsSpacing.sm),
-              GestureDetector(
-                onTap: () => setState(() => _expanded = false),
-                child: Text('접기 ‹', style: actionStyle),
+          return Text.rich(
+            TextSpan(children: [
+              TextSpan(text: widget.text, style: style),
+              TextSpan(
+                text: ' 접기',
+                style: actionStyle,
+                recognizer: _lessRecognizer,
               ),
-            ],
+            ]),
           );
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.text,
-              style: style,
-              maxLines: widget.maxLines,
-              overflow: TextOverflow.ellipsis,
+        // 인라인 "더보기": 마지막 줄 끝에 "… 더보기"가 들어갈 자리를 계산해
+        // 텍스트를 잘라낸 뒤 TextSpan으로 이어 붙인다.
+        // suffix를 실제 렌더와 동일한 mixed-style로 측정.
+        final suffixPainter = TextPainter(
+          text: TextSpan(children: [
+            TextSpan(text: '… ', style: style),
+            TextSpan(text: '더보기', style: actionStyle),
+          ]),
+          textDirection: TextDirection.ltr,
+        )..layout();
+
+        final lastLineY =
+            textPainter.preferredLineHeight * (widget.maxLines - 0.5);
+        final cutX = (constraints.maxWidth - suffixPainter.width - 4)
+            .clamp(0.0, constraints.maxWidth);
+        final cutPos =
+            textPainter.getPositionForOffset(Offset(cutX, lastLineY));
+        final truncated = widget.text.substring(0, cutPos.offset).trimRight();
+
+        return Text.rich(
+          TextSpan(children: [
+            TextSpan(text: '$truncated… ', style: style),
+            TextSpan(
+              text: '더보기',
+              style: actionStyle,
+              recognizer: _moreRecognizer,
             ),
-            const SizedBox(height: SdsSpacing.sm),
-            GestureDetector(
-              onTap: () => setState(() => _expanded = true),
-              child: Text('더보기 ›', style: actionStyle),
-            ),
-          ],
+          ]),
+          maxLines: widget.maxLines,
+          overflow: TextOverflow.clip,
         );
       },
     );
-
-    if (widget.showCard) {
-      content = Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: SdsSpacing.base,
-        ),
-        decoration: BoxDecoration(
-          color: SdsColors.grey50,
-          borderRadius: BorderRadius.circular(SdsRadius.xl),
-        ),
-        child: content,
-      );
-    }
-
-    return content;
   }
 }

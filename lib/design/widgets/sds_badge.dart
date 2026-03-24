@@ -95,6 +95,10 @@ class SdsBadge extends StatelessWidget {
         bg: isFill ? SdsColors.grey600 : SdsColors.grey100,
         fg: isFill ? Colors.white : SdsColors.grey600,
       ),
+      SdsBadgeColor.brand => (
+        bg: isFill ? SdsColors.brand : SdsColors.brandLight,
+        fg: isFill ? Colors.white : SdsColors.brand,
+      ),
     };
   }
 
@@ -111,4 +115,4 @@ enum SdsBadgeVariant { fill, weak }
 
 enum SdsBadgeSize { xsmall, small, medium, large }
 
-enum SdsBadgeColor { blue, teal, green, red, yellow, elephant }
+enum SdsBadgeColor { blue, teal, green, red, yellow, elephant, brand }
