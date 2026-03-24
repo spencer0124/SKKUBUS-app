@@ -1,12 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
+import 'package:skkumap/core/routes/app_routes.dart';
 import 'package:skkumap/core/widgets/sdui/sdui_section_builder.dart';
 import 'package:skkumap/core/model/sdui_section.dart';
 import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/utils/native_ad_widget.dart';
+import 'package:skkumap/design/sds_design.dart';
 
 // '캠퍼스' 탭
 // 서버에서 받아온 섹션 목록을 SDUI로 렌더링
@@ -36,7 +39,21 @@ class OptionCampus extends StatelessWidget {
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildSectionsWithAd(sections),
+          children: [
+            if (kDebugMode)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 12, 18, 0),
+                child: SdsButton(
+                  text: 'SDS Button 테스트',
+                  icon: const Icon(Icons.palette_outlined),
+                  variant: SdsButtonVariant.weak,
+                  color: SdsButtonColor.primary,
+                  size: SdsButtonSize.small,
+                  onPressed: () => Get.toNamed(Routes.devButtonTest),
+                ),
+              ),
+            ..._buildSectionsWithAd(sections),
+          ],
         );
       }),
     );

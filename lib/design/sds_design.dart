@@ -7,6 +7,7 @@ library;
 
 // Tokens
 export 'sds_colors.dart';
+export 'sds_duration.dart';
 export 'sds_typo.dart';
 export 'sds_spacing.dart';
 export 'sds_radius.dart';
