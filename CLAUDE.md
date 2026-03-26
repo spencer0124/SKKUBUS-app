@@ -35,15 +35,19 @@ SKKUBUS (스꾸버스) — a Flutter mobile app for Sungkyunkwan University prov
 All API calls return `Result<T>` — a sealed class (`Ok<T>` / `Err<T>`) in `core/data/result.dart`. Typed failure hierarchy: `NetworkFailure`, `ServerFailure`, `ParseFailure`, `CancelledFailure`.
 
 Controllers must pattern-match with Dart 3 switch:
+
+
 ```dart
 switch (result) {
   case Ok(:final data): handleSuccess(data);
   case Err(:final failure): handleError(failure);
 }
 ```
+
 Never catch exceptions from API calls directly — `ApiClient` handles that internally.
 
 ### API Envelope
+
 
 v2 endpoints return `{ meta, data }`. The **full envelope** is passed to model parsers (not just `data`). Use `ApiClient.safeGet`/`safePost` for v2 endpoints. Use `safeGetRaw` for legacy v1 endpoints without the envelope.
 
@@ -104,6 +108,21 @@ Shorebird is configured for code-push OTA updates (`shorebird.yaml`). Use `shore
 6. If repository serves 2+ features → move to `core/repositories/`, register in `main.dart` with `fenix: true`
 7. Add analytics screen name in `core/utils/analytics_screen_names.dart`
 8. Write tests for repository and controller
+
+## Design System (SDS)
+
+토스 디자인 시스템(TDS) 기반의 자체 디자인 시스템. UI 작업 시 반드시 참조.
+
+- **토큰만 사용**: 컬러·타이포·간격에 하드코딩 금지. `SdsColors`, `SdsTypo`, `SdsSpacing` 사용
+- **컴포넌트 우선**: 새 화면은 SDS 컴포넌트 조합으로 시작. 커스텀 위젯은 최후 수단
+- **네이밍**: `Sds` 접두사 (`SdsListRow`, `SdsBadge`), 파일명 snake_case (`sds_list_row.dart`)
+- **토큰 경로**: `lib/design/`, **컴포넌트 경로**: `lib/design/widgets/`
+
+| 문서                                                                   | 내용                                       | 참조 시점         |
+| ---------------------------------------------------------------------- | ------------------------------------------ | ----------------- |
+| [`docs/design-system/tokens.md`](docs/design-system/tokens.md)         | 컬러, 타이포, 간격, 라운드, 그림자         | 스타일링 시 항상  |
+| [`docs/design-system/components.md`](docs/design-system/components.md) | Flutter 위젯 스펙 (ListRow, Badge, Tab 등) | 위젯 생성·조합 시 |
+| [`docs/design-system/writing.md`](docs/design-system/writing.md)       | UX 라이팅 규칙, 에러 메시지 템플릿         | 문자열 작성 시    |
 
 ## Conventions and Gotchas
 

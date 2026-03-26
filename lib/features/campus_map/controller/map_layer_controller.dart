@@ -95,11 +95,15 @@ class MapLayerController extends GetxController {
   /// When [skipCamera] is true, only re-filter markers without moving the
   /// camera (used when the caller already sets its own camera position,
   /// e.g. cross-campus search navigation).
-  void onCampusChanged({bool skipCamera = false}) {
+  ///
+  /// Returns a [Future] that completes after markers have been re-filtered
+  /// and the overlay reconciliation frame has been scheduled.
+  Future<void> onCampusChanged({bool skipCamera = false}) {
     // 카메라 먼저 이동 — 사용자에게 즉각적인 피드백
     if (!skipCamera) _moveCameraToSelectedCampus();
 
     // 마커 재필터링은 다음 프레임 이후 실행 (카메라 이동 렌더링 완료 후)
+    final completer = Completer<void>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (final entry in layerStates.entries) {
         final state = entry.value;
@@ -112,7 +116,9 @@ class MapLayerController extends GetxController {
         }
       }
       layerStates.refresh();
+      completer.complete();
     });
+    return completer.future;
   }
 
   // ── Computed getters for the map ──────────────────

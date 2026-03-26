@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:skkumap/core/utils/constants.dart';
 import 'package:skkumap/features/transit/model/main_bus_stationlist.dart';
 
@@ -60,7 +61,7 @@ class BusListComponent extends StatelessWidget {
                                 width: 3,
                               ),
                               Text(
-                                "회차",
+                                '회차'.tr,
                                 style: TextStyle(
                                     color: themeColor,
                                     fontSize: 9,

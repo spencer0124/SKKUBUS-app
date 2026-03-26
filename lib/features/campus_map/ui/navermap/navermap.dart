@@ -57,8 +57,9 @@ Widget buildMap() {
       ever(pickerCtrl.points,
           (_) => _reconcileOverlays(mapcontroller, layerCtrl, ultimateNampController, pickerCtrl));
 
-      // Camera updates
+      // Camera updates — skip when animateCamera() is driving the animation
       ever<NCameraPosition>(ultimateNampController.cameraPosition, (pos) {
+        if (ultimateNampController.isAnimating) return;
         final update = NCameraUpdate.withParams(
           target: pos.target,
           zoom: pos.zoom,

@@ -195,7 +195,7 @@ class HSSCBuildingMap extends StatelessWidget {
                                     children: [
                                       Text(
                                         controller.time.value == ""
-                                            ? '시간 정보 없음'
+                                            ? '시간 정보가 없어요'.tr
                                             : controller.time.value,
                                         style: TextStyle(
                                           color: controller.time.value == ""
@@ -205,7 +205,7 @@ class HSSCBuildingMap extends StatelessWidget {
                                       ),
                                       Text(
                                         controller.placeInfo.value == ""
-                                            ? '장소 정보 없음'
+                                            ? '장소 정보가 없어요'.tr
                                             : controller.placeInfo.value,
                                         style: TextStyle(
                                           color:

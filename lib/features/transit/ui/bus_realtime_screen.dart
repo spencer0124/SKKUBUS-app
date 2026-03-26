@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/features/transit/controller/bus_realtime_controller.dart';
 import 'package:skkumap/core/routes/app_routes.dart';
+import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/utils/ad_widget.dart';
 import 'package:skkumap/app_theme.dart';
 
@@ -16,17 +17,11 @@ import 'package:skkumap/core/types/bus_status.dart';
 import 'package:skkumap/core/types/time_format.dart';
 import 'package:skkumap/features/transit/widgets/businfo_component.dart';
 
-import 'package:shimmer/shimmer.dart';
-import 'package:skkumap/core/utils/screensize.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:skkumap/core/repositories/ad_repository.dart';
-
 class BusRealtimeScreen extends GetView<BusRealtimeController> {
   const BusRealtimeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = ScreenSize.width(context);
     final BusGroup group = Get.arguments['busConfig'];
     controller.setRouteConfig(group);
     final themeColor = group.card.themeColor;
@@ -38,6 +33,8 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
         .where((f) => f['type'] == 'info')
         .firstOrNull;
 
+    final adService = Get.find<AdService>();
+
     return Scaffold(
       // floating action button
       floatingActionButton: RefreshButton(
@@ -45,50 +42,27 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
           onRefresh: () {
             controller.fetchRealtimeData();
           }),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.grey[200],
-
-        // 화면 하단 광고
-        child: Obx(
-          () => controller.isBannerAdLoaded.value
-              ? ((controller.belowAdImage.value) != '')
-                  ? SizedBox(
-                      height: 55,
-                      child: (controller.belowAdImage.value) != ''
-                          ? GestureDetector(
-                              behavior: HitTestBehavior.translucent,
-                              onTap: () async {
-                                if (await canLaunchUrl(
-                                    Uri.parse(controller.belowAdLink.value))) {
-                                  await launchUrl(
-                                      Uri.parse(controller.belowAdLink.value));
-                                  Get.find<AdRepository>().trackEvent('bus_bottom', 'click');
-                                } else {
-                                  Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
-                                }
-                              },
-                              child:
-                                  Image.network(controller.belowAdImage.value))
-                          : Shimmer.fromColors(
-                              baseColor: Colors.grey[100]!,
-                              highlightColor: Colors.white,
-                              child: Container(
-                                width: screenWidth * 0.75,
-                                height: 20,
-                                color: Colors.grey,
-                              ),
-                            ))
-                  : SizedBox(
-                      height: 55,
-                      child: AdWidgetContainer(
-                        bannerAd: controller.bannerAd,
-                      ),
-                    )
-              : Container(
-                  height: 55,
-                ),
-        ),
-      ),
+      // 화면 하단 광고
+      bottomNavigationBar: Obx(() {
+        if (adService.isLoaded('bus_realtime').value) {
+          return BottomAppBar(
+            height:
+                adService.getBanner('bus_realtime')?.size.height.toDouble(),
+            padding: EdgeInsets.zero,
+            color: Colors.white,
+            elevation: 0,
+            child: AdWidgetContainer(
+              bannerAd: adService.getBanner('bus_realtime'),
+            ),
+          );
+        }
+        // Reserve height before ad loads to prevent layout jump
+        final h = adService.expectedHeight('bus_realtime').value;
+        if (h != null) {
+          return SizedBox(height: h.toDouble());
+        }
+        return const SizedBox.shrink();
+      }),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -190,7 +164,7 @@ class BusRealtimeScreen extends GetView<BusRealtimeController> {
                               },
                             ),
                             const SizedBox(
-                              height: 55,
+                              height: 20,
                             )
                           ],
                         );

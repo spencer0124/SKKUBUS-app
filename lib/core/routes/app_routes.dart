@@ -18,6 +18,7 @@ import 'package:skkumap/features/webview/ui/webview_screen.dart';
 import 'package:skkumap/features/search/binding/search_binding.dart';
 import 'package:skkumap/features/search/ui/search_screen.dart';
 import 'package:skkumap/features/splash/ui/splash_ad_screen.dart';
+import 'package:skkumap/features/dev/sds_button_test_screen.dart';
 
 abstract class Routes {
   static const splash = '/splash';
@@ -32,6 +33,7 @@ abstract class Routes {
   static const webview = '/webview';
   static const lostAndFound = '/lost-and-found';
   static const search = '/search';
+  static const devButtonTest = '/dev/button-test';
 }
 
 class AppRoutes {
@@ -91,6 +93,10 @@ class AppRoutes {
       name: Routes.search,
       page: () => const SearchScreen(),
       binding: SearchBinding(),
+    ),
+    GetPage(
+      name: Routes.devButtonTest,
+      page: () => const SdsButtonTestScreen(),
     ),
   ];
 }

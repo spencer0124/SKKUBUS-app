@@ -9,10 +9,10 @@ class LocationController extends GetxController {
 
   Future<void> showPermissionAlert() async {
     var result = await FlutterPlatformAlert.showCustomAlert(
-      windowTitle: "위치 권한 오류",
-      text: "정상적인 서비스 이용을 위해\n위치 권한을 허용해주세요",
-      positiveButtonTitle: "취소",
-      negativeButtonTitle: "설정 이동",
+      windowTitle: '위치 권한이 필요해요'.tr,
+      text: '위치 정보를 사용하려면\n권한을 허용해 주세요'.tr,
+      positiveButtonTitle: '닫기'.tr,
+      negativeButtonTitle: '설정으로 이동'.tr,
     );
     if (result == CustomButton.negativeButton) {
       logger.d("사용자가 확인 버튼을 클릭했습니다.");

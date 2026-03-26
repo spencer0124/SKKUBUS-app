@@ -67,7 +67,7 @@ class CustomSearchBar extends StatelessWidget {
               }
             }
 
-            // ── Step 2: 캠퍼스 전환 (토글 UI 변경이 사용자에게 보임) ──
+            // ── Step 2: 캠퍼스 전환 (마커 재필터링 완료까지 await) ──
             final campusCtrl = Get.find<CampusMapController>();
             final layerCtrl = Get.find<MapLayerController>();
             final currentKey =
@@ -77,21 +77,32 @@ class CustomSearchBar extends StatelessWidget {
             if (needsCampusSwitch) {
               campusCtrl.selectedCampus.value =
                   result.campus == 'hssc' ? 0 : 1;
-              layerCtrl.onCampusChanged(skipCamera: true);
+              await layerCtrl.onCampusChanged(skipCamera: true);
             }
 
             // ── Step 3: 카메라 이동 ──
             final nmapCtrl = Get.find<UltimateNMapController>();
-            nmapCtrl.cameraPosition.value = NCameraPosition(
-              target: NLatLng(result.lat, result.lng),
-              zoom: 17.5,
-            );
+            if (needsCampusSwitch) {
+              // Cross-campus: 즉시 이동 + 프레임 렌더 대기
+              nmapCtrl.cameraPosition.value = NCameraPosition(
+                target: NLatLng(result.lat, result.lng),
+                zoom: 17.5,
+              );
+              final c = Completer<void>();
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) => c.complete());
+              await c.future;
+            } else {
+              // Same-campus: 부드러운 카메라 이동 + 완료 대기
+              await nmapCtrl.animateCamera(
+                NCameraPosition(
+                  target: NLatLng(result.lat, result.lng),
+                  zoom: 17.5,
+                ),
+              );
+            }
 
-            // ── Step 4: 마커/카메라 렌더링 대기 후 상세 sheet ──
-            await Future.delayed(
-              Duration(milliseconds: needsCampusSwitch ? 150 : 50),
-            );
-
+            // ── Step 4: 상세 sheet (delay 없음 — 위 await로 타이밍 보장) ──
             BuildingDetailSheet.show(
               result.skkuId,
               highlightFloor: result.highlightFloor,

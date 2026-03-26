@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-
-import 'package:skkumap/core/admob/ad_helper.dart';
 
 import 'dart:async';
 
@@ -10,8 +7,8 @@ import 'package:skkumap/features/transit/model/bus_group.dart';
 import 'package:skkumap/features/transit/model/realtime_data.dart';
 import 'package:skkumap/features/transit/model/realtime_station.dart';
 import 'package:skkumap/features/transit/data/bus_repository.dart';
-import 'package:skkumap/core/repositories/ad_repository.dart';
 import 'package:skkumap/core/data/result.dart';
+import 'package:skkumap/core/services/ad_service.dart';
 import 'package:skkumap/core/services/analytics_service.dart';
 import 'package:skkumap/core/utils/app_logger.dart';
 
@@ -43,13 +40,9 @@ class BusRealtimeLifeCycle extends GetxController with WidgetsBindingObserver {
 // main controller
 class BusRealtimeController extends GetxController {
   final _busRepo = Get.find<BusRepository>();
-  final _adRepo = Get.find<AdRepository>();
+  final _adService = Get.find<AdService>();
 
   Timer? _timer;
-
-  BannerAd? _bannerAd;
-  BannerAd? get bannerAd => _bannerAd;
-  RxBool isBannerAdLoaded = false.obs;
 
   late BusGroup group;
   bool _configSet = false;
@@ -61,13 +54,6 @@ class BusRealtimeController extends GetxController {
   // Polled data
   var realtimeData = Rx<RealtimeData?>(null);
   var loadingdone = false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    _initializeBannerAd();
-    fetchMainpageAd();
-  }
 
   void setRouteConfig(BusGroup config) {
     if (_configSet) return; // prevent re-init on widget rebuild
@@ -90,26 +76,6 @@ class BusRealtimeController extends GetxController {
       fetchRealtimeData();
     });
     fetchRealtimeData();
-  }
-
-  void _initializeBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: const AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          _bannerAd = ad as BannerAd;
-          update();
-          isBannerAdLoaded.value = true;
-        },
-        onAdFailedToLoad: (ad, err) {
-          logger.e('Failed to load a banner ad: ${err.message}');
-          ad.dispose();
-          isBannerAdLoaded.value = false;
-        },
-      ),
-    )..load();
   }
 
   Future<void> fetchRealtimeData() async {
@@ -135,29 +101,10 @@ class BusRealtimeController extends GetxController {
         '';
   }
 
-// 하단 이미지 광고
-  var belowAdLink = ''.obs;
-  var belowAdImage = ''.obs;
-
-  void fetchMainpageAd() async {
-    final result = await _adRepo.getPlacements();
-    switch (result) {
-      case Ok(:final data):
-        final busBottom = data['bus_bottom'];
-        if (busBottom != null) {
-          belowAdLink.value = busBottom.linkUrl;
-          belowAdImage.value = busBottom.imageUrl ?? '';
-          _adRepo.trackEvent('bus_bottom', 'view', adId: busBottom.adId);
-        }
-      case Err(:final failure):
-        logger.e('Error fetching ad: $failure');
-    }
-  }
-
   @override
   void onClose() {
     _timer?.cancel();
-    _bannerAd?.dispose();
+    _adService.recycleBanner('bus_realtime');
     super.onClose();
   }
 }

@@ -231,7 +231,7 @@ class _SearchScreenState extends State<SearchScreen> {
       final items = controller.filteredItems;
       if (items.isEmpty) {
         return Center(
-          child: Text('검색 결과가 없습니다'.tr),
+          child: Text('찾는 건물이 없어요'.tr),
         );
       }
       return Expanded(

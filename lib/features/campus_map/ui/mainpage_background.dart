@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:skkumap/app_theme.dart';
 import 'package:skkumap/features/campus_map/widgets/searchbar.dart';
-import 'package:skkumap/features/campus_map/widgets/filter.dart';
 import 'package:skkumap/core/utils/screensize.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/navermap.dart';
 import 'package:skkumap/features/campus_map/ui/navermap/coord_picker.dart';
-import 'package:skkumap/features/campus_map/ui/filter/filter_sheet.dart';
 import 'package:skkumap/features/campus_map/controller/campus_map_controller.dart';
 import 'package:skkumap/features/campus_map/controller/map_layer_controller.dart';
 

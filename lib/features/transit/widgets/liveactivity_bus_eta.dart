@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:skkumap/app_theme.dart';
 
 class LiveActivityBusETA extends StatelessWidget {
@@ -55,9 +56,9 @@ class LiveActivityBusETA extends StatelessWidget {
                         fontSize: 18,
                       ),
                     )
-                  : const Text(
-                      "운행종료",
-                      style: TextStyle(
+                  : Text(
+                      '운행 종료'.tr,
+                      style: const TextStyle(
                         color: AppColors.greenMain,
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
@@ -83,7 +84,7 @@ class LiveActivityBusETA extends StatelessWidget {
                   ),
                 )
               : Text(
-                  "버스 정보 없음",
+                  '버스 정보가 없어요'.tr,
                   style: TextStyle(
                     color: Colors.grey[700],
                   ),

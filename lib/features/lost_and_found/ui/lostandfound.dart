@@ -55,7 +55,7 @@ class LostAndFound extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "유실물 접수 및 처리 절차".tr,
+                  '유실물은 이렇게 처리돼요'.tr,
                   style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700),
                 ),
@@ -133,8 +133,8 @@ class LostAndFound extends StatelessWidget {
                                 text: 'studentaid@skku.edu',
                               ));
                               await FlutterPlatformAlert.showCustomAlert(
-                                windowTitle: '복사 완료!'.tr,
-                                text: '이메일 주소 복사가 완료되었습니다'.tr,
+                                windowTitle: '복사했어요!'.tr,
+                                text: '이메일 주소를 복사했어요'.tr,
                                 positiveButtonTitle: "확인".tr,
                               );
                             },
@@ -292,7 +292,7 @@ class LostAndFound extends StatelessWidget {
                           width: 4,
                         ),
                         Text(
-                          '물건을 찾습니다'.tr,
+                          '물건을 찾고 있어요'.tr,
                           style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 13),
@@ -328,7 +328,7 @@ class LostAndFound extends StatelessWidget {
                           width: 4,
                         ),
                         Text(
-                          '주인을 찾습니다'.tr,
+                          '주인을 찾고 있어요'.tr,
                           style: const TextStyle(
                               color: Colors.blue,
                               fontSize: 13),

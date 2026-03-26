@@ -62,7 +62,7 @@ class TransitTab extends StatelessWidget {
                           await launchUrl(
                               Uri.parse(adCtrl.mainpageNoticeLink.value));
                         } else {
-                          Get.snackbar('오류', '해당 링크를 열 수 없습니다.');
+                          Get.snackbar('링크를 열 수 없어요'.tr, '잠시 후 다시 시도해 주세요'.tr);
                         }
                       }
                     },

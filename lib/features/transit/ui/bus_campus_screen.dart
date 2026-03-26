@@ -76,9 +76,13 @@ class BusCampusScreen extends StatelessWidget {
                     },
                     rightBtnType: CustomNavigationBtnType.info,
                   ),
-                  _buildServiceTabs(controller, services),
                 ],
               ),
+            ),
+            _buildNotices(controller),
+            Container(
+              color: Colors.white,
+              child: _buildServiceTabs(controller, services),
             ),
             // ── Content ──
             Expanded(
@@ -114,7 +118,6 @@ class BusCampusScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    _buildNotices(controller),
                     Expanded(
                       child: _buildActiveContent(controller, group),
                     ),
@@ -941,21 +944,24 @@ class BusCampusScreen extends StatelessWidget {
           if (showRouteBadges)
             SizedBox(
               width: 68,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isPast
-                      ? _grayBg
-                      : badgeColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  badge.label,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: isPast ? _grayLight : badgeColor,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isPast
+                        ? _grayBg
+                        : badgeColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    badge.label,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isPast ? _grayLight : badgeColor,
+                    ),
                   ),
                 ),
               ),
@@ -975,8 +981,8 @@ class BusCampusScreen extends StatelessWidget {
           // Notes
           Expanded(
             child: Text(
-              entry.notes?.replaceAll(r'\n', ' ') ?? '—',
-              maxLines: 1,
+              entry.notes?.replaceAll(r'\n', '\n') ?? '—',
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 12,

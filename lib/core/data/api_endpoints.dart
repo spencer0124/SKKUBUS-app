@@ -15,9 +15,6 @@ class ApiEndpoints {
   // ── Campus shuttle ─────────────────────────────────
   static String campusEta() => '/bus/campus/eta';
 
-  // ── Station ──────────────────────────────────────
-  static String station(String stationId) => '/bus/station/$stationId';
-
   // ── UI (Server-Driven) ───────────────────────────
   static String homeTransitList() => '/ui/home/transitlist';
   static String homeScroll() => '/ui/home/scroll';
