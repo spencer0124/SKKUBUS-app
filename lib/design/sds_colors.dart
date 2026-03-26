@@ -68,6 +68,11 @@ class SdsColors {
 
   static const purple500 = Color(0xFFA234C7);
 
+  // ── 유틸리티 ──
+
+  /// 검색 결과 하이라이트 배경
+  static const highlight = Color(0xFFFFE08C);
+
   // ── 배경 ──
 
   static const background = Color(0xFFFFFFFF);

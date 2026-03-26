@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_spacing.dart';
 import '../sds_typo.dart';
 
 /// 텍스트 입력 필드 — focused: blue500, error: red500
@@ -54,7 +55,8 @@ class SdsTextField extends StatelessWidget {
             hintText: placeholder,
             hintStyle: SdsTypo.t5().copyWith(color: SdsColors.grey400),
             counterText: '',
-            contentPadding: const EdgeInsets.symmetric(vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: SdsSpacing.md),
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                 color: hasError ? SdsColors.red500 : SdsColors.grey300,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_duration.dart';
 import '../sds_radius.dart';
 import '../sds_shadows.dart';
 import '../sds_typo.dart';
@@ -41,8 +42,8 @@ class SdsSegmentedControl extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onChanged(i),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
+                duration: SdsDuration.normal,
+                curve: SdsCurves.standard,
                 padding:
                     const EdgeInsets.symmetric(vertical: 7, horizontal: 12),
                 decoration: BoxDecoration(

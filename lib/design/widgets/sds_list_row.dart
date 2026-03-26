@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_duration.dart';
 import '../sds_spacing.dart';
 import '../sds_typo.dart';
 import 'sds_skeleton.dart';
@@ -32,7 +33,7 @@ import 'sds_skeleton.dart';
 ///   onTap: () => toggle(),
 /// )
 /// ```
-class SdsListRow extends StatelessWidget {
+class SdsListRow extends StatefulWidget {
   final Widget? left;
   final CrossAxisAlignment leftAlignment;
   final Widget contents;
@@ -71,81 +72,111 @@ class SdsListRow extends StatelessWidget {
   });
 
   @override
+  State<SdsListRow> createState() => _SdsListRowState();
+}
+
+class _SdsListRowState extends State<SdsListRow> {
+  bool _pressed = false;
+
+  bool get _showTouchEffect =>
+      widget.withTouchEffect && widget.onTap != null && !widget.disabled;
+
+  void _handleTapDown(TapDownDetails _) {
+    if (_showTouchEffect) setState(() => _pressed = true);
+  }
+
+  void _handleTapUp(TapUpDetails _) {
+    if (_pressed) setState(() => _pressed = false);
+  }
+
+  void _handleTapCancel() {
+    if (_pressed) setState(() => _pressed = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final hPad = switch (horizontalPadding) {
+    final hPad = switch (widget.horizontalPadding) {
       SdsListRowHPad.small => SdsSpacing.lg,
       SdsListRowHPad.medium => SdsSpacing.xl,
     };
-    final vPad = switch (verticalPadding) {
+    final vPad = switch (widget.verticalPadding) {
       SdsListRowVPad.small => SdsSpacing.sm,
       SdsListRowVPad.medium => SdsSpacing.md,
       SdsListRowVPad.large => SdsSpacing.base,
       SdsListRowVPad.xlarge => SdsSpacing.xl,
     };
 
-    final hasExpandable = expandedContent != null;
+    final hasExpandable = widget.expandedContent != null;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (border == SdsListRowBorder.indented ||
-            border == SdsListRowBorder.indentedLight)
+        if (widget.border == SdsListRowBorder.indented ||
+            widget.border == SdsListRowBorder.indentedLight)
           Padding(
             padding: EdgeInsets.only(left: hPad),
             child: Divider(
               height: 1,
               thickness: 1,
-              color: border == SdsListRowBorder.indentedLight
+              color: widget.border == SdsListRowBorder.indentedLight
                   ? SdsColors.grey100
                   : SdsColors.grey200,
             ),
           ),
         GestureDetector(
-          onTap: disabled ? null : onTap,
+          onTap: widget.disabled ? null : widget.onTap,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
           behavior: HitTestBehavior.opaque,
-          child: Opacity(
-            opacity: disabled ? 0.4 : 1.0,
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: hPad,
-                vertical: vPad,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (left != null) ...[
-                    _aligned(left!, leftAlignment),
-                    const SizedBox(width: SdsSpacing.base),
-                  ],
-                  Expanded(child: contents),
-                  if (right != null) ...[
-                    const SizedBox(width: SdsSpacing.sm),
-                    _aligned(right!, rightAlignment),
-                  ],
-                  // Arrow: expandedContent → animated, withArrow → static
-                  if (hasExpandable) ...[
-                    const SizedBox(width: SdsSpacing.xs),
-                    AnimatedRotation(
-                      turns: isExpanded ? 0.25 : 0,
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutCubic,
-                      child: Icon(
-                        Icons.chevron_right,
-                        size: 18,
-                        color: isExpanded
-                            ? SdsColors.grey600
-                            : SdsColors.grey400,
+          child: AnimatedContainer(
+            duration: SdsDuration.instant,
+            curve: SdsCurves.standard,
+            color: _pressed ? SdsColors.grey50 : Colors.transparent,
+            child: Opacity(
+              opacity: widget.disabled ? 0.4 : 1.0,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: hPad,
+                  vertical: vPad,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (widget.left != null) ...[
+                      _aligned(widget.left!, widget.leftAlignment),
+                      const SizedBox(width: SdsSpacing.base),
+                    ],
+                    Expanded(child: widget.contents),
+                    if (widget.right != null) ...[
+                      const SizedBox(width: SdsSpacing.sm),
+                      _aligned(widget.right!, widget.rightAlignment),
+                    ],
+                    // Arrow: expandedContent → animated, withArrow → static
+                    if (hasExpandable) ...[
+                      const SizedBox(width: SdsSpacing.xs),
+                      AnimatedRotation(
+                        turns: widget.isExpanded ? 0.25 : 0,
+                        duration: SdsDuration.slow,
+                        curve: SdsCurves.standard,
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: widget.isExpanded
+                              ? SdsColors.grey600
+                              : SdsColors.grey400,
+                        ),
                       ),
-                    ),
-                  ] else if (withArrow) ...[
-                    const SizedBox(width: SdsSpacing.xs),
-                    const Icon(
-                      Icons.chevron_right,
-                      size: 20,
-                      color: SdsColors.grey300,
-                    ),
+                    ] else if (widget.withArrow) ...[
+                      const SizedBox(width: SdsSpacing.xs),
+                      const Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: SdsColors.grey300,
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -153,10 +184,10 @@ class SdsListRow extends StatelessWidget {
         // Expandable content with smooth height animation
         if (hasExpandable)
           AnimatedSize(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            child: isExpanded
-                ? expandedContent!
+            duration: SdsDuration.slow,
+            curve: SdsCurves.standard,
+            child: widget.isExpanded
+                ? widget.expandedContent!
                 : const SizedBox.shrink(),
           ),
       ],
@@ -229,7 +260,7 @@ class SdsListRowTexts extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         if (mid != null) ...[
-          const SizedBox(height: 2),
+          const SizedBox(height: SdsSpacing.xxs),
           Text(
             mid!,
             style: SdsTypo.t6().copyWith(color: SdsColors.grey600),
@@ -238,7 +269,7 @@ class SdsListRowTexts extends StatelessWidget {
           ),
         ],
         if (bottom != null) ...[
-          const SizedBox(height: 2),
+          const SizedBox(height: SdsSpacing.xxs),
           Text(
             bottom!,
             style: SdsTypo.t7().copyWith(color: SdsColors.grey500),

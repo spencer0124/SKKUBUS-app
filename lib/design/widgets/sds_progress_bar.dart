@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_duration.dart';
 
 /// 수평 프로그레스 바
 ///
@@ -33,8 +34,8 @@ class SdsProgressBar extends StatelessWidget {
             FractionallySizedBox(
               widthFactor: progress.clamp(0.0, 1.0),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                curve: Curves.easeInOut,
+                duration: SdsDuration.slower,
+                curve: SdsCurves.standard,
                 decoration: BoxDecoration(
                   color: color ?? SdsColors.blue400,
                   borderRadius: BorderRadius.circular(height / 2),

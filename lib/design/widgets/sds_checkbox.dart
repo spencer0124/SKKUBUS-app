@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_duration.dart';
 
 /// 체크박스 — checked: blue500, unchecked: grey300 border
 ///
@@ -30,8 +31,8 @@ class SdsCheckbox extends StatelessWidget {
     return GestureDetector(
       onTap: onChanged != null ? () => onChanged!(!value) : null,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOutCubic,
+        duration: SdsDuration.fast,
+        curve: SdsCurves.standard,
         width: 24,
         height: 24,
         decoration: BoxDecoration(

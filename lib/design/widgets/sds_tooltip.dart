@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../sds_colors.dart';
+import '../sds_radius.dart';
+import '../sds_spacing.dart';
 import '../sds_typo.dart';
 
 /// 툴팁 — grey900 배경, white 텍스트, 화살표
@@ -30,10 +32,13 @@ class SdsTooltip extends StatelessWidget {
       preferBelow: direction == SdsTooltipDirection.below,
       decoration: BoxDecoration(
         color: SdsColors.grey900,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(SdsRadius.sm),
       ),
       textStyle: SdsTypo.t7().copyWith(color: Colors.white),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: SdsSpacing.md,
+        vertical: SdsSpacing.sm,
+      ),
       child: child,
     );
   }

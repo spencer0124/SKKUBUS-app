@@ -27,8 +27,8 @@ class SdsListHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(
-        left: SdsSpacing.xl,
-        right: SdsSpacing.xl,
+        left: SdsSpacing.lg,
+        right: SdsSpacing.lg,
         top: SdsSpacing.xl,
         bottom: SdsSpacing.sm,
       ),
@@ -40,7 +40,7 @@ class SdsListHeader extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: SdsTypo.t5(weight: FontWeight.w700)
+                  style: SdsTypo.t4(weight: FontWeight.w700)
                       .copyWith(color: SdsColors.grey900),
                 ),
               ),

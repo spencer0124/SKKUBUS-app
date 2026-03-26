@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../sds_colors.dart';
+
 /// 텍스트 일부 강조 (검색 결과 매칭 등)
 ///
 /// ```dart
@@ -21,7 +23,7 @@ class SdsHighlight extends StatelessWidget {
     required this.text,
     required this.highlights,
     this.style,
-    this.highlightColor = const Color(0xFFFFE08C),
+    this.highlightColor = SdsColors.highlight,
     this.maxLines,
   });
 
