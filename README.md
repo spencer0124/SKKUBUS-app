@@ -1,3 +1,12 @@
+> [!IMPORTANT]
+> **이 저장소는 [spencer0124/skkuverse-app](https://github.com/spencer0124/skkuverse-app)로 이동했습니다.**
+> 최신 버전의 스꾸버스는 새 저장소에서 개발되고 있어요. 여기 Flutter 코드베이스는 아카이브 목적으로 남아 있어요.
+>
+> **This repository has moved to [spencer0124/skkuverse-app](https://github.com/spencer0124/skkuverse-app).**
+> Active development of Skkuverse continues in the new repo. This Flutter codebase is kept for reference only.
+
+---
+
 # SKKUBUS
 
 <div align="center">
